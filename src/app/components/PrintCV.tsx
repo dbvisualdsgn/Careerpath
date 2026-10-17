@@ -1,5 +1,6 @@
 import { contactItems, dateRange } from '../cv/format';
 import type { CVData } from '../cv/types';
+import { useI18n } from '../i18n';
 
 /**
  * ATS-friendly layout used only for printing / "Save as PDF":
@@ -8,6 +9,7 @@ import type { CVData } from '../cv/types';
  */
 export function PrintCV({ cv }: { cv: CVData }) {
   const { profile } = cv;
+  const { m } = useI18n();
   const Section = ({ title, children }: { title: string; children: React.ReactNode }) => (
     <section className="mt-5 break-inside-avoid-page">
       <h2 className="text-[11pt] font-bold uppercase tracking-wide border-b border-black pb-0.5 mb-2">{title}</h2>
@@ -24,28 +26,28 @@ export function PrintCV({ cv }: { cv: CVData }) {
       </header>
 
       {cv.summary.trim() && (
-        <Section title="Professional Summary">
+        <Section title={m.sections.summary}>
           <p>{cv.summary}</p>
         </Section>
       )}
 
       {(cv.skills.length > 0 || cv.tools.length > 0) && (
-        <Section title="Skills">
+        <Section title={m.sections.skills}>
           {cv.skills.length > 0 && (
             <p>
-              <strong>Core skills:</strong> {cv.skills.join(', ')}
+              <strong>{m.sections.coreSkills}:</strong> {cv.skills.join(', ')}
             </p>
           )}
           {cv.tools.length > 0 && (
             <p>
-              <strong>Tools:</strong> {cv.tools.map((t) => t.name).join(', ')}
+              <strong>{m.sections.toolsShort}:</strong> {cv.tools.map((t) => t.name).join(', ')}
             </p>
           )}
         </Section>
       )}
 
       {cv.experience.length > 0 && (
-        <Section title="Work Experience">
+        <Section title={m.sections.experience}>
           {cv.experience.map((e) => (
             <div key={e.id} className="mb-3 break-inside-avoid">
               <div className="flex justify-between gap-4">
@@ -64,7 +66,7 @@ export function PrintCV({ cv }: { cv: CVData }) {
       )}
 
       {cv.education.length > 0 && (
-        <Section title="Education">
+        <Section title={m.sections.education}>
           {cv.education.map((e) => (
             <div key={e.id} className="mb-2 break-inside-avoid">
               <div className="flex justify-between gap-4">
@@ -79,7 +81,7 @@ export function PrintCV({ cv }: { cv: CVData }) {
       )}
 
       {cv.certifications.length > 0 && (
-        <Section title="Certifications">
+        <Section title={m.sections.certifications}>
           <ul className="list-disc pl-5">
             {cv.certifications.map((c) => (
               <li key={c.id}>
@@ -94,7 +96,7 @@ export function PrintCV({ cv }: { cv: CVData }) {
       )}
 
       {cv.languages.length > 0 && (
-        <Section title="Languages">
+        <Section title={m.sections.languages}>
           <p>{cv.languages.map((l) => (l.level ? `${l.name} (${l.level})` : l.name)).join(', ')}</p>
         </Section>
       )}

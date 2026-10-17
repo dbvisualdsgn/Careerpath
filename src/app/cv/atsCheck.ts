@@ -1,20 +1,25 @@
 // Heuristic checks based on common ATS (applicant tracking system) and AI-screening guidance:
 // parseable contact details, standard sections, dated roles, achievement-led bullets, keywords.
 import type { CVData } from './types';
+import type { Messages } from '../i18n/en';
 
 export type Severity = 'error' | 'warning' | 'tip';
+type FindingKey = keyof Messages['ats']['findings'];
+type PassedKey = keyof Messages['ats']['passed'];
+type Params = Record<string, string | number>;
 
 export interface Finding {
   id: string;
   severity: Severity;
-  message: string;
   section: 'profile' | 'summary' | 'skills' | 'experience' | 'education' | 'extras';
+  key: FindingKey;
+  params?: Params;
 }
 
 export interface AtsReport {
   score: number;
   findings: Finding[];
-  passed: string[];
+  passed: { key: PassedKey; params?: Params }[];
   wordCount: number;
 }
 
@@ -39,9 +44,10 @@ const CLICHES = [
   'self-starter', 'think outside the box', 'synergy', 'guru', 'ninja', 'rockstar', 'dynamic', 'motivated individual',
 ];
 const FIRST_PERSON = /\b(i|i'm|i've|me|my|mine)\b/i;
-const DATE_RE = /^((jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\.?\s+)?(19|20)\d{2}$|^(0?[1-9]|1[0-2])\/(19|20)\d{2}$/i;
-const MONTH_DATE_RE = /^((jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\.?\s+(19|20)\d{2}|(0?[1-9]|1[0-2])\/(19|20)\d{2})$/i;
-const PRESENT_RE = /^(present|current|now|today)$/i;
+// Month names are matched loosely (any word) so dates in every supported language are accepted.
+const DATE_RE = /^(\p{L}{3,}\.?\s+)?(19|20)\d{2}$|^(0?[1-9]|1[0-2])[/.](19|20)\d{2}$/iu;
+const MONTH_DATE_RE = /^(\p{L}{3,}\.?\s+(19|20)\d{2}|(0?[1-9]|1[0-2])[/.](19|20)\d{2})$/iu;
+const PRESENT_RE = /^(present|current|now|today|presente|attuale|oggi|aujourd'hui|aujourd’hui|actuel|actualidad|actual|heute|aktuell|atual|heden|nu)$/i;
 // Matches emoji and pictographs, which many parsers drop or mangle.
 const EMOJI_RE = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/u;
 
@@ -58,104 +64,98 @@ export function allText(cv: CVData) {
   ].join(' ');
 }
 
-export function runAtsCheck(cv: CVData): AtsReport {
+export function runAtsCheck(cv: CVData, locale: string = 'en'): AtsReport {
   const findings: Finding[] = [];
-  const passed: string[] = [];
-  const add = (f: Finding) => findings.push(f);
-  const pass = (msg: string) => passed.push(msg);
+  const passed: AtsReport['passed'] = [];
+  const add = (severity: Severity, section: Finding['section'], key: FindingKey, params?: Params, id: string = key) =>
+    findings.push({ id, severity, section, key, params });
+  const pass = (key: PassedKey, params?: Params) => passed.push({ key, params });
+  // Verb, tense, pronoun and cliché checks rely on English word lists.
+  const english = locale === 'en';
   const { profile } = cv;
 
   // Contact details: ATS parsers look for these in the document body.
-  if (!profile.name.trim() || profile.name === 'Your Name') add({ id: 'name', severity: 'error', section: 'profile', message: 'Add your full name.' });
-  if (!profile.headline.trim() || profile.headline === 'Your Job Title')
-    add({ id: 'headline', severity: 'error', section: 'profile', message: 'Add a headline that matches the job title you are targeting.' });
-  else pass('Headline / target job title present');
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(profile.email.trim()))
-    add({ id: 'email', severity: 'error', section: 'profile', message: 'Add a valid email address.' });
-  else pass('Valid email address');
-  if (!profile.phone.trim()) add({ id: 'phone', severity: 'warning', section: 'profile', message: 'Add a phone number. Many ATS forms and recruiters expect one.' });
-  else pass('Phone number present');
-  if (!profile.location.trim())
-    add({ id: 'location', severity: 'warning', section: 'profile', message: 'Add your city and country. ATS filters often screen by location.' });
-  else pass('Location present');
-  if (!profile.linkedin.trim()) add({ id: 'linkedin', severity: 'tip', section: 'profile', message: 'Add your LinkedIn URL. Recruiters and AI screeners cross-check it.' });
+  if (!profile.name.trim()) add('error', 'profile', 'name');
+  if (!profile.headline.trim()) add('error', 'profile', 'headline');
+  else pass('headline');
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(profile.email.trim())) add('error', 'profile', 'email');
+  else pass('email');
+  if (!profile.phone.trim()) add('warning', 'profile', 'phone');
+  else pass('phone');
+  if (!profile.location.trim()) add('warning', 'profile', 'location');
+  else pass('location');
+  if (!profile.linkedin.trim()) add('tip', 'profile', 'linkedin');
 
   // Summary.
   const summaryWords = words(cv.summary).length;
-  if (summaryWords === 0) add({ id: 'summary', severity: 'error', section: 'summary', message: 'Add a professional summary (40–100 words).' });
-  else if (summaryWords < 30) add({ id: 'summary-short', severity: 'warning', section: 'summary', message: `Summary is short (${summaryWords} words). Aim for 40–100 words with your title, years of experience and specialties.` });
-  else if (summaryWords > 120) add({ id: 'summary-long', severity: 'warning', section: 'summary', message: `Summary is long (${summaryWords} words). Keep it under about 100 words.` });
-  else pass('Summary length is good');
-  if (FIRST_PERSON.test(cv.summary)) add({ id: 'summary-pronoun', severity: 'tip', section: 'summary', message: 'Drop first-person pronouns ("I", "my") from the summary.' });
-  if (!/\d/.test(cv.summary) && summaryWords > 0)
-    add({ id: 'summary-years', severity: 'tip', section: 'summary', message: 'Mention years of experience or a key number in the summary (e.g. "10+ years").' });
+  if (summaryWords === 0) add('error', 'summary', 'summary');
+  else if (summaryWords < 30) add('warning', 'summary', 'summaryShort', { words: summaryWords });
+  else if (summaryWords > 120) add('warning', 'summary', 'summaryLong', { words: summaryWords });
+  else pass('summary');
+  if (english && FIRST_PERSON.test(cv.summary)) add('tip', 'summary', 'summaryPronoun');
+  if (summaryWords > 0 && !/\d/.test(cv.summary)) add('tip', 'summary', 'summaryYears');
 
   // Skills.
   const skillCount = cv.skills.length + cv.tools.length;
-  if (skillCount < 6) add({ id: 'skills', severity: 'warning', section: 'skills', message: `List at least 6–10 skills and tools (now ${skillCount}). Keywords are how ATS ranks you.` });
-  else pass(`${skillCount} skills and tools listed as plain text`);
-  if (cv.skills.length === 0) add({ id: 'skills-core', severity: 'warning', section: 'skills', message: 'Add core skills (e.g. "Design Systems"), not just tool names.' });
+  if (skillCount < 6) add('warning', 'skills', 'skills', { count: skillCount });
+  else pass('skills', { count: skillCount });
+  if (cv.skills.length === 0) add('warning', 'skills', 'skillsCore');
 
   // Experience.
-  if (cv.experience.length === 0) add({ id: 'exp', severity: 'error', section: 'experience', message: 'Add at least one work experience.' });
+  if (cv.experience.length === 0) add('error', 'experience', 'experience');
   let quantified = 0;
   let bulletTotal = 0;
   cv.experience.forEach((exp) => {
-    const label = exp.title || exp.company || 'Untitled role';
-    if (!exp.title.trim() || !exp.company.trim())
-      add({ id: `exp-${exp.id}-basics`, severity: 'error', section: 'experience', message: `${label}: add both a job title and a company.` });
-    if (!exp.start.trim() || !exp.end.trim())
-      add({ id: `exp-${exp.id}-dates`, severity: 'error', section: 'experience', message: `${label}: add start and end dates. Undated roles are often scored as missing.` });
-    else {
-      const startOk = DATE_RE.test(exp.start.trim());
-      const endOk = DATE_RE.test(exp.end.trim()) || PRESENT_RE.test(exp.end.trim());
-      if (!startOk || !endOk)
-        add({ id: `exp-${exp.id}-datefmt`, severity: 'warning', section: 'experience', message: `${label}: use a standard date format like "Mar 2023" or "03/2023".` });
-      else if (!MONTH_DATE_RE.test(exp.start.trim()))
-        add({ id: `exp-${exp.id}-month`, severity: 'tip', section: 'experience', message: `${label}: add months ("Mar 2023 – Present") so ATS can calculate your experience.` });
-    }
+    const label = exp.title || exp.company || '';
+    const id = (suffix: string) => `exp-${exp.id}-${suffix}`;
+    const start = exp.start.trim();
+    const end = exp.end.trim();
+    const finished = Boolean(end) && !PRESENT_RE.test(end);
+    if (!exp.title.trim() || !exp.company.trim()) add('error', 'experience', 'expBasics', { label }, id('basics'));
+    if (!start || !end) add('error', 'experience', 'expDates', { label }, id('dates'));
+    else if (!DATE_RE.test(start) || !(DATE_RE.test(end) || PRESENT_RE.test(end)))
+      add('warning', 'experience', 'expDateFormat', { label }, id('datefmt'));
+    else if (!MONTH_DATE_RE.test(start)) add('tip', 'experience', 'expMonth', { label }, id('month'));
+
     const bullets = exp.bullets.filter((b) => b.trim());
     bulletTotal += bullets.length;
-    if (bullets.length < 2)
-      add({ id: `exp-${exp.id}-bullets`, severity: 'warning', section: 'experience', message: `${label}: add 3–5 achievement bullets (now ${bullets.length}).` });
-    if (bullets.length > 7)
-      add({ id: `exp-${exp.id}-many`, severity: 'tip', section: 'experience', message: `${label}: trim to your 5–6 strongest bullets.` });
+    if (bullets.length < 2) add('warning', 'experience', 'expBullets', { label, count: bullets.length }, id('bullets'));
+    if (bullets.length > 7) add('tip', 'experience', 'expTooMany', { label }, id('many'));
     const roleQuantified = bullets.filter((b) => /\d/.test(b)).length;
     quantified += roleQuantified;
-    if (bullets.length > 0 && roleQuantified === 0)
-      add({ id: `exp-${exp.id}-metrics`, severity: 'warning', section: 'experience', message: `${label}: quantify at least one result (%, €, users, time saved).` });
+    if (bullets.length > 0 && roleQuantified === 0) add('warning', 'experience', 'expMetrics', { label }, id('metrics'));
+
     bullets.forEach((b, i) => {
-      const first = words(b)[0]?.toLowerCase().replace(/[^a-z]/g, '') ?? '';
-      if (WEAK_OPENERS.test(b.trim()))
-        add({ id: `exp-${exp.id}-weak-${i}`, severity: 'warning', section: 'experience', message: `${label}: replace "${b.split(' ').slice(0, 2).join(' ')}…" with a strong action verb (Led, Built, Increased…).` });
-      else if (first && !ACTION_VERBS.has(first) && !first.endsWith('ed'))
-        add({ id: `exp-${exp.id}-verb-${i}`, severity: 'tip', section: 'experience', message: `${label}: start "${b.slice(0, 40)}…" with an action verb.` });
-      if (exp.end.trim() && !PRESENT_RE.test(exp.end.trim()) && ACTION_VERBS.has(first) && !first.endsWith('ed') && !IRREGULAR_PAST.has(first))
-        add({ id: `exp-${exp.id}-tense-${i}`, severity: 'tip', section: 'experience', message: `${label}: use past tense for a finished role ("${b.split(' ')[0]}…").` });
       const n = words(b).length;
-      if (n > 40) add({ id: `exp-${exp.id}-len-${i}`, severity: 'tip', section: 'experience', message: `${label}: shorten a ${n}-word bullet to under 30 words.` });
+      if (n > 40) add('tip', 'experience', 'expLength', { label, count: n }, id(`len-${i}`));
+      if (!english) return;
+      const first = words(b)[0]?.toLowerCase().replace(/[^a-z]/g, '') ?? '';
+      const opening = b.trim().split(/\s+/).slice(0, 2).join(' ');
+      if (WEAK_OPENERS.test(b.trim())) add('warning', 'experience', 'expWeak', { label, start: opening }, id(`weak-${i}`));
+      else if (first && !ACTION_VERBS.has(first) && !first.endsWith('ed') && !IRREGULAR_PAST.has(first))
+        add('tip', 'experience', 'expVerb', { label, start: b.slice(0, 40) }, id(`verb-${i}`));
+      else if (finished && ACTION_VERBS.has(first) && !first.endsWith('ed') && !IRREGULAR_PAST.has(first))
+        add('tip', 'experience', 'expTense', { label, start: opening }, id(`tense-${i}`));
     });
   });
-  if (cv.experience.length > 0 && cv.experience.every((e) => e.start && e.end)) pass('Every role has dates');
-  if (bulletTotal > 0 && quantified / bulletTotal >= 0.3) pass('Achievements are quantified');
+  if (cv.experience.length > 0 && cv.experience.every((e) => e.start && e.end)) pass('dates');
+  if (bulletTotal > 0 && quantified / bulletTotal >= 0.3) pass('quantified');
 
   // Education & extras.
-  if (cv.education.length === 0)
-    add({ id: 'education', severity: 'warning', section: 'education', message: 'Add an Education section. Many ATS filters require one, even for senior roles.' });
-  else pass('Education section present');
-  if (cv.languages.length === 0)
-    add({ id: 'languages', severity: 'tip', section: 'extras', message: 'Add the languages you speak, with a level (e.g. "English – C1").' });
+  if (cv.education.length === 0) add('warning', 'education', 'education');
+  else pass('education');
+  if (cv.languages.length === 0) add('tip', 'extras', 'languages');
 
   // Language quality across the CV.
   const text = allText(cv);
-  const found = CLICHES.filter((c) => text.toLowerCase().includes(c));
-  if (found.length) add({ id: 'cliches', severity: 'tip', section: 'summary', message: `Replace clichés with evidence: ${found.map((c) => `"${c}"`).join(', ')}.` });
-  if (EMOJI_RE.test(text)) add({ id: 'emoji', severity: 'warning', section: 'profile', message: 'Remove emoji from your text. Parsers often turn them into garbage characters.' });
+  const found = english ? CLICHES.filter((c) => text.toLowerCase().includes(c)) : [];
+  if (found.length) add('tip', 'summary', 'cliches', { list: found.map((c) => `"${c}"`).join(', ') });
+  if (EMOJI_RE.test(text)) add('warning', 'profile', 'emoji');
 
   const wordCount = words(text).length;
-  if (wordCount < 250) add({ id: 'length-short', severity: 'tip', section: 'experience', message: `The CV is light (${wordCount} words). 400–800 words gives ATS more keywords to match.` });
-  else if (wordCount > 1100) add({ id: 'length-long', severity: 'tip', section: 'experience', message: `The CV is long (${wordCount} words). Aim for 1–2 pages.` });
-  else pass('Overall length is in range');
+  if (wordCount < 250) add('tip', 'experience', 'lengthShort', { words: wordCount });
+  else if (wordCount > 1100) add('tip', 'experience', 'lengthLong', { words: wordCount });
+  else pass('length');
 
   const weights = { error: 12, warning: 5, tip: 1.5 };
   const penalty = findings.reduce((sum, f) => sum + weights[f.severity], 0);

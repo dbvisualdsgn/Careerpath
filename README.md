@@ -1,6 +1,7 @@
-# Careerpath CV
+# careerpath.CV
 
-An editable online CV with official tool logos, an ATS-friendly PDF export and a built-in ATS checker.
+An editable, accessible online CV with official tool logos, an ATS-friendly PDF export and a built-in ATS checker,
+available in English (default), Italian, French, Spanish, German, Portuguese and Dutch.
 The original design is available at https://www.figma.com/design/68PhbcZDT2IDB8ndJuw2h6/Recreate-CV.
 
 ## Running the code
@@ -20,6 +21,20 @@ Run `npm i` to install the dependencies, then `npm run dev` to start the develop
 Type a tool or company name and its official logo is added automatically. Click a logo to search more than
 4,400 brands or upload your own. Logos come from the Iconify "logos" set and Simple Icons (both CC0).
 `npm run icons` regenerates `src/app/cv/brandIcons.ts` and `src/app/cv/icon-catalog/` after updating either package.
+
+## Languages
+
+Pick a language from the header (English is the default). It translates the interface, the CV section headings
+(on screen, in the PDF and in "Copy as text") and the ATS advice, and sets the page `lang` attribute.
+Strings live in `src/app/i18n/`. Add a locale by copying `en.ts` and registering it in `src/app/i18n/index.tsx`.
+Wording checks (action verbs, tense, clichés) run for English only.
+
+## Accessibility
+
+Built and tested against WCAG 2.2 AA with axe-core (0 violations in light, dark, editor and translated views):
+skip link, landmarks and a logical heading order, labelled controls with linked hints, visible focus
+outlines, AA colour contrast in both themes, decorative icons hidden from screen readers, a native language
+selector, and animations that respect "reduce motion".
 
 ## ATS / AI screening best practices built in
 

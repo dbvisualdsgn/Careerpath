@@ -1,4 +1,5 @@
 import { brandIcons } from './brandIcons';
+import { companyLogos } from './companyLogos';
 import type { CVData, Education, Experience, Certification, Language, Tool } from './types';
 
 export const newId = () => Math.random().toString(36).slice(2, 10);
@@ -50,6 +51,7 @@ export const sampleCV: CVData = {
         'Lead product design for a secrets security platform.',
         'Design intuitive interfaces that help developers detect exposed API keys.',
       ],
+      logo: companyLogos.gitguardian,
     },
     {
       id: 'e2',
@@ -102,7 +104,7 @@ export const sampleCV: CVData = {
 
 export const blankCV: CVData = {
   version: 1,
-  profile: { name: 'Your Name', headline: 'Your Job Title', email: '', phone: '', location: '', website: '', linkedin: '' },
+  profile: { name: '', headline: '', email: '', phone: '', location: '', website: '', linkedin: '' },
   summary: '',
   skills: [],
   tools: [],

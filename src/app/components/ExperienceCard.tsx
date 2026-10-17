@@ -19,7 +19,8 @@ export function ExperienceCard({
   logo,
   index
 }: ExperienceCardProps) {
-  const period = dateRange(start, end) || employmentType;
+  const dates = dateRange(start, end);
+  const period = dates || employmentType;
   const items = bullets.filter((b) => b.trim());
   return (
     <motion.article
@@ -29,11 +30,9 @@ export function ExperienceCard({
       className="group relative bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 rounded-lg p-6 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors duration-200"
     >
       <div className="flex gap-4 items-start">
-        {/* Company logo - minimalist box */}
-        <div className="flex-shrink-0">
-          <div className="w-10 h-10 rounded-md bg-zinc-100 dark:bg-white border border-zinc-200 dark:border-zinc-700 flex items-center justify-center">
-            <BrandIcon src={logo} name={company} size={logo ? 22 : 20} />
-          </div>
+        {/* Company logo - full-frame tile */}
+        <div className="flex-shrink-0 w-10 h-10 rounded-md overflow-hidden ring-1 ring-inset ring-black/5 dark:ring-white/10">
+          <BrandIcon src={logo} name={company} fill />
         </div>
 
         <div className="flex-1 min-w-0 space-y-2">
@@ -42,7 +41,7 @@ export function ExperienceCard({
               {title}
             </h3>
             {period && (
-              <span className="self-start sm:self-auto text-xs font-mono text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 rounded whitespace-nowrap">
+              <span className="self-start sm:self-auto text-xs font-mono text-zinc-600 dark:text-zinc-300 bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 rounded whitespace-nowrap">
                 {period}
               </span>
             )}
@@ -54,18 +53,16 @@ export function ExperienceCard({
               <span className="font-medium">{company}</span>
             </div>
             {location && (
-              <div className="flex items-center gap-1.5 text-zinc-400 dark:text-zinc-500">
+              <div className="flex items-center gap-1.5">
                 <MapPin size={14} aria-hidden="true" />
                 <span>{location}</span>
               </div>
             )}
-            {employmentType && dateRange(start, end) && (
-              <span className="text-zinc-400 dark:text-zinc-500">{employmentType}</span>
-            )}
+            {employmentType && dates && <span>{employmentType}</span>}
           </div>
 
           {items.length > 0 && (
-            <ul className="list-disc pl-4 space-y-1 text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed pt-1 marker:text-zinc-300 dark:marker:text-zinc-600">
+            <ul className="list-disc pl-4 space-y-1 text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed pt-1 marker:text-zinc-400 dark:marker:text-zinc-500">
               {items.map((b, i) => (
                 <li key={i}>{b}</li>
               ))}
