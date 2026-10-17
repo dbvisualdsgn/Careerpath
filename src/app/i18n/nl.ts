@@ -201,7 +201,6 @@ export const nl: Messages = {
     open: 'Openen',
     newLink: 'Nieuwe link maken',
     logosDropped: 'Geüploade logo’s zijn niet meegenomen, zodat de link kort blijft.',
-    embedded: 'Dit is een preview binnen claude.ai, dus anderen kunnen deze link hier niet openen. Hij werkt zodra careerpath.CV op het web staat.',
     error: 'Kan de link niet maken.',
   },
   shared: {

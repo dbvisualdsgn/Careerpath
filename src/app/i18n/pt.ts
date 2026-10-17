@@ -201,7 +201,6 @@ export const pt: Messages = {
     open: 'Abrir',
     newLink: 'Criar novo link',
     logosDropped: 'Os logótipos carregados não são incluídos, para manter o link curto.',
-    embedded: 'Esta é uma pré-visualização dentro do claude.ai: aqui outras pessoas não conseguem abrir o link. Vai funcionar quando o careerpath.CV estiver publicado na web.',
     error: 'Não foi possível criar o link.',
   },
   shared: {

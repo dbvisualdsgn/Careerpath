@@ -201,7 +201,6 @@ export const de: Messages = {
     open: 'Öffnen',
     newLink: 'Neuen Link erstellen',
     logosDropped: 'Hochgeladene Logos sind nicht enthalten, damit der Link kurz bleibt.',
-    embedded: 'Dies ist eine Vorschau in claude.ai, daher können andere den Link hier nicht öffnen. Er funktioniert, sobald careerpath.CV im Web veröffentlicht ist.',
     error: 'Link konnte nicht erstellt werden.',
   },
   shared: {

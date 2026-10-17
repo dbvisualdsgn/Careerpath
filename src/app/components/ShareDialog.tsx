@@ -6,7 +6,6 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { createShareLink, shareBaseUrl, type ShareLink } from '../cv/share';
-import { isClaudeEmbedded } from '../cv/save';
 import { useI18n } from '../i18n';
 import type { CVData } from '../cv/types';
 
@@ -135,15 +134,10 @@ export function ShareDialog({ open, onOpenChange, cv, isPublic, onMakePublic }: 
         <p className="text-xs text-ink-soft">{m.privacy.note}</p>
         </>)}
 
-        {isPublic && (link?.droppedLogos || isClaudeEmbedded()) && (
-          <div className="space-y-2 rounded-md bg-zinc-50 p-3 text-xs text-zinc-700 dark:bg-zinc-900 dark:text-zinc-300">
-            {link?.droppedLogos && (
-              <p className="flex gap-2"><Info size={14} className="mt-0.5 shrink-0" aria-hidden="true" />{s.logosDropped}</p>
-            )}
-            {isClaudeEmbedded() && (
-              <p className="flex gap-2"><Info size={14} className="mt-0.5 shrink-0" aria-hidden="true" />{s.embedded}</p>
-            )}
-          </div>
+        {isPublic && link?.droppedLogos && (
+          <p className="flex gap-2 rounded-md bg-zinc-50 p-3 text-xs text-zinc-700">
+            <Info size={14} className="mt-0.5 shrink-0" aria-hidden="true" />{s.logosDropped}
+          </p>
         )}
       </DialogContent>
     </Dialog>

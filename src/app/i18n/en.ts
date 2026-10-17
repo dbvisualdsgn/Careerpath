@@ -200,7 +200,6 @@ export const en = {
     open: 'Open',
     newLink: 'Create new link',
     logosDropped: 'Uploaded logos are not included, to keep the link short.',
-    embedded: 'This is a preview inside claude.ai, so other people can\'t open this link here. It works once careerpath.CV is published on the web.',
     error: 'Couldn\'t create the link.',
   },
   shared: {

@@ -95,7 +95,7 @@ export function toJsonLd(cv: CVData) {
 
 const PRESENT = /^(present|current|now)$/i;
 
-/** Saves a text file, through the claude.ai downloads prompt when embedded there. */
+/** Saves a text file as a browser download. */
 export const downloadFile = (filename: string, content: string, type: string) => saveFile(filename, content, type);
 
 export const fileSlug = (name: string) => name.trim().replace(/\s+/g, '_').replace(/[^\w-]/g, '') || 'CV';
