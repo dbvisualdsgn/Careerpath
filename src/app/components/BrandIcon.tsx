@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useLogo } from '../cv/logos';
 
 interface BrandIconProps {
   src?: string;
@@ -32,9 +33,12 @@ function Monogram({ name, size, fill, className = '' }: { name: string; size: nu
 }
 
 /** Renders an official logo from a data URL, or a monogram when no logo is set. Always decorative. */
-export function BrandIcon({ src, name, size = 16, className = '', fill = false }: BrandIconProps) {
+export function BrandIcon({ src: logo, name, size = 16, className = '', fill = false }: BrandIconProps) {
   const [rasterSquare, setRasterSquare] = useState(true);
+  const { data: src, waiting } = useLogo(logo);
 
+  // A built-in logo still loading: keep its place empty rather than flashing a monogram.
+  if (waiting) return <span aria-hidden="true" className={`inline-block shrink-0 ${fill ? 'h-full w-full' : ''} ${className}`} style={fill ? undefined : { width: size, height: size }} />;
   if (!src) return <Monogram name={name} size={size} fill={fill} className={className} />;
 
   if (fill) {

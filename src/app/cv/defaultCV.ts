@@ -1,5 +1,4 @@
-import { brandIcons } from './brandIcons';
-import { companyLogos } from './companyLogos';
+import { brandLogo, companyLogo } from './logos';
 import type { CVData, Education, Experience, Certification, Language, Tool } from './types';
 
 export const newId = () => Math.random().toString(36).slice(2, 10);
@@ -30,15 +29,15 @@ export const sampleCV: CVData = {
     'Visual Design',
   ],
   tools: [
-    { id: 't1', name: 'Figma', description: 'Collaborative interface design tool', icon: brandIcons.figma },
-    { id: 't2', name: 'Adobe Creative Suite', description: 'Photoshop, Illustrator, XD', icon: brandIcons.adobe },
+    { id: 't1', name: 'Figma', description: 'Collaborative interface design tool', icon: brandLogo('figma') },
+    { id: 't2', name: 'Adobe Creative Suite', description: 'Photoshop, Illustrator, XD', icon: brandLogo('adobe') },
     { id: 't3', name: 'Jitter', description: 'Motion design tool' },
-    { id: 't4', name: 'ChatGPT', description: 'AI assistant', icon: brandIcons.chatgpt },
-    { id: 't5', name: 'Midjourney', description: 'AI image generation', icon: brandIcons.midjourney },
-    { id: 't6', name: 'Linear', description: 'Project management', icon: brandIcons.linear },
-    { id: 't7', name: 'Notion', description: 'Documentation & notes', icon: brandIcons.notion },
-    { id: 't8', name: 'Productboard', description: 'Product management', icon: brandIcons.productboard },
-    { id: 't9', name: 'Hotjar', description: 'Behavior analytics', icon: brandIcons.hotjar },
+    { id: 't4', name: 'ChatGPT', description: 'AI assistant', icon: brandLogo('chatgpt') },
+    { id: 't5', name: 'Midjourney', description: 'AI image generation', icon: brandLogo('midjourney') },
+    { id: 't6', name: 'Linear', description: 'Project management', icon: brandLogo('linear') },
+    { id: 't7', name: 'Notion', description: 'Documentation & notes', icon: brandLogo('notion') },
+    { id: 't8', name: 'Productboard', description: 'Product management', icon: brandLogo('productboard') },
+    { id: 't9', name: 'Hotjar', description: 'Behavior analytics', icon: brandLogo('hotjar') },
   ],
   experience: [
     {
@@ -55,7 +54,7 @@ export const sampleCV: CVData = {
         'Design intuitive interfaces that help developers detect exposed API keys.',
         // TODO(Daniele): a third bullet (e.g. design system work, brand work), with a number if you have one.
       ],
-      logo: companyLogos.gitguardian,
+      logo: companyLogo('gitguardian'),
     },
     {
       id: 'e2',
@@ -70,7 +69,7 @@ export const sampleCV: CVData = {
         'Designed the brand identity of the leading open-source headless CMS.',
         'Designed the product UX that helps developers build APIs fast.',
       ],
-      logo: brandIcons.strapi,
+      logo: brandLogo('strapi'),
     },
     {
       id: 'e3',

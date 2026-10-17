@@ -3,6 +3,7 @@
 import { contactItems, dateRange } from './format';
 import type { CVData } from './types';
 import { packCV, PDF_DATA_NS } from './share';
+import { resolveLogos } from './logos';
 import type { Messages } from '../i18n/en';
 import type { TypeStyle } from '../typography';
 import { currentPaper } from '../paper';
@@ -64,7 +65,8 @@ async function rasterize(src: string, px = 96): Promise<string | undefined> {
   }
 }
 
-export async function buildDesignedPdf(cv: CVData, m: Messages, type: TypeStyle): Promise<Blob> {
+export async function buildDesignedPdf(input: CVData, m: Messages, type: TypeStyle): Promise<Blob> {
+  const cv = await resolveLogos(input);
   const { jsPDF } = await import('jspdf');
   const doc = new jsPDF({ unit: 'pt', format: 'a4', compress: true });
   // The PDF uses the paper the reader picked in the Light panel.
