@@ -7,9 +7,10 @@ export function SiteHeader({ root, current }: { root: string; current?: 'home' |
   const { m } = useI18n();
   return (
     <header className="sticky top-0 z-40 border-b border-rule bg-paper">
-      <nav aria-label={m.app.home} className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-2 px-4 sm:px-8">
+      <nav aria-label={m.app.home} className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-2 px-4 sm:px-8 md:grid md:grid-cols-[1fr_auto_1fr]">
         <Wordmark href={root} />
-        <div className="flex items-center gap-1">
+        <ReadingControls />
+        <div className="flex items-center gap-1 md:justify-self-end">
           <a
             href={`${root}people/`}
             aria-current={current === 'people' ? 'page' : undefined}
@@ -17,7 +18,6 @@ export function SiteHeader({ root, current }: { root: string; current?: 'home' |
           >
             {m.directory.nav}
           </a>
-          <ReadingControls />
           <a href={`${root}app/`} className="ml-1 hidden h-9 items-center gap-2 rounded-sm border border-ink px-3 text-sm hover:bg-ink hover:text-paper sm:inline-flex">
             {m.home.openCV}
           </a>

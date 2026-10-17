@@ -228,7 +228,11 @@ function CVPage() {
 
       <div className={`print:hidden ${editing ? 'lg:pr-[480px]' : ''}`}>
         <header className="sticky top-0 z-40 w-full border-b border-rule bg-paper">
-          <nav aria-label={m.app.home} className="mx-auto flex max-w-4xl flex-wrap xl:max-w-6xl 2xl:max-w-7xl items-center justify-between gap-x-2 gap-y-1 px-4 py-2 sm:h-16 sm:flex-nowrap sm:py-0 sm:px-6">
+          <nav
+            aria-label={m.app.home}
+            // Typefaces, language and light sit in the middle of the bar (3 columns) when there is room.
+            className={`mx-auto flex max-w-4xl flex-wrap xl:max-w-6xl 2xl:max-w-7xl items-center justify-between gap-x-2 gap-y-1 px-4 py-2 sm:h-16 sm:flex-nowrap sm:py-0 sm:px-6 ${editing ? '' : 'lg:grid lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:gap-4'}`}
+          >
             <div className="flex items-center gap-1">
               <a href="../" aria-label={m.app.home} className="hidden h-9 w-9 items-center justify-center rounded-sm hover:bg-zinc-100 dark:hover:bg-zinc-800 md:inline-flex">
                 <ArrowLeft size={20} aria-hidden="true" />
@@ -250,7 +254,7 @@ function CVPage() {
                 />
               )}
             </div>
-            <div className="order-3 -mx-1.5 flex w-full items-center justify-between gap-0.5 border-t border-rule pt-1 sm:order-2 sm:mx-0 sm:w-auto sm:justify-end sm:gap-1 sm:border-0 sm:pt-0">
+            <div className="order-3 -mx-1.5 flex w-full items-center justify-between gap-0.5 border-t border-rule pt-1 sm:order-2 sm:mx-0 sm:w-auto sm:justify-end sm:gap-1 sm:border-0 sm:pt-0 lg:order-3 lg:justify-self-end">
               {!sharedCV && (
                 <PrivacySwitch isPublic={Boolean(ownCV.isPublic)} onChange={(isPublic) => update((d) => ({ ...d, isPublic }))} />
               )}
@@ -281,16 +285,16 @@ function CVPage() {
                     }}
                     aria-pressed={editing && !atsOpen}
                     aria-label={m.app.edit}
+                    title={m.app.edit}
                     className={`${headerBtn} ${editing && !atsOpen ? 'bg-zinc-100 dark:bg-zinc-800' : ''}`}
                   >
                     <PencilLine size={20} aria-hidden="true" />
-                    <span className={editing ? 'hidden' : 'hidden whitespace-nowrap xl:inline'}>{m.app.edit}</span>
                   </button>
                 </>
               )}
               <DownloadMenu cv={cv} compact={editing} onDownloaded={() => beyondNoteWanted() && setBeyondOpen(true)} />
             </div>
-            <div className="order-2 flex items-center sm:order-3">
+            <div className="order-2 flex items-center sm:order-3 lg:order-2 lg:justify-self-center">
               <ReadingControls />
             </div>
           </nav>
