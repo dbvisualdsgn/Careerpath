@@ -1,3 +1,4 @@
+import { useId } from 'react';
 import { Globe, Lock } from 'lucide-react';
 import { useI18n } from '../i18n';
 
@@ -14,6 +15,7 @@ interface PrivacySwitchProps {
 export function PrivacySwitch({ isPublic, onChange, withHint = false, compact = false }: PrivacySwitchProps) {
   const { m } = useI18n();
   const p = m.privacy;
+  const hintId = useId();
   return (
     <div className={withHint ? 'space-y-2' : ''}>
       <button
@@ -21,7 +23,8 @@ export function PrivacySwitch({ isPublic, onChange, withHint = false, compact = 
         role="switch"
         aria-checked={isPublic}
         aria-label={`${p.label}: ${isPublic ? p.public : p.private}`}
-        title={isPublic ? p.publicHint : p.privateHint}
+        aria-describedby={hintId}
+        title={p.listedHint}
         onClick={() => onChange(!isPublic)}
         className="group inline-flex h-9 items-center gap-2 rounded-sm px-1.5 text-[13px] text-ink hover:bg-zinc-100 dark:hover:bg-zinc-800"
       >
@@ -43,10 +46,12 @@ export function PrivacySwitch({ isPublic, onChange, withHint = false, compact = 
           <span className={compact ? 'whitespace-nowrap' : 'whitespace-nowrap xl:hidden'}>{isPublic ? p.public : p.private}</span>
         </span>
       </button>
-      {withHint && (
-        <p className="text-[12px] leading-snug text-ink-soft" aria-live="polite">
-          {isPublic ? p.publicHint : p.privateHint} {p.note}
+      {withHint ? (
+        <p id={hintId} className="text-[12px] leading-snug text-ink-soft" aria-live="polite">
+          {isPublic ? `${p.publicHint} ${p.note}` : `${p.privateHint} ${p.listedHint}`}
         </p>
+      ) : (
+        <span id={hintId} className="sr-only">{p.listedHint}</span>
       )}
     </div>
   );

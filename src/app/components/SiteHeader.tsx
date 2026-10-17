@@ -4,7 +4,7 @@ import { LanguageSwitcher } from './LanguageSwitcher';
 import { PaperControls } from './PaperControls';
 import { useI18n } from '../i18n';
 
-/** Header for the homepage and the public CVs page. `root` is the relative path to the site root. */
+/** Header for the homepage and the example CVs page. `root` is the relative path to the site root. */
 export function SiteHeader({ root, current }: { root: string; current?: 'home' | 'people' }) {
   const { m } = useI18n();
   return (

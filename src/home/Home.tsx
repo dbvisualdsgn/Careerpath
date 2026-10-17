@@ -295,7 +295,8 @@ export function Home() {
         </Chapter>
 
         <Chapter id="people" title={m.homeX.peopleTitle} n={4}>
-          <ul className="mt-12 grid gap-px border border-rule bg-rule sm:grid-cols-2 lg:grid-cols-4">
+          <p className="mt-8 max-w-[52ch] font-reading text-lg text-ink-soft">{m.directory.examples}</p>
+          <ul className="mt-8 grid gap-px border border-rule bg-rule sm:grid-cols-2 lg:grid-cols-4">
             {people.slice(0, 4).map((p) => (
               <li key={p.id} className="bg-paper">
                 <a href={`${APP}?person=${p.id}`} className="nudge-up flex h-full flex-col p-5 hover:bg-zinc-50 dark:hover:bg-zinc-900">
