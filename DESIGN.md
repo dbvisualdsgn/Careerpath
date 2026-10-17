@@ -3,6 +3,12 @@
 A CV tool that reads like a page. Black and white, built from type, inspired by Kindle/Kobo
 e-readers and Swiss editorial layouts. No accent colours, no shadows, no gradients, no motion.
 
+## Brand
+
+The brand is type only: **curriculi *curricula***, always lowercase, *curricula* in italics, set in the
+reading font (`Wordmark`). There is no logo, mark, monogram or icon next to it. On narrow screens the name
+gets smaller (15px, 17px from `sm`), never hidden. The favicon is the letters "cc" in ink on paper.
+
 ## Colour tokens (`src/styles/theme.css`)
 
 | Token | Default | Use |

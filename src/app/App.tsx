@@ -221,7 +221,7 @@ function CVPage() {
               <a href="../" aria-label={m.app.home} className="hidden h-9 w-9 items-center justify-center rounded-sm hover:bg-zinc-100 dark:hover:bg-zinc-800 md:inline-flex">
                 <ArrowLeft size={18} aria-hidden="true" />
               </a>
-              <Wordmark href="../" compact />
+              <Wordmark href="../" />
               {!sharedCV && (
                 <LibraryMenu
                   items={items}

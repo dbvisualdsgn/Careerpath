@@ -1,17 +1,8 @@
-import { BookOpenText } from 'lucide-react';
-import { useI18n } from '../i18n';
-
-/** "curriculi curricula" set in the reading font, with the Lucide book mark. */
-export function Wordmark({ href, compact = false }: { href: string; compact?: boolean }) {
-  const { m } = useI18n();
+/** The brand: "curriculi curricula" set in the reading font. Type only, no logo. */
+export function Wordmark({ href }: { href: string }) {
   return (
-    <a href={href} aria-label={m.app.home} className="group inline-flex items-center gap-2.5 rounded-sm text-ink">
-      <span className="flex h-8 w-8 items-center justify-center rounded-sm bg-ink text-paper">
-        <BookOpenText size={18} strokeWidth={1.75} aria-hidden="true" />
-      </span>
-      <span aria-hidden="true" className={`whitespace-nowrap font-reading text-[17px] leading-none tracking-[-0.01em] ${compact ? 'hidden lg:inline' : ''}`}>
-        curriculi <span className="italic">curricula</span>
-      </span>
+    <a href={href} className="inline-block whitespace-nowrap rounded-sm font-reading text-[15px] leading-none tracking-[-0.01em] text-ink sm:text-[17px]">
+      curriculi <span className="italic">curricula</span>
     </a>
   );
 }
