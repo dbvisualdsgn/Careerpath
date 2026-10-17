@@ -1,6 +1,6 @@
 # curriculi curricula
 
-A quick, calm way to write your CV. An editable, accessible online CV with official tool logos, an ATS-friendly PDF export and a built-in ATS checker,
+A quick, calm way to write your CV. An editable, accessible online CV with official tool logos, an ATS-friendly PDF export and a built-in recruiter check,
 available in English (default), Italian, French, Spanish, German, Portuguese and Dutch.
 The original design is available at https://www.figma.com/design/68PhbcZDT2IDB8ndJuw2h6/Recreate-CV.
 
@@ -77,7 +77,7 @@ skip link, landmarks and a logical heading order, labelled controls with linked 
 outlines, AA colour contrast in both themes, decorative icons hidden from screen readers, a native language
 selector, and animations that respect "reduce motion".
 
-## ATS / AI screening best practices built in
+## Built for recruiters and hiring software
 
 - **Download PDF** builds a single-column, text-only PDF in the browser (jsPDF, Helvetica). It has standard section
   headings, contact details in the body, real selectable text, no icons, tables or columns, and title/author/keyword
@@ -85,7 +85,8 @@ selector, and animations that respect "reduce motion".
 - The page title becomes the PDF file name: `Name - Headline - CV`.
 - Experience uses separate start/end dates and achievement bullets. Skills and tools are plain-text keywords.
 - schema.org `Person` JSON-LD is embedded so AI tools can read the CV.
-- **ATS check** (in the editor) scores the CV and lists fixes: missing contact details, undated roles,
-  unquantified bullets, weak openers, tense, clichés, length, and more. Paste a job description to see which
-  keywords are missing.
+- **Recruiter check** (in the editor) scores the CV and lists fixes, each with the points it costs: numbers in
+  bullets, months on dates, a strong latest role, contact details, weak openers, tense, clichés, length, and more.
+  The weights are documented at the top of `src/app/cv/atsCheck.ts`. Paste a job ad to see its job title (and
+  whether your headline matches it) and which keywords are missing, matched as whole words in 7 languages.
 - **Copy as text** gives a clean plain-text CV for application forms.
