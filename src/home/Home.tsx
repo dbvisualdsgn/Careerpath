@@ -10,7 +10,7 @@ import { locales, useI18n } from '../app/i18n';
 import { useCountUp, useReveal } from '../app/hooks/useReveal';
 
 const APP = 'app/';
-const label = 'whitespace-nowrap font-mono text-[11px] uppercase tracking-[0.14em] text-ink-soft';
+const label = 'font-mono text-[11px] uppercase tracking-[0.14em] text-ink-soft';
 const primaryBtn = 'nudge inline-flex h-12 items-center gap-3 rounded-sm bg-ink px-5 text-[15px] font-medium text-paper hover:opacity-90';
 const textLink = 'inline-flex items-center gap-1.5 text-[15px] text-ink underline decoration-1 underline-offset-[6px] hover:decoration-2';
 const h2 = 'font-reading text-3xl font-normal tracking-[-0.02em] md:text-5xl';
@@ -78,25 +78,24 @@ function PageSpecimen() {
   );
 }
 
-/** Four true numbers about the tool. */
+/** Three true facts about the tool, each a plain benefit. */
 function Numbers() {
   const { m } = useI18n();
   const h = m.homeX;
   const ref = useReveal<HTMLElement>(0.2);
   const items: [string, string][] = [
-    ['0', h.n1],
+    [h.n1v, h.n1],
     ['0', h.n2],
     [String(Object.keys(locales).length), h.n3],
-    ['4,400+', h.n4],
   ];
   return (
     <section ref={ref} aria-label={h.numbersTitle} className="reveal border-t border-ink">
-      <dl className="mx-auto grid max-w-6xl grid-cols-2 gap-px bg-rule md:grid-cols-4">
+      <dl className="mx-auto grid max-w-6xl grid-cols-1 gap-px bg-rule sm:grid-cols-3">
         {items.map(([value, text], i) => (
-          <div key={text} className="bg-paper px-4 py-10 sm:px-8">
+          <div key={text} className="min-w-0 bg-paper px-4 py-10 sm:px-8">
             <dt className="sr-only">{text}</dt>
             <dd>
-              <span className="block whitespace-nowrap font-reading text-[clamp(2.5rem,6.5vw,5.5rem)] font-light leading-none tracking-[-0.04em]">
+              <span className="block whitespace-nowrap font-reading text-[clamp(2.5rem,7vw,5.5rem)] font-light leading-none tracking-[-0.04em]">
                 {i === 0 ? <span className="hl">{value}</span> : value}
               </span>
               <span className="mt-3 block max-w-[18ch] font-mono text-[12px] uppercase tracking-[0.12em] text-ink-soft" aria-hidden="true">{text}</span>
@@ -147,7 +146,7 @@ function AtsInfographic() {
             ))}
           </div>
         </div>
-        <div className="grid gap-6 sm:grid-cols-2">
+        <div className="grid gap-6 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
           <div>
             <p className={label}>{h.jobAd}</p>
             <p className="mt-3 font-reading text-[15px] leading-relaxed text-ink-soft">“{DEMO_AD.slice(0, 160)}…”</p>
@@ -193,7 +192,7 @@ function LinkDiagram() {
               <Icon size={22} strokeWidth={1.5} />
             </span>
             <span className="mt-4 font-reading text-lg leading-tight md:text-xl">{text}</span>
-            {i === 1 && <span className="mt-1 font-mono text-[11px] text-ink-soft">…/app/#cv=eNqVk…</span>}
+            {i === 1 && <span className="mt-1 break-all font-mono text-[11px] text-ink-soft">…/app/#cv=eNqVk…</span>}
           </div>
         ))}
       </div>
