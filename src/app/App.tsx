@@ -355,7 +355,7 @@ function CVPage() {
               {cv.tools.length > 0 && (
                 <div>
                   <h3 className={`${microLabel} mb-3`}>{m.sections.tools}</h3>
-                  <ul className="grid grid-cols-1 border-l border-t border-rule sm:grid-cols-2 lg:grid-cols-3">
+                  <ul className="flex flex-wrap gap-2">
                     {cv.tools.map((tool) => (
                       <ToolBadge key={tool.id} icon={tool.icon} name={tool.name} description={tool.description} />
                     ))}

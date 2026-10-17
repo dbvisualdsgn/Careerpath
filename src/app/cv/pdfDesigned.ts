@@ -184,35 +184,34 @@ export async function buildDesignedPdf(cv: CVData, m: Messages, type: TypeStyle)
     if (cv.tools.length) {
       label(m.sections.tools, M, y + 6);
       y += 14;
-      const cols = 3;
-      const cw = CW / cols;
-      const ch = 34;
+      // Same pills as the core skills, with the logo in front of the name.
+      font(READ, 9.5);
+      let x = M;
+      const ph = 18;
       cv.tools.forEach((t, i) => {
-        const col = i % cols;
-        if (col === 0) {
-          ensure(ch);
-          if (i > 0) y += ch;
+        font(READ, 9.5);
+        const w = doc.getTextWidth(t.name) + 14 + 14;
+        if (x + w > W - M) {
+          x = M;
+          y += ph + 5;
         }
-        const x = M + col * cw;
-        doc.setDrawColor(C.rule);
-        doc.setLineWidth(0.5);
-        doc.rect(x, y, cw, ch);
+        ensure(ph + 5);
+        doc.setDrawColor(C.ink);
+        doc.setLineWidth(0.6);
+        doc.rect(x, y, w, ph);
         const icon = toolIcons[i];
-        if (icon) doc.addImage(icon, 'PNG', x + 9, y + 10, 13, 13);
+        if (icon) doc.addImage(icon, 'PNG', x + 6, y + 4, 10, 10);
         else {
           doc.setFillColor(C.ink);
-          doc.rect(x + 9, y + 10, 13, 13, 'F');
-          font(READ, 8, 'normal', C.paper);
-          doc.text(t.name.charAt(0).toUpperCase(), x + 15.5, y + 19.5, { align: 'center' });
+          doc.rect(x + 6, y + 4, 10, 10, 'F');
+          font(READ, 6.5, 'normal', C.paper);
+          doc.text(t.name.charAt(0).toUpperCase(), x + 11, y + 11.3, { align: 'center' });
+          font(READ, 9.5);
         }
-        font(READ, 9.5, 'bold');
-        doc.text(doc.splitTextToSize(t.name, cw - 36)[0] ?? '', x + 29, y + 15);
-        if (t.description) {
-          font(SANS, 7.5, 'normal', C.soft);
-          doc.text(doc.splitTextToSize(t.description, cw - 36)[0] ?? '', x + 29, y + 25);
-        }
+        doc.text(t.name, x + 20, y + 12.3);
+        x += w + 5;
       });
-      y += ch;
+      y += ph;
     }
   }
 
