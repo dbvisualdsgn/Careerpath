@@ -1,27 +1,45 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 
-/** Adds `is-in` once the element scrolls into view (used by the .reveal / .hl-draw / .bar-grow styles). */
+/** Adds `is-in` once the element scrolls into view (used by the .reveal / .hl-draw / .bar-grow styles).
+ *  Belt and braces, so content can never stay invisible: an IntersectionObserver, a scroll check as a
+ *  fallback, a timer as a last resort, and the class re-applied after every render. */
 export function useReveal<T extends HTMLElement>(threshold = 0.2) {
   const ref = useRef<T>(null);
+  const [inView, setInView] = useState(false);
+
   useEffect(() => {
     const el = ref.current;
-    if (!el) return;
-    if (!('IntersectionObserver' in window)) {
-      el.classList.add('is-in');
-      return;
+    if (!el || inView) return;
+    const reveal = () => setInView(true);
+    const check = () => {
+      const r = el.getBoundingClientRect();
+      if (r.top < window.innerHeight * 0.95 && r.bottom > 0) reveal();
+      // Scrolled past it entirely (fast jump): show it too.
+      else if (r.bottom <= 0) reveal();
+    };
+    let io: IntersectionObserver | undefined;
+    if ('IntersectionObserver' in window) {
+      io = new IntersectionObserver(([entry]) => entry.isIntersecting && reveal(), { threshold });
+      io.observe(el);
     }
-    const io = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          el.classList.add('is-in');
-          io.disconnect();
-        }
-      },
-      { threshold },
-    );
-    io.observe(el);
-    return () => io.disconnect();
-  }, [threshold]);
+    window.addEventListener('scroll', check, { passive: true });
+    window.addEventListener('resize', check);
+    const raf = requestAnimationFrame(check);
+    const fallback = window.setTimeout(reveal, 2500);
+    return () => {
+      io?.disconnect();
+      window.removeEventListener('scroll', check);
+      window.removeEventListener('resize', check);
+      cancelAnimationFrame(raf);
+      window.clearTimeout(fallback);
+    };
+  }, [threshold, inView]);
+
+  // Keep the class even if React rewrites className on a later render.
+  useLayoutEffect(() => {
+    if (inView) ref.current?.classList.add('is-in');
+  });
+
   return ref;
 }
 
