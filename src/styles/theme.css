@@ -17,8 +17,9 @@
   --font-sans: 'Inter Tight', ui-sans-serif, system-ui, sans-serif;
   --font-serif: 'Literata', Georgia, serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
-  /* The "Aa" switch sets data-type on <html>; text that is read follows it. */
-  --reading-font: var(--font-sans);
+  /* The "Aa" menu sets data-title / data-body on <html>: one face for titles, one for text. */
+  --title-font: var(--font-sans);
+  --body-font: var(--font-serif);
   --font-size: 16px;
   --background: var(--paper);
   --foreground: var(--ink);
@@ -101,8 +102,10 @@
   --sidebar-ring: oklch(0.439 0 0);
 }
 
-[data-type='serif'] { --reading-font: var(--font-serif); }
-[data-type='mono'] { --reading-font: var(--font-mono); }
+[data-title='serif'] { --title-font: var(--font-serif); }
+[data-title='sans'] { --title-font: var(--font-sans); }
+[data-body='serif'] { --body-font: var(--font-serif); }
+[data-body='sans'] { --body-font: var(--font-sans); }
 
 /* Warm neutral scale. Tailwind's zinc and white are remapped onto paper and ink so every
    existing utility follows the monochrome system; shadows are switched off (flat, e-ink). */
@@ -140,7 +143,8 @@
   --color-highlight: var(--highlight);
   --color-signal: var(--signal);
   --color-go: var(--go);
-  --font-reading: var(--reading-font);
+  --font-title: var(--title-font);
+  --font-body: var(--body-font);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);

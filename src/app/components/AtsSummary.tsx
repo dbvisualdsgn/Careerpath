@@ -39,7 +39,7 @@ export function AtsSummary({ cv, targetTitle, onOpen, onJobAd }: AtsSummaryProps
           </h2>
           <p className="mt-2 max-w-[38ch] font-sans text-[14px] text-ink-soft">{m.atsCard.lead}</p>
         </div>
-        <p className="font-reading leading-none" aria-live="polite">
+        <p className="font-title leading-none" aria-live="polite">
           <span className="text-[64px] tracking-[-0.04em] tabular-nums md:text-[80px]">{shown}</span>
           <span className="font-mono text-[14px] text-ink-soft">/100 · {label}</span>
         </p>

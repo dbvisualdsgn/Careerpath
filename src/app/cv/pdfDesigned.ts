@@ -5,7 +5,7 @@ import type { CVData } from './types';
 import { packCV, PDF_DATA_NS } from './share';
 import { resolveLogos } from './logos';
 import type { Messages } from '../i18n/en';
-import type { TypeStyle } from '../typography';
+import type { TypeFaces } from '../typography';
 import { currentPaper } from '../paper';
 
 const W = 595.28; // A4 in points
@@ -17,8 +17,8 @@ const CW = W - M * 2;
 const families = {
   sans: { name: 'InterTight', file: 'InterTight' },
   serif: { name: 'Literata', file: 'Literata' },
-  mono: { name: 'IBMPlexMono', file: 'IBMPlexMono' },
 } as const;
+const MONO_FILE = 'IBMPlexMono';
 
 const fontCache = new Map<string, Promise<string>>();
 function fontBase64(file: string) {
@@ -65,15 +65,15 @@ async function rasterize(src: string, px = 96): Promise<string | undefined> {
   }
 }
 
-export async function buildDesignedPdf(input: CVData, m: Messages, type: TypeStyle): Promise<Blob> {
+export async function buildDesignedPdf(input: CVData, m: Messages, faces: TypeFaces): Promise<Blob> {
   const cv = await resolveLogos(input);
   const { jsPDF } = await import('jspdf');
   const doc = new jsPDF({ unit: 'pt', format: 'a4', compress: true });
   // The PDF uses the paper the reader picked in the Light panel.
   const C = { ink: '#111111', ...currentPaper() };
 
-  // Fonts: the reading family plus Inter Tight (meta lines) and Plex Mono (labels).
-  const needed = new Set([families[type].file, 'InterTight', 'IBMPlexMono']);
+  // Fonts: the title and text families the reader picked, the sans for meta lines, mono for labels.
+  const needed = new Set([families[faces.title].file, families[faces.body].file, families.sans.file, MONO_FILE]);
   for (const file of needed) {
     for (const [suffix, style] of [['Regular', 'normal'], ['Medium', 'bold'], ['Italic', 'italic']] as const) {
       const data = await fontBase64(`${file}-${suffix}`);
@@ -81,9 +81,10 @@ export async function buildDesignedPdf(input: CVData, m: Messages, type: TypeSty
       doc.addFont(`${file}-${suffix}.ttf`, file, style);
     }
   }
-  const READ = families[type].name;
-  const SANS = 'InterTight';
-  const MONO = 'IBMPlexMono';
+  const TITLE = families[faces.title].name;
+  const BODY = families[faces.body].name;
+  const SANS = families.sans.name;
+  const MONO = MONO_FILE;
 
   // Logos and photo as embeddable images.
   const toolIcons = await Promise.all(cv.tools.map((t) => (t.icon ? rasterize(t.icon, 64) : Promise.resolve(undefined))));
@@ -145,14 +146,14 @@ export async function buildDesignedPdf(input: CVData, m: Messages, type: TypeSty
   label(m.app.cvTitle, M, y + 6);
   if (profile.photo) doc.addImage(profile.photo, 'JPEG', W - M - photoSize, y, photoSize, photoSize);
   y += 18;
-  font(READ, 34, 'normal');
+  font(TITLE, 34, 'normal');
   const nameLines: string[] = doc.splitTextToSize(profile.name || m.app.namePlaceholder, textWidth);
   for (const line of nameLines) {
     doc.text(line, M, y + 28);
     y += 33;
   }
   y += 4;
-  para(profile.headline || m.app.headlinePlaceholder, READ, 13, { color: C.soft, width: textWidth });
+  para(profile.headline || m.app.headlinePlaceholder, TITLE, 13, { color: C.soft, width: textWidth });
   y += 8;
   para(contactItems(cv).join('   ·   '), SANS, 8.5, { color: C.soft, width: textWidth });
   if (profile.photo) y = Math.max(y, M + photoSize + 4);
@@ -160,7 +161,7 @@ export async function buildDesignedPdf(input: CVData, m: Messages, type: TypeSty
   // ---- Summary ----
   if (cv.summary.trim()) {
     head(m.sections.summary);
-    para(cv.summary.trim(), READ, 11, { width: Math.min(CW, 440), lead: 1.5 });
+    para(cv.summary.trim(), BODY, 11, { width: Math.min(CW, 440), lead: 1.5 });
   }
 
   // ---- Skills: outlined pills + tool grid ----
@@ -169,7 +170,7 @@ export async function buildDesignedPdf(input: CVData, m: Messages, type: TypeSty
     if (cv.skills.length) {
       label(m.sections.coreSkills, M, y + 6);
       y += 14;
-      font(READ, 9.5);
+      font(BODY, 9.5);
       let x = M;
       const ph = 18;
       for (const s of cv.skills) {
@@ -191,11 +192,11 @@ export async function buildDesignedPdf(input: CVData, m: Messages, type: TypeSty
       label(m.sections.tools, M, y + 6);
       y += 14;
       // Same pills as the core skills, with the logo in front of the name.
-      font(READ, 9.5);
+      font(BODY, 9.5);
       let x = M;
       const ph = 18;
       cv.tools.forEach((t, i) => {
-        font(READ, 9.5);
+        font(BODY, 9.5);
         const w = doc.getTextWidth(t.name) + 14 + 14;
         if (x + w > W - M) {
           x = M;
@@ -210,9 +211,9 @@ export async function buildDesignedPdf(input: CVData, m: Messages, type: TypeSty
         else {
           doc.setFillColor(C.ink);
           doc.rect(x + 6, y + 4, 10, 10, 'F');
-          font(READ, 6.5, 'normal', C.paper);
+          font(BODY, 6.5, 'normal', C.paper);
           doc.text(t.name.charAt(0).toUpperCase(), x + 11, y + 11.3, { align: 'center' });
-          font(READ, 9.5);
+          font(BODY, 9.5);
         }
         doc.text(t.name, x + 20, y + 12.3);
         x += w + 5;
@@ -236,7 +237,7 @@ export async function buildDesignedPdf(input: CVData, m: Messages, type: TypeSty
       else {
         doc.setFillColor(C.ink);
         doc.rect(M, y, 26, 26, 'F');
-        font(READ, 12, 'normal', C.paper);
+        font(TITLE, 12, 'normal', C.paper);
         doc.text((e.company || '?').charAt(0).toUpperCase(), M + 13, y + 17.5, { align: 'center' });
       }
       const dates = dateRange(e.start, e.end);
@@ -244,19 +245,19 @@ export async function buildDesignedPdf(input: CVData, m: Messages, type: TypeSty
       const dw = dates ? doc.getTextWidth(dates) + 12 : 0;
       if (dates) doc.text(dates, W - M, y + 11, { align: 'right' });
       const top = y;
-      para(e.title, READ, 13, { width: CW - 38 - dw, x: tx, lead: 1.25, style: 'bold' });
+      para(e.title, TITLE, 13, { width: CW - 38 - dw, x: tx, lead: 1.25, style: 'bold' });
       y = Math.max(y, top + 17);
       para([e.company, e.location, e.employmentType].filter(Boolean).join(' · '), SANS, 8.5, { color: C.soft, x: tx, width: CW - 38 });
       y += 5;
       e.bullets.filter((b) => b.trim()).forEach((b) => {
-        font(READ, 10);
+        font(BODY, 10);
         const lines: string[] = doc.splitTextToSize(b.trim(), CW - 38 - 12);
         lines.forEach((line, j) => {
           ensure(14.5);
           if (j === 0) {
-            font(READ, 10, 'normal', C.soft);
+            font(BODY, 10, 'normal', C.soft);
             doc.text('–', tx, y + 8.5);
-            font(READ, 10);
+            font(BODY, 10);
           }
           doc.text(line, tx + 12, y + 8.5);
           y += 14.5;
@@ -280,7 +281,7 @@ export async function buildDesignedPdf(input: CVData, m: Messages, type: TypeSty
         font(MONO, 8, 'normal', C.soft);
         doc.text(it.year, W - M, y + 9, { align: 'right' });
       }
-      para(it.title, READ, 11.5, { width: CW - 90, style: 'bold', lead: 1.3 });
+      para(it.title, TITLE, 11.5, { width: CW - 90, style: 'bold', lead: 1.3 });
       if (it.meta) para(it.meta, SANS, 8.5, { color: C.soft, width: CW - 90 });
       y += 8;
     });
@@ -304,7 +305,7 @@ export async function buildDesignedPdf(input: CVData, m: Messages, type: TypeSty
       doc.setDrawColor(C.rule);
       doc.setLineWidth(0.5);
       doc.rect(x, y, cw, ch);
-      font(READ, 12);
+      font(TITLE, 12);
       doc.text(l.name, x + 10, y + 17);
       if (l.level) label(l.level, x + 10, y + 30);
     });

@@ -8,10 +8,12 @@
     <meta name="description" content="Write, check and share your CV. Free, no account." />
     <meta name="theme-color" content="#eceae5" />
     <script>
-      // Apply the saved "Aa" type style and paper light before first paint.
+      // Apply the saved "Aa" typefaces and paper light before first paint.
       try {
-        var t = localStorage.getItem('curricula.type');
-        if (t === 'serif' || t === 'mono') document.documentElement.dataset.type = t;
+        var d = document.documentElement.dataset, old = localStorage.getItem('curricula.type');
+        var face = function (k, fallback) { var v = localStorage.getItem(k); return v === 'sans' || v === 'serif' ? v : old === 'serif' ? 'serif' : old ? 'sans' : fallback; };
+        d.title = face('curricula.title', 'sans');
+        d.body = face('curricula.body', 'serif');
         var v = JSON.parse(localStorage.getItem('curricula.paper.vars') || 'null');
         if (v) for (var k in v) if (/^--[\w-]+$/.test(k) && /^#[0-9a-f]{6}$/i.test(v[k])) document.documentElement.style.setProperty(k, v[k]);
       } catch (e) {}

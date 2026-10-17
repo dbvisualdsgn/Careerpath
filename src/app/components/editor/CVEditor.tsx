@@ -188,7 +188,7 @@ export function CVEditor({
         className="w-full gap-0 border-l border-rule bg-paper p-0 print:hidden sm:max-w-[480px] [&>button:last-child]:text-paper [&>button:last-child]:focus-visible:outline-[var(--paper)]"
       >
         <SheetHeader className="bg-ink px-5 py-4 text-paper">
-          <SheetTitle className="font-reading text-2xl font-normal tracking-[-0.01em] text-paper">{e.title}</SheetTitle>
+          <SheetTitle className="font-title text-2xl font-normal tracking-[-0.01em] text-paper">{e.title}</SheetTitle>
           <SheetDescription className="text-xs text-paper/80">{e.description}</SheetDescription>
         </SheetHeader>
 
@@ -528,7 +528,7 @@ export function CVEditor({
             </AlertDialogTrigger>
             <AlertDialogContent className="rounded-sm border-ink bg-paper text-ink">
               <AlertDialogHeader>
-                <AlertDialogTitle className="font-reading text-2xl font-normal">
+                <AlertDialogTitle className="font-title text-2xl font-normal">
                   {fmt(m.library.deleteTitle, { name: cv.profile.name || m.library.untitled })}
                 </AlertDialogTitle>
                 <AlertDialogDescription className="text-ink-soft">{m.library.deleteBody}</AlertDialogDescription>

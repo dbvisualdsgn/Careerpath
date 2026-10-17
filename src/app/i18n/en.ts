@@ -172,10 +172,11 @@ export const en = {
     note: 'Like an e-reader: always paper, never a dark screen. Make it warmer or softer; text always stays readable.',
   },
   type: {
-    label: 'Text style',
+    label: 'Typefaces',
     sans: 'Sans',
     serif: 'Serif',
-    mono: 'Mono',
+    titles: 'Titles',
+    body: 'Text',
   },
   home: {
     openCV: 'Open my CV',

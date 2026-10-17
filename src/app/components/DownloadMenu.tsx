@@ -8,7 +8,7 @@ import { saveFile } from '../cv/save';
 import { fileSlug } from '../cv/format';
 import { useI18n } from '../i18n';
 import type { CVData } from '../cv/types';
-import type { TypeStyle } from '../typography';
+import { currentFaces } from '../typography';
 
 /** Two downloads: the page as designed, or a plain one-column PDF for job portals. */
 export function DownloadMenu({ cv, compact = false, onDownloaded }: { cv: CVData; compact?: boolean; onDownloaded?: () => void }) {
@@ -21,8 +21,7 @@ export function DownloadMenu({ cv, compact = false, onDownloaded }: { cv: CVData
     setOpen(false);
     setBusy(true);
     try {
-      const type = (document.documentElement.dataset.type as TypeStyle) || 'sans';
-      const pdf = kind === 'designed' ? await buildDesignedPdf(cv, m, type) : await buildPdf(cv, m);
+      const pdf = kind === 'designed' ? await buildDesignedPdf(cv, m, currentFaces()) : await buildPdf(cv, m);
       const suffix = kind === 'designed' ? 'CV' : 'CV_ATS';
       const outcome = await saveFile(`${fileSlug(cv.profile.name)}_${suffix}.pdf`, pdf, 'application/pdf');
       if (outcome === 'saved') {

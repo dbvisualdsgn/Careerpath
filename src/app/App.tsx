@@ -344,14 +344,14 @@ function CVPage() {
           id="main"
           tabIndex={-1}
           data-skim={skim ? '' : undefined}
-          className="mx-auto max-w-4xl space-y-16 px-4 py-14 font-reading focus:outline-none sm:px-6 md:py-20"
+          className="mx-auto max-w-4xl space-y-16 px-4 py-14 font-body focus:outline-none sm:px-6 md:py-20"
         >
           <div>
             <div className="flex items-start justify-between gap-6">
               <div className="min-w-0">
                 <p className={microLabel}>{m.app.cvTitle}</p>
-                <h1 data-skim-keep className="mt-4 text-[clamp(2.75rem,8vw,5.5rem)] font-normal leading-[0.92] tracking-[-0.035em]">{name}</h1>
-                <p data-skim-keep className="mt-4 text-xl text-ink-soft md:text-2xl">{headline}</p>
+                <h1 data-skim-keep className="mt-4 font-title text-[clamp(2.75rem,8vw,5.5rem)] font-normal leading-[0.92] tracking-[-0.035em]">{name}</h1>
+                <p data-skim-keep className="mt-4 font-title text-xl text-ink-soft md:text-2xl">{headline}</p>
               </div>
               {profile.photo && (
                 <Portrait photo={profile.photo} name={name} alt={fmt(m.photo.alt, { name })} className="h-24 w-24 shrink-0 md:h-36 md:w-36" />
@@ -486,7 +486,7 @@ function CVPage() {
               <dl className="grid grid-cols-1 border-l border-t border-rule sm:grid-cols-3">
                 {cv.languages.map((l) => (
                   <div key={l.id} className="border-b border-r border-rule bg-paper px-4 py-4">
-                    <dt className="text-xl">{l.name}</dt>
+                    <dt className="font-title text-xl">{l.name}</dt>
                     <dd className="mt-1 font-mono text-[12px] uppercase tracking-[0.1em] text-ink-soft">{l.level}</dd>
                   </div>
                 ))}

@@ -173,10 +173,11 @@ export const es: Messages = {
     note: 'Como un lector de libros: siempre papel, nunca una pantalla oscura. Más cálido o más suave, el texto siempre se lee bien.',
   },
   type: {
-    label: 'Estilo del texto',
+    label: 'Tipografías',
     sans: 'Sans',
     serif: 'Serif',
-    mono: 'Mono',
+    titles: 'Títulos',
+    body: 'Texto',
   },
   home: {
     openCV: 'Abrir mi CV',

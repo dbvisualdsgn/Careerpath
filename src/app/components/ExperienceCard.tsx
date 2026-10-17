@@ -19,7 +19,7 @@ export function ExperienceCard({ title, company, location, employmentType, start
 
       <div className="min-w-0">
         <div className="flex flex-col justify-between gap-1 sm:flex-row sm:items-baseline sm:gap-6">
-          <h3 data-skim-keep className="text-xl font-medium leading-tight md:text-2xl">{title}</h3>
+          <h3 data-skim-keep className="font-title text-xl font-medium leading-tight md:text-2xl">{title}</h3>
           {dates && <span data-skim-keep className="whitespace-nowrap font-mono text-[12px] text-ink-soft">{dates}</span>}
         </div>
         <p data-skim-keep className="mt-1.5 font-sans text-[14px] text-ink-soft">

@@ -24,7 +24,7 @@ export function Portrait({ photo, name, alt, className = '' }: PortraitProps) {
   return (
     <span
       aria-hidden="true"
-      className={`flex items-end rounded-sm bg-ink p-2 font-reading leading-none tracking-[-0.04em] text-paper ${className}`}
+      className={`flex items-end rounded-sm bg-ink p-2 font-title leading-none tracking-[-0.04em] text-paper ${className}`}
     >
       {initials(name)}
     </span>

@@ -18,8 +18,8 @@ function Card({ id, field, name, headline, location, skills }: { id: string; fie
           <Portrait name={name} className="h-16 w-16 text-2xl" />
           <span className={label}>{m.fields[field]}</span>
         </div>
-        <h2 className="mt-6 font-reading text-2xl leading-tight tracking-[-0.01em]">{name}</h2>
-        <p className="mt-1 font-reading text-[15px] text-ink-soft">{headline}</p>
+        <h2 className="mt-6 font-title text-2xl leading-tight tracking-[-0.01em]">{name}</h2>
+        <p className="mt-1 font-body text-[15px] text-ink-soft">{headline}</p>
         <p className="mt-3 font-mono text-[12px] text-ink-soft">{location}</p>
         <p className="mt-4 text-[13px] leading-relaxed text-ink-soft">{skills.slice(0, 3).join(' · ')}</p>
         <span className="nudge-up mt-auto inline-flex items-center gap-1 pt-5 text-[14px] underline decoration-1 underline-offset-[6px]">
@@ -65,10 +65,10 @@ export function People() {
         <div ref={titleRef} className="reveal flex flex-wrap items-end justify-between gap-6">
           <div>
             <p className={label}>{fmt(d.count, { count: people.length })}</p>
-            <h1 className="mt-4 font-reading text-[clamp(2.75rem,8vw,6rem)] font-normal leading-[0.92] tracking-[-0.035em]">
+            <h1 className="mt-4 font-title text-[clamp(2.75rem,8vw,6rem)] font-normal leading-[0.92] tracking-[-0.035em]">
               <span className="hl">{d.title}</span>
             </h1>
-            <p className="mt-6 max-w-[40ch] font-reading text-xl text-ink-soft">{d.intro}</p>
+            <p className="mt-6 max-w-[40ch] font-body text-xl text-ink-soft">{d.intro}</p>
           </div>
           <a href="../app/?new=1" className="nudge inline-flex h-12 items-center gap-3 rounded-sm bg-ink px-5 text-[15px] font-medium text-paper hover:opacity-90">
             {m.home.start}
@@ -99,7 +99,7 @@ export function People() {
               type="button"
               aria-pressed={active === null}
               onClick={() => setActive(null)}
-              className={`rounded-full border border-ink px-3.5 py-1.5 text-[14px] ${active === null ? 'bg-highlight font-reading italic text-[#111]' : 'hover:bg-zinc-100 dark:hover:bg-zinc-800'}`}
+              className={`rounded-full border border-ink px-3.5 py-1.5 text-[14px] ${active === null ? 'bg-highlight font-body italic text-[#111]' : 'hover:bg-zinc-100 dark:hover:bg-zinc-800'}`}
             >
               {d.all}
             </button>
@@ -111,7 +111,7 @@ export function People() {
                   type="button"
                   aria-pressed={on}
                   onClick={() => setActive(on ? null : f)}
-                  className={`group inline-flex items-center gap-1.5 rounded-full border border-ink px-3.5 py-1.5 text-[14px] ${on ? 'bg-highlight font-reading italic text-[#111]' : 'hover:bg-zinc-100 dark:hover:bg-zinc-800'}`}
+                  className={`group inline-flex items-center gap-1.5 rounded-full border border-ink px-3.5 py-1.5 text-[14px] ${on ? 'bg-highlight font-body italic text-[#111]' : 'hover:bg-zinc-100 dark:hover:bg-zinc-800'}`}
                 >
                   {m.fields[f]}
                   {on ? <X size={20} aria-hidden="true" /> : <Plus size={20} aria-hidden="true" className="transition-transform group-hover:rotate-90 motion-reduce:transition-none" />}
@@ -129,14 +129,14 @@ export function People() {
             ))}
           </ul>
         ) : (
-          <p className="mt-6 font-reading text-xl">{d.empty}</p>
+          <p className="mt-6 font-body text-xl">{d.empty}</p>
         )}
       </main>
 
       <footer className="border-t border-ink">
         <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-10 sm:flex-row sm:items-center sm:justify-between sm:px-8">
           <Wordmark href="../" />
-          <p className="font-reading text-[15px] text-ink-soft">{m.home.footer}</p>
+          <p className="font-body text-[15px] text-ink-soft">{m.home.footer}</p>
         </div>
       </footer>
     </div>

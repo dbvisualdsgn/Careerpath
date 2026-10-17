@@ -78,7 +78,7 @@ export function AtsPanel({ cv, onJump, onAddSkill, onSetHeadline, focusJobAd = 0
       <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 p-4">
         <div className="flex items-baseline justify-between">
           <h3 className="text-sm font-medium"><span className="hl">{m.ats.readiness}</span></h3>
-          <p className="font-reading text-5xl tabular-nums tracking-[-0.03em]">
+          <p className="font-title text-5xl tabular-nums tracking-[-0.03em]">
             {report.score}
             <span className="text-sm text-zinc-600 dark:text-zinc-400">/100</span>
           </p>
@@ -182,7 +182,7 @@ export function AtsPanel({ cv, onJump, onAddSkill, onSetHeadline, focusJobAd = 0
                 <h4 className="sr-only">{m.ats.matchedKeywords}</h4>
                 <ul className="flex flex-wrap gap-1.5">
                   {match.matched.map((k) => (
-                    <li key={k} className="inline-flex items-center gap-1 rounded-full border border-ink bg-highlight px-2.5 py-1 font-reading text-[13px] italic text-[#111]">
+                    <li key={k} className="inline-flex items-center gap-1 rounded-full border border-ink bg-highlight px-2.5 py-1 font-body text-[13px] italic text-[#111]">
                       {k}
                       <Check size={20} aria-hidden="true" />
                     </li>

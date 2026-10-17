@@ -173,10 +173,11 @@ export const fr: Messages = {
     note: 'Comme une liseuse : toujours du papier, jamais d’écran sombre. Plus chaud ou plus doux, le texte reste toujours lisible.',
   },
   type: {
-    label: 'Style du texte',
+    label: 'Polices',
     sans: 'Sans',
     serif: 'Serif',
-    mono: 'Mono',
+    titles: 'Titres',
+    body: 'Texte',
   },
   home: {
     openCV: 'Ouvrir mon CV',

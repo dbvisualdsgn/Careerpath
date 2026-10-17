@@ -28,7 +28,7 @@ export function SaveVersionDialog({ onSave }: { onSave: (name: string) => void }
       <DialogContent className="rounded-sm border-ink bg-paper text-ink">
         <form onSubmit={submit} className="space-y-5">
           <DialogHeader>
-            <DialogTitle className="font-reading text-2xl font-normal">{l.versionTitle}</DialogTitle>
+            <DialogTitle className="font-title text-2xl font-normal">{l.versionTitle}</DialogTitle>
             <DialogDescription className="text-ink-soft">{l.versionBody}</DialogDescription>
           </DialogHeader>
           <div className="space-y-1.5">

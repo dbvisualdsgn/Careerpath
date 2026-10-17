@@ -173,10 +173,11 @@ export const it: Messages = {
     note: 'Come un e-reader: sempre carta, mai uno schermo scuro. Rendila più calda o più tenue; il testo resta sempre leggibile.',
   },
   type: {
-    label: 'Stile del testo',
+    label: 'Caratteri',
     sans: 'Sans',
     serif: 'Serif',
-    mono: 'Mono',
+    titles: 'Titoli',
+    body: 'Testo',
   },
   home: {
     openCV: 'Apri il mio CV',

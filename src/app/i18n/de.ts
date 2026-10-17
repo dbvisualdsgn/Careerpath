@@ -173,10 +173,11 @@ export const de: Messages = {
     note: 'Wie ein E-Reader: immer Papier, nie ein dunkler Bildschirm. Wärmer oder sanfter, der Text bleibt immer lesbar.',
   },
   type: {
-    label: 'Schriftstil',
+    label: 'Schriften',
     sans: 'Sans',
     serif: 'Serif',
-    mono: 'Mono',
+    titles: 'Überschriften',
+    body: 'Text',
   },
   home: {
     openCV: 'Meinen Lebenslauf öffnen',

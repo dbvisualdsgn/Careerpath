@@ -173,10 +173,11 @@ export const nl: Messages = {
     note: 'Zoals een e-reader: altijd papier, nooit een donker scherm. Warmer of zachter, de tekst blijft altijd leesbaar.',
   },
   type: {
-    label: 'Tekststijl',
+    label: 'Lettertypen',
     sans: 'Sans',
     serif: 'Serif',
-    mono: 'Mono',
+    titles: 'Titels',
+    body: 'Tekst',
   },
   home: {
     openCV: 'Mijn cv openen',

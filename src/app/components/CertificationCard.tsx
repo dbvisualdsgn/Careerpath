@@ -17,7 +17,7 @@ export function CertificationCard({ title, description, institution, year, icon 
       <Icon size={20} aria-hidden="true" className="mt-1 text-ink-soft" />
       <div className="flex flex-col justify-between gap-1 sm:flex-row sm:items-baseline sm:gap-6">
         <div className="min-w-0">
-          <h3 className="text-lg font-medium leading-snug">{title}</h3>
+          <h3 className="font-title text-lg font-medium leading-snug">{title}</h3>
           <p className="mt-1 font-sans text-[14px] text-ink-soft">{[description, institution].filter(Boolean).join(' · ')}</p>
         </div>
         {year && <span className="whitespace-nowrap font-mono text-[12px] text-ink-soft">{year}</span>}
