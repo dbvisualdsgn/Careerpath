@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { MotionConfig, motion } from 'motion/react';
-import { Mail, Zap, Share2, Download, Phone, MapPin, Linkedin, PencilLine, Briefcase, Globe, Route } from 'lucide-react';
+import { Mail, Zap, Share2, Download, Phone, MapPin, Linkedin, PencilLine, Briefcase, Globe, Route, GraduationCap, Award, Languages } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { ThemeProvider } from 'next-themes';
 import { Toaster, toast } from 'sonner';
@@ -134,7 +134,7 @@ function CVPage() {
       <div className={`print:hidden transition-[padding] duration-300 ${editing ? 'lg:pr-[480px]' : ''}`}>
         {/* Header */}
         <header className="sticky top-0 z-40 w-full border-b border-zinc-200 dark:border-zinc-800 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md">
-          <nav aria-label={m.app.home} className="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex justify-between items-center gap-2">
+          <nav aria-label={m.app.home} className="max-w-3xl mx-auto px-4 sm:px-6 h-16 flex justify-between items-center gap-2">
             <AppLogo />
             <div className="flex items-center gap-1 sm:gap-2">
               <Button
@@ -177,179 +177,179 @@ function CVPage() {
           <HeroBackground />
 
           {/* Main Layout */}
-          <main id="main" tabIndex={-1} className="max-w-5xl mx-auto px-4 sm:px-6 py-12 md:py-20 focus:outline-none">
-            <div className="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] gap-12 lg:gap-16">
+          {/* Single column in standard ATS order: contact, summary, skills, experience, education, certifications, languages */}
+          <main id="main" tabIndex={-1} className="max-w-3xl mx-auto px-4 sm:px-6 py-12 md:py-20 space-y-14 focus:outline-none">
 
-              {/* Left Sidebar / Intro Column */}
-              <div className="space-y-12">
+            {/* Name + contact block */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="space-y-4"
+            >
+              <div>
+                <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-zinc-900 dark:text-white" style={headingFont}>
+                  {name}
+                </h1>
+                <p className="mt-1 text-lg text-zinc-600 dark:text-zinc-400 font-medium">
+                  {headline}
+                </p>
+              </div>
 
-                {/* Name Block */}
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5 }}
-                  className="space-y-4"
-                >
-                  <div>
-                    <h1 className="text-4xl font-bold tracking-tight text-zinc-900 dark:text-white" style={headingFont}>
-                      {name}
-                    </h1>
-                    <p className="text-lg text-zinc-600 dark:text-zinc-400 font-medium">
-                      {headline}
-                    </p>
-                  </div>
+              <address className="not-italic">
+                <ul className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-zinc-600 dark:text-zinc-400">
+                  {contacts.map(({ icon: Icon, kind, label, href }) => {
+                    const content = (
+                      <>
+                        <Icon size={16} aria-hidden="true" className="shrink-0" />
+                        <span className="sr-only">{kind}: </span>
+                        <span className="break-all">{label}</span>
+                      </>
+                    );
+                    return (
+                      <li key={kind}>
+                        {href ? (
+                          <a
+                            href={href}
+                            target={href.startsWith('http') ? '_blank' : undefined}
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-2 rounded-sm hover:text-blue-700 dark:hover:text-blue-400 underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 transition-colors"
+                          >
+                            {content}
+                          </a>
+                        ) : (
+                          <span className="inline-flex items-center gap-2">{content}</span>
+                        )}
+                      </li>
+                    );
+                  })}
+                </ul>
+              </address>
+            </motion.div>
 
-                  <address className="not-italic">
-                    <ul className="flex flex-col gap-2 text-sm text-zinc-600 dark:text-zinc-400">
-                      {contacts.map(({ icon: Icon, kind, label, href }) => {
-                        const content = (
-                          <>
-                            <Icon size={16} aria-hidden="true" className="shrink-0" />
-                            <span className="sr-only">{kind}: </span>
-                            <span className="break-all">{label}</span>
-                          </>
-                        );
-                        return (
-                          <li key={kind}>
-                            {href ? (
-                              <a
-                                href={href}
-                                target={href.startsWith('http') ? '_blank' : undefined}
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center gap-2 rounded-sm hover:text-blue-700 dark:hover:text-blue-400 underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 transition-colors"
-                              >
-                                {content}
-                              </a>
-                            ) : (
-                              <span className="inline-flex items-center gap-2">{content}</span>
-                            )}
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  </address>
-                </motion.div>
+            {cv.summary.trim() && (
+              <section aria-labelledby="summary-heading">
+                <h2 id="summary-heading" className={`${sectionTitle} mb-4`} style={headingFont}>{m.sections.summary}</h2>
+                <p className="text-[15px] leading-relaxed text-zinc-700 dark:text-zinc-300 whitespace-pre-line">
+                  {cv.summary}
+                </p>
+              </section>
+            )}
 
-                {/* Summary */}
-                {cv.summary.trim() && (
-                  <section aria-labelledby="summary-heading">
-                    <h2 id="summary-heading" className={`${sectionTitle} mb-4`} style={headingFont}>{m.sections.summary}</h2>
-                    <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400 whitespace-pre-line">
-                      {cv.summary}
-                    </p>
-                  </section>
-                )}
-
-                {/* Core skills */}
+            {(cv.skills.length > 0 || cv.tools.length > 0) && (
+              <section aria-labelledby="skills-heading" className="space-y-6">
+                <h2 id="skills-heading" className={`${sectionTitle} flex items-center gap-2`} style={headingFont}>
+                  <Zap size={16} className="text-zinc-500" aria-hidden="true" />
+                  {m.sections.skills}
+                </h2>
                 {cv.skills.length > 0 && (
-                  <section aria-labelledby="skills-heading">
-                    <h2 id="skills-heading" className={`${sectionTitle} mb-4`} style={headingFont}>{m.sections.skills}</h2>
+                  <div>
+                    <h3 className="mb-3 text-xs font-medium text-zinc-600 dark:text-zinc-400">{m.sections.coreSkills}</h3>
                     <ul className="flex flex-wrap gap-x-2 gap-y-1.5 text-sm text-zinc-700 dark:text-zinc-300">
                       {cv.skills.map((s) => (
                         <li key={s} className="rounded-full border border-zinc-300 dark:border-zinc-700 px-2.5 py-0.5">{s}</li>
                       ))}
                     </ul>
-                  </section>
+                  </div>
                 )}
-
-                {cv.education.length > 0 && (
-                  <section aria-labelledby="education-heading">
-                    <h2 id="education-heading" className={`${sectionTitle} mb-4`} style={headingFont}>{m.sections.education}</h2>
-                    <ul className="space-y-3">
-                      {cv.education.map((e, index) => (
-                        <CertificationCard
-                          key={e.id}
-                          title={e.degree}
-                          description={[e.location, e.details].filter(Boolean).join(' · ')}
-                          institution={e.school}
-                          year={[e.start, e.end].filter(Boolean).join(' – ')}
-                          index={index}
-                          icon="education"
-                        />
-                      ))}
-                    </ul>
-                  </section>
-                )}
-
-                {cv.certifications.length > 0 && (
-                  <section aria-labelledby="certifications-heading">
-                    <h2 id="certifications-heading" className={`${sectionTitle} mb-4`} style={headingFont}>{m.sections.certifications}</h2>
-                    <ul className="space-y-3">
-                      {cv.certifications.map((cert, index) => (
-                        <CertificationCard
-                          key={cert.id}
-                          title={cert.title}
-                          description={cert.description}
-                          institution={cert.issuer}
-                          year={cert.year}
-                          index={index}
-                        />
-                      ))}
-                    </ul>
-                  </section>
-                )}
-
-                {cv.languages.length > 0 && (
-                  <section aria-labelledby="languages-heading">
-                    <h2 id="languages-heading" className={`${sectionTitle} mb-4`} style={headingFont}>{m.sections.languages}</h2>
-                    <dl className="space-y-1 text-sm">
-                      {cv.languages.map((l) => (
-                        <div key={l.id} className="flex justify-between gap-4">
-                          <dt className="text-zinc-900 dark:text-zinc-100">{l.name}</dt>
-                          <dd className="text-zinc-600 dark:text-zinc-400">{l.level}</dd>
-                        </div>
-                      ))}
-                    </dl>
-                  </section>
-                )}
-              </div>
-
-              {/* Right Content Column */}
-              <div className="space-y-16">
-
                 {cv.tools.length > 0 && (
-                  <section aria-labelledby="tools-heading">
-                    <h2 id="tools-heading" className={`${sectionTitle} mb-6 flex items-center gap-2`} style={headingFont}>
-                      <Zap size={16} className="text-zinc-500" aria-hidden="true" />
-                      {m.sections.tools}
-                    </h2>
-                    <ul className="flex flex-wrap gap-2">
+                  <div>
+                    <h3 className="mb-3 text-xs font-medium text-zinc-600 dark:text-zinc-400">{m.sections.tools}</h3>
+                    <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                       {cv.tools.map((tool) => (
                         <ToolBadge key={tool.id} icon={tool.icon} name={tool.name} description={tool.description} />
                       ))}
                     </ul>
-                  </section>
-                )}
-
-                {/* Experience Section */}
-                <section aria-labelledby="experience-heading">
-                  <h2 id="experience-heading" className={`${sectionTitle} mb-8 flex items-center gap-2`} style={headingFont}>
-                    <Briefcase size={16} className="text-zinc-500" aria-hidden="true" />
-                    {m.sections.experience}
-                  </h2>
-                  <div className="space-y-4">
-                    {cv.experience.map((exp, index) => (
-                      <ExperienceCard key={exp.id} {...exp} index={index} />
-                    ))}
-                    {cv.experience.length === 0 && (
-                      <button
-                        type="button"
-                        onClick={() => setEditing(true)}
-                        className="w-full rounded-lg border border-dashed border-zinc-300 dark:border-zinc-700 p-8 text-sm text-zinc-600 dark:text-zinc-400 hover:border-zinc-400 focus-visible:outline-2 focus-visible:outline-blue-600"
-                      >
-                        {m.app.addFirstRole}
-                      </button>
-                    )}
                   </div>
-                </section>
+                )}
+              </section>
+            )}
 
+            <section aria-labelledby="experience-heading">
+              <h2 id="experience-heading" className={`${sectionTitle} mb-6 flex items-center gap-2`} style={headingFont}>
+                <Briefcase size={16} className="text-zinc-500" aria-hidden="true" />
+                {m.sections.experience}
+              </h2>
+              <div className="space-y-4">
+                {cv.experience.map((exp, index) => (
+                  <ExperienceCard key={exp.id} {...exp} index={index} />
+                ))}
+                {cv.experience.length === 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setEditing(true)}
+                    className="w-full rounded-lg border border-dashed border-zinc-300 dark:border-zinc-700 p-8 text-sm text-zinc-600 dark:text-zinc-400 hover:border-zinc-400 focus-visible:outline-2 focus-visible:outline-blue-600"
+                  >
+                    {m.app.addFirstRole}
+                  </button>
+                )}
               </div>
-            </div>
+            </section>
+
+            {cv.education.length > 0 && (
+              <section aria-labelledby="education-heading">
+                <h2 id="education-heading" className={`${sectionTitle} mb-4 flex items-center gap-2`} style={headingFont}>
+                  <GraduationCap size={16} className="text-zinc-500" aria-hidden="true" />
+                  {m.sections.education}
+                </h2>
+                <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {cv.education.map((e, index) => (
+                    <CertificationCard
+                      key={e.id}
+                      title={e.degree}
+                      description={[e.location, e.details].filter(Boolean).join(' · ')}
+                      institution={e.school}
+                      year={[e.start, e.end].filter(Boolean).join(' – ')}
+                      index={index}
+                      icon="education"
+                    />
+                  ))}
+                </ul>
+              </section>
+            )}
+
+            {cv.certifications.length > 0 && (
+              <section aria-labelledby="certifications-heading">
+                <h2 id="certifications-heading" className={`${sectionTitle} mb-4 flex items-center gap-2`} style={headingFont}>
+                  <Award size={16} className="text-zinc-500" aria-hidden="true" />
+                  {m.sections.certifications}
+                </h2>
+                <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {cv.certifications.map((cert, index) => (
+                    <CertificationCard
+                      key={cert.id}
+                      title={cert.title}
+                      description={cert.description}
+                      institution={cert.issuer}
+                      year={cert.year}
+                      index={index}
+                    />
+                  ))}
+                </ul>
+              </section>
+            )}
+
+            {cv.languages.length > 0 && (
+              <section aria-labelledby="languages-heading">
+                <h2 id="languages-heading" className={`${sectionTitle} mb-4 flex items-center gap-2`} style={headingFont}>
+                  <Languages size={16} className="text-zinc-500" aria-hidden="true" />
+                  {m.sections.languages}
+                </h2>
+                <dl className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
+                  {cv.languages.map((l) => (
+                    <div key={l.id} className="rounded-lg border border-zinc-200 dark:border-zinc-800 px-4 py-3">
+                      <dt className="font-medium text-zinc-900 dark:text-zinc-100">{l.name}</dt>
+                      <dd className="text-zinc-600 dark:text-zinc-400">{l.level}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </section>
+            )}
           </main>
 
           {/* Footer */}
           <footer className="border-t border-zinc-200 dark:border-zinc-800 py-12 text-center">
-            <div className="max-w-5xl mx-auto px-4 sm:px-6 flex flex-col md:flex-row justify-between items-center gap-6 text-sm text-zinc-600 dark:text-zinc-400">
+            <div className="max-w-3xl mx-auto px-4 sm:px-6 flex flex-col md:flex-row justify-between items-center gap-6 text-sm text-zinc-600 dark:text-zinc-400">
               <p>© {new Date().getFullYear()} {name}. {m.app.rights}</p>
               {profile.email && (
                 <a href={`mailto:${profile.email}`} className="rounded-sm hover:text-zinc-900 dark:hover:text-zinc-200 underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 transition-colors">{m.app.contact}</a>

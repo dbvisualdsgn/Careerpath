@@ -11,7 +11,7 @@ export const sampleCV: CVData = {
     headline: 'Senior Product Designer',
     email: 'dbvisualdesign@gmail.com',
     phone: '',
-    location: '',
+    location: 'Rennes, France',
     website: 'danielebrusca.com',
     linkedin: '',
   },
@@ -92,14 +92,19 @@ export const sampleCV: CVData = {
       ],
     },
   ],
-  education: [],
+  education: [
+    { id: 'ed1', degree: 'Graphic & Visual Design', school: 'AANT Academy', location: '', start: '', end: '', details: '' },
+  ],
   certifications: [
     { id: 'c1', title: 'Accessibility for UX Design', description: 'WCAG 2.2 criteria', issuer: 'Udemy', year: '' },
     { id: 'c2', title: 'Product Design', description: 'UX Research & Methodologies', issuer: 'Udemy', year: '' },
     { id: 'c3', title: 'UI/UX Design', description: 'Advanced Prototyping', issuer: 'Udemy', year: '' },
-    { id: 'c4', title: 'Graphic & Visual Design', description: '', issuer: 'AANT Academy', year: '' },
   ],
-  languages: [],
+  languages: [
+    { id: 'l1', name: 'Italian', level: 'Native' },
+    { id: 'l2', name: 'English', level: 'Professional' },
+    { id: 'l3', name: 'French', level: 'Professional' },
+  ],
 };
 
 export const blankCV: CVData = {
