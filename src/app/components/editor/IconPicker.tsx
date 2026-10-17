@@ -65,7 +65,7 @@ export function IconPicker({ value, name, onChange, fill = false }: IconPickerPr
           type="button"
           title={fmt(m.picker.change, { name: name || m.editor.item })}
           aria-label={fmt(m.picker.change, { name: name || m.editor.item })}
-          className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-md border border-zinc-200 bg-white hover:border-zinc-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 dark:border-zinc-700"
+          className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-md border border-zinc-200 bg-white hover:border-zinc-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus)] dark:border-zinc-700"
         >
           <BrandIcon src={value} name={name} size={18} fill={fill} />
         </button>
@@ -101,7 +101,7 @@ export function IconPicker({ value, name, onChange, fill = false }: IconPickerPr
                 onChange(icon.dataUrl);
                 setOpen(false);
               }}
-              className="flex h-11 items-center justify-center rounded-md border border-transparent bg-white hover:border-zinc-300 focus-visible:outline-2 focus-visible:outline-blue-600 dark:hover:border-zinc-500"
+              className="flex h-11 items-center justify-center rounded-md border border-transparent bg-white hover:border-zinc-300 focus-visible:outline-2 focus-visible:outline-[var(--focus)] dark:hover:border-zinc-500"
             >
               <img src={icon.dataUrl} alt="" className="h-6 w-6 object-contain" />
             </button>
@@ -129,7 +129,7 @@ export function IconPicker({ value, name, onChange, fill = false }: IconPickerPr
             }}
           />
         </div>
-        {error && <p role="alert" className="mt-2 text-xs text-red-700 dark:text-red-400">{error}</p>}
+        {error && <p role="alert" className="mt-2 text-xs font-medium text-ink">{error}</p>}
         <p className="mt-2 text-[11px] text-zinc-600 dark:text-zinc-400">{m.picker.credit}</p>
       </PopoverContent>
     </Popover>

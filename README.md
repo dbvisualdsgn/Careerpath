@@ -1,8 +1,15 @@
-# careerpath.CV
+# curriculi curricula
 
-An editable, accessible online CV with official tool logos, an ATS-friendly PDF export and a built-in ATS checker,
+A quick, calm way to write your CV. An editable, accessible online CV with official tool logos, an ATS-friendly PDF export and a built-in ATS checker,
 available in English (default), Italian, French, Spanish, German, Portuguese and Dutch.
 The original design is available at https://www.figma.com/design/68PhbcZDT2IDB8ndJuw2h6/Recreate-CV.
+
+## Pages
+
+- `/` is the homepage (`index.html` → `src/home/`).
+- `/app/` is the CV tool (`app/index.html` → `src/app/`). `app/?new=1` starts writing, and `app/?example=1` opens the sample read-only.
+
+The brand and tokens are documented in [DESIGN.md](DESIGN.md).
 
 ## Running the code
 

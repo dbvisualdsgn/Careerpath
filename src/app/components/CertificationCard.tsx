@@ -1,4 +1,3 @@
-import { motion } from 'motion/react';
 import { Award, GraduationCap } from 'lucide-react';
 
 interface CertificationCardProps {
@@ -10,33 +9,19 @@ interface CertificationCardProps {
   icon?: 'award' | 'education';
 }
 
-export function CertificationCard({ title, description, institution, year, index, icon = 'award' }: CertificationCardProps) {
+/** A ruled list row for education and certifications. */
+export function CertificationCard({ title, description, institution, year, icon = 'award' }: CertificationCardProps) {
   const Icon = icon === 'education' ? GraduationCap : Award;
   return (
-    <motion.li
-      initial={{ opacity: 0, x: -10 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ delay: index * 0.08, duration: 0.3 }}
-      className="group flex gap-4 p-4 rounded-lg bg-white dark:bg-zinc-900/30 border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors"
-    >
-      <div className="flex-shrink-0 pt-1">
-        <div className="w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-600 dark:text-zinc-400">
-          <Icon size={16} aria-hidden="true" />
+    <li className="grid grid-cols-[1.5rem_minmax(0,1fr)] gap-x-4 border-t border-rule py-5 first:border-t-0 first:pt-1">
+      <Icon size={18} strokeWidth={1.5} aria-hidden="true" className="mt-1 text-ink-soft" />
+      <div className="flex flex-col justify-between gap-1 sm:flex-row sm:items-baseline sm:gap-6">
+        <div className="min-w-0">
+          <h3 className="text-lg font-medium leading-snug">{title}</h3>
+          <p className="mt-1 font-sans text-[14px] text-ink-soft">{[description, institution].filter(Boolean).join(' · ')}</p>
         </div>
+        {year && <span className="whitespace-nowrap font-mono text-[12px] text-ink-soft">{year}</span>}
       </div>
-
-      <div className="flex-1 min-w-0 space-y-1">
-        <h3 className="font-medium text-zinc-900 dark:text-zinc-100 text-sm">
-          {title}
-        </h3>
-        {description && (
-          <p className="text-xs text-zinc-600 dark:text-zinc-400">{description}</p>
-        )}
-        <div className="flex items-center gap-1.5 text-xs text-zinc-600 dark:text-zinc-400 pt-1">
-          <GraduationCap size={12} aria-hidden="true" />
-          <span>{[institution, year].filter(Boolean).join(' · ')}</span>
-        </div>
-      </div>
-    </motion.li>
+    </li>
   );
 }

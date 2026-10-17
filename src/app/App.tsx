@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { MotionConfig, motion } from 'motion/react';
-import { Mail, Zap, Share2, Download, Phone, MapPin, Linkedin, PencilLine, Gauge, Eye, Loader2, Briefcase, Globe, Route, GraduationCap, Award, Languages } from 'lucide-react';
+import { Mail, Share2, Download, Phone, MapPin, Linkedin, PencilLine, Eye, Loader2, Globe, ArrowLeft } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { ThemeProvider } from 'next-themes';
 import { Toaster, toast } from 'sonner';
@@ -10,55 +9,64 @@ import { ExperienceCard } from './components/ExperienceCard';
 import { CertificationCard } from './components/CertificationCard';
 import { ThemeToggle } from './components/ThemeToggle';
 import { LanguageSwitcher } from './components/LanguageSwitcher';
-import { HeroBackground } from './components/HeroBackground';
+import { TypeSwitcher } from './components/TypeSwitcher';
+import { Wordmark } from './components/Wordmark';
 import { PrintCV } from './components/PrintCV';
 import { CVEditor, type EditorTab } from './components/editor/CVEditor';
 import { runAtsCheck } from './cv/atsCheck';
-import { Button } from './components/ui/button';
 import { useCV } from './cv/useCV';
 import { displayUrl, fileSlug, hrefUrl, toJsonLd } from './cv/format';
 import { buildPdf } from './cv/pdf';
 import { saveFile } from './cv/save';
 import { clearShareHash, readSharedCV } from './cv/share';
-import { blankCV } from './cv/defaultCV';
+import { blankCV, sampleCV } from './cv/defaultCV';
 import { ShareDialog } from './components/ShareDialog';
 import type { CVData } from './cv/types';
 import { I18nProvider, useI18n } from './i18n';
 
-const headingFont = { fontFamily: "'Space Grotesk', sans-serif" };
-const sectionTitle = 'text-sm font-semibold text-zinc-900 dark:text-white uppercase tracking-wider';
+// Read before the first render, because useCV saves the sample as soon as it mounts.
+const hadSavedCV = (() => {
+  try {
+    return localStorage.getItem('careerpath.cv.v1') !== null;
+  } catch {
+    return false;
+  }
+})();
+
+const microLabel = 'font-mono text-[11px] uppercase tracking-[0.14em] text-ink-soft';
+const headerBtn =
+  'inline-flex h-9 items-center gap-2 rounded-sm px-2 text-[13px] text-ink hover:bg-zinc-100 disabled:opacity-60 dark:hover:bg-zinc-800 sm:px-3';
 
 export default function App() {
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
       <I18nProvider>
-        {/* Respect the OS "reduce motion" setting for every entrance animation. */}
-        <MotionConfig reducedMotion="user">
-          <TooltipProvider>
-            <CVPage />
-          </TooltipProvider>
-        </MotionConfig>
+        <TooltipProvider>
+          <CVPage />
+        </TooltipProvider>
       </I18nProvider>
     </ThemeProvider>
   );
 }
 
-function AppLogo() {
-  const { m } = useI18n();
+/** Swiss-style section opener: hairline rule, small mono title, running number. */
+function SectionHead({ id, title, n }: { id: string; title: string; n: number }) {
   return (
-    <a
-      href="#main"
-      aria-label={m.app.home}
-      className="flex items-center gap-2 rounded-md focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-600"
-    >
-      <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-zinc-900 text-white shadow-sm ring-4 ring-zinc-100 dark:bg-white dark:text-zinc-900 dark:ring-zinc-800">
-        <Route size={18} strokeWidth={2.25} aria-hidden="true" />
-      </span>
-      <span className="hidden sm:inline text-sm font-bold tracking-tight text-zinc-900 dark:text-zinc-100" style={headingFont} aria-hidden="true">
-        {m.app.name}
-        <span className="text-zinc-600 dark:text-zinc-400">.CV</span>
-      </span>
-    </a>
+    <div className="mb-6 flex items-baseline justify-between border-t border-ink pt-3">
+      <h2 id={id} className="font-mono text-[12px] font-medium uppercase tracking-[0.14em] text-ink">{title}</h2>
+      <span className="font-mono text-[11px] text-ink-soft" aria-hidden="true">{String(n).padStart(2, '0')}</span>
+    </div>
+  );
+}
+
+/** ATS score as a monochrome mark: dashed (needs work), outlined (good), filled (strong). */
+function ScoreMark({ score }: { score: number }) {
+  const tone =
+    score >= 85 ? 'bg-ink text-paper border-ink' : score >= 65 ? 'border-ink text-ink' : 'border-dashed border-ink text-ink';
+  return (
+    <span className={`inline-flex min-w-8 justify-center rounded-sm border px-1 py-0.5 font-mono text-[11px] font-semibold tabular-nums leading-none ${tone}`} aria-hidden="true">
+      {score}
+    </span>
   );
 }
 
@@ -67,14 +75,18 @@ function CVPage() {
   const { m, locale } = useI18n();
   // A CV opened from a share link (#cv=…) is shown read-only and never overwrites the visitor's own CV.
   const [sharedCV, setSharedCV] = useState<CVData | null>(null);
+  const [isExample, setIsExample] = useState(false);
   const cv = sharedCV ?? ownCV;
   const [shareOpen, setShareOpen] = useState(false);
   const [pdfBusy, setPdfBusy] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [editorTab, setEditorTab] = useState<EditorTab>('profile');
 
   useEffect(() => {
     const load = () =>
       readSharedCV(window.location.hash)
-        .then(setSharedCV)
+        // No #cv= in the URL: leave any CV already on screen (e.g. the example) alone.
+        .then((shared) => shared && setSharedCV(shared))
         .catch(() => {
           setSharedCV(null);
           toast.error(m.shared.loadError);
@@ -88,21 +100,31 @@ function CVPage() {
   const leaveShared = (next: CVData, openEditor: boolean) => {
     setCV(structuredClone(next));
     setSharedCV(null);
+    setIsExample(false);
     clearShareHash();
     if (openEditor) {
       setEditorTab('profile');
       setEditing(true);
     }
   };
-  const [editing, setEditing] = useState(false);
-  const [editorTab, setEditorTab] = useState<EditorTab>('profile');
+  // Entry points from the homepage: ?new=1 (start writing) and ?example=1 (read the sample).
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (!params.has('new') && !params.has('example')) return;
+    if (params.has('example')) {
+      setSharedCV(structuredClone(sampleCV));
+      setIsExample(true);
+    }
+    if (params.has('new')) {
+      if (!hadSavedCV) setCV(structuredClone(blankCV));
+      setEditorTab('profile');
+      setEditing(true);
+    }
+    history.replaceState(null, '', `${window.location.pathname}${window.location.hash}`);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const atsScore = useMemo(() => runAtsCheck(cv, locale).score, [cv, locale]);
-  const atsTone =
-    atsScore >= 85
-      ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-200'
-      : atsScore >= 65
-        ? 'bg-amber-100 text-amber-900 dark:bg-amber-900/40 dark:text-amber-200'
-        : 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-200';
   const atsOpen = editing && editorTab === 'ats';
   const toggleAts = () => {
     if (atsOpen) setEditing(false);
@@ -155,14 +177,14 @@ function CVPage() {
   ].filter(Boolean) as { icon: LucideIcon; kind: string; label: string; href?: string }[];
 
   return (
-    <div className="min-h-screen bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-50 transition-colors duration-300 font-sans selection:bg-blue-500/20 print:bg-white print:min-h-0" style={{ fontFamily: "'Manrope', sans-serif" }}>
+    <div className="min-h-screen bg-paper text-ink print:bg-white print:min-h-0">
       <a
         href="#main"
-        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-3 focus:z-[100] focus:rounded-md focus:bg-zinc-900 focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-white dark:focus:bg-white dark:focus:text-zinc-900 print:hidden"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-3 focus:z-[100] focus:rounded-sm focus:bg-ink focus:px-4 focus:py-2 focus:text-sm focus:text-paper print:hidden"
       >
         {m.app.skipToContent}
       </a>
-      <Toaster className="print:hidden" />
+      <Toaster className="print:hidden" toastOptions={{ className: 'rounded-sm border-ink bg-paper text-ink' }} />
 
       <style>{`
         @media print {
@@ -174,68 +196,63 @@ function CVPage() {
       {/* ATS-friendly single-column version, shown only when printing / saving as PDF */}
       <PrintCV cv={cv} />
 
-      <div className={`print:hidden transition-[padding] duration-300 ${editing ? 'lg:pr-[480px]' : ''}`}>
-        {/* Header */}
-        <header className="sticky top-0 z-40 w-full border-b border-zinc-200 dark:border-zinc-800 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md">
-          <nav aria-label={m.app.home} className="max-w-3xl mx-auto px-4 sm:px-6 h-16 flex justify-between items-center gap-2">
-            <AppLogo />
-            <div className="flex items-center gap-1 sm:gap-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShareOpen(true)}
-                aria-label={m.app.share}
-                className="gap-2 text-xs h-9 px-2 sm:px-3 text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
-              >
+      <div className={`print:hidden ${editing ? 'lg:pr-[480px]' : ''}`}>
+        <header className="sticky top-0 z-40 w-full border-b border-rule bg-paper">
+          <nav aria-label={m.app.home} className="mx-auto flex h-16 max-w-4xl items-center justify-between gap-2 px-4 sm:px-6">
+            <div className="flex items-center gap-1">
+              <a href="../" aria-label={m.app.home} className="hidden h-9 w-9 items-center justify-center rounded-sm hover:bg-zinc-100 dark:hover:bg-zinc-800 md:inline-flex">
+                <ArrowLeft size={18} aria-hidden="true" />
+              </a>
+              <Wordmark href="../" compact />
+            </div>
+            <div className="flex items-center gap-0.5 sm:gap-1">
+              <button type="button" onClick={() => setShareOpen(true)} aria-label={m.app.share} className={headerBtn}>
                 <Share2 size={16} aria-hidden="true" />
                 <span className="hidden md:inline">{m.app.share}</span>
-              </Button>
-              {!sharedCV && (<>
-              <Button
-                variant={atsOpen ? 'secondary' : 'ghost'}
-                size="sm"
-                onClick={toggleAts}
-                aria-pressed={atsOpen}
-                aria-label={`${m.editor.tabs.ats}: ${atsScore}/100`}
-                title={`${m.ats.readiness}: ${atsScore}/100`}
-                className="gap-2 text-xs h-9 px-2 sm:px-3"
-              >
-                <Gauge size={16} aria-hidden="true" />
-                <span className="hidden lg:inline">{m.editor.tabs.ats}</span>
-                <span className={`rounded-full px-1.5 py-0.5 text-[11px] font-semibold tabular-nums leading-none ${atsTone}`} aria-hidden="true">
-                  {atsScore}
-                </span>
-              </Button>
-              <Button
-                variant={editing && !atsOpen ? 'secondary' : 'ghost'}
-                size="sm"
-                onClick={() => {
-                  if (editing && !atsOpen) setEditing(false);
-                  else {
-                    if (editorTab === 'ats') setEditorTab('profile');
-                    setEditing(true);
-                  }
-                }}
-                aria-pressed={editing && !atsOpen}
-                aria-label={m.app.edit}
-                className="gap-2 text-xs h-9"
-              >
-                <PencilLine size={16} aria-hidden="true" />
-                <span className="hidden sm:inline">{m.app.edit}</span>
-              </Button>
-              </>)}
-              <Button
-                variant="outline"
-                size="sm"
+              </button>
+              {!sharedCV && (
+                <>
+                  <button
+                    type="button"
+                    onClick={toggleAts}
+                    aria-pressed={atsOpen}
+                    aria-label={`${m.editor.tabs.ats}: ${atsScore}/100`}
+                    title={`${m.ats.readiness}: ${atsScore}/100`}
+                    className={`${headerBtn} ${atsOpen ? 'bg-zinc-100 dark:bg-zinc-800' : ''}`}
+                  >
+                    <span className="hidden lg:inline">{m.editor.tabs.ats}</span>
+                    <ScoreMark score={atsScore} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (editing && !atsOpen) setEditing(false);
+                      else {
+                        if (editorTab === 'ats') setEditorTab('profile');
+                        setEditing(true);
+                      }
+                    }}
+                    aria-pressed={editing && !atsOpen}
+                    aria-label={m.app.edit}
+                    className={`${headerBtn} ${editing && !atsOpen ? 'bg-zinc-100 dark:bg-zinc-800' : ''}`}
+                  >
+                    <PencilLine size={16} aria-hidden="true" />
+                    <span className="hidden sm:inline">{m.app.edit}</span>
+                  </button>
+                </>
+              )}
+              <button
+                type="button"
                 onClick={handleDownload}
                 disabled={pdfBusy}
                 aria-busy={pdfBusy}
                 aria-label={m.app.downloadPdf}
-                className="gap-2 text-xs h-9 px-2 sm:px-3"
+                className="inline-flex h-9 items-center gap-2 rounded-sm border border-ink px-2 text-[13px] text-ink hover:bg-ink hover:text-paper disabled:opacity-60 sm:px-3"
               >
                 {pdfBusy ? <Loader2 size={16} className="animate-spin motion-reduce:animate-none" aria-hidden="true" /> : <Download size={16} aria-hidden="true" />}
                 <span className="hidden sm:inline">{m.app.downloadPdf}</span>
-              </Button>
+              </button>
+              <TypeSwitcher />
               <LanguageSwitcher />
               <ThemeToggle />
             </div>
@@ -243,208 +260,176 @@ function CVPage() {
         </header>
 
         {sharedCV && (
-          <div role="region" aria-label={m.shared.banner} className="border-b border-blue-200 bg-blue-50 dark:border-blue-900 dark:bg-blue-950/40">
-            <div className="max-w-3xl mx-auto px-4 sm:px-6 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <p className="flex items-center gap-2 text-sm text-blue-950 dark:text-blue-100">
+          <div role="region" aria-label={isExample ? m.shared.example : m.shared.banner} className="bg-ink text-paper">
+            <div className="mx-auto flex max-w-4xl flex-col justify-between gap-3 px-4 py-3 sm:flex-row sm:items-center sm:px-6">
+              <p className="flex items-center gap-2 text-sm">
                 <Eye size={16} aria-hidden="true" className="shrink-0" />
-                {m.shared.banner}
+                {isExample ? m.shared.example : m.shared.banner}
               </p>
               <div className="flex gap-2">
-                <Button size="sm" variant="outline" className="h-8 text-xs" onClick={() => leaveShared(sharedCV, true)}>
+                <button type="button" className="h-8 rounded-sm border border-paper px-3 text-xs hover:bg-paper hover:text-ink" onClick={() => leaveShared(sharedCV, true)}>
                   {m.shared.makeCopy}
-                </Button>
-                <Button size="sm" className="h-8 text-xs" onClick={() => leaveShared(blankCV, true)}>
+                </button>
+                <button type="button" className="h-8 rounded-sm bg-paper px-3 text-xs text-ink hover:opacity-90" onClick={() => leaveShared(blankCV, true)}>
                   {m.shared.createOwn}
-                </Button>
+                </button>
               </div>
             </div>
           </div>
         )}
 
-        <div className="relative">
-          <HeroBackground />
+        {/* One column in standard ATS order: contact, summary, skills, experience, education, certifications, languages */}
+        <main id="main" tabIndex={-1} className="mx-auto max-w-4xl space-y-16 px-4 py-14 font-reading focus:outline-none sm:px-6 md:py-20">
+          <div>
+            <p className={microLabel}>{m.app.cvTitle}</p>
+            <h1 className="mt-4 text-[clamp(2.75rem,8vw,5.5rem)] font-normal leading-[0.92] tracking-[-0.035em]">{name}</h1>
+            <p className="mt-4 text-xl text-ink-soft md:text-2xl">{headline}</p>
+            <address className="mt-8 not-italic">
+              <ul className="flex flex-wrap gap-x-6 gap-y-2 font-sans text-[14px] text-ink-soft">
+                {contacts.map(({ icon: Icon, kind, label, href }) => {
+                  const content = (
+                    <>
+                      <Icon size={15} aria-hidden="true" className="shrink-0" />
+                      <span className="sr-only">{kind}: </span>
+                      <span className="break-all">{label}</span>
+                    </>
+                  );
+                  return (
+                    <li key={kind}>
+                      {href ? (
+                        <a
+                          href={href}
+                          target={href.startsWith('http') ? '_blank' : undefined}
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 rounded-sm underline decoration-rule underline-offset-4 hover:text-ink hover:decoration-ink"
+                        >
+                          {content}
+                        </a>
+                      ) : (
+                        <span className="inline-flex items-center gap-2">{content}</span>
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
+            </address>
+          </div>
 
-          {/* Main Layout */}
-          {/* Single column in standard ATS order: contact, summary, skills, experience, education, certifications, languages */}
-          <main id="main" tabIndex={-1} className="max-w-3xl mx-auto px-4 sm:px-6 py-12 md:py-20 space-y-14 focus:outline-none">
-
-            {/* Name + contact block */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="space-y-4"
-            >
-              <div>
-                <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-zinc-900 dark:text-white" style={headingFont}>
-                  {name}
-                </h1>
-                <p className="mt-1 text-lg text-zinc-600 dark:text-zinc-400 font-medium">
-                  {headline}
-                </p>
-              </div>
-
-              <address className="not-italic">
-                <ul className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-zinc-600 dark:text-zinc-400">
-                  {contacts.map(({ icon: Icon, kind, label, href }) => {
-                    const content = (
-                      <>
-                        <Icon size={16} aria-hidden="true" className="shrink-0" />
-                        <span className="sr-only">{kind}: </span>
-                        <span className="break-all">{label}</span>
-                      </>
-                    );
-                    return (
-                      <li key={kind}>
-                        {href ? (
-                          <a
-                            href={href}
-                            target={href.startsWith('http') ? '_blank' : undefined}
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-2 rounded-sm hover:text-blue-700 dark:hover:text-blue-400 underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 transition-colors"
-                          >
-                            {content}
-                          </a>
-                        ) : (
-                          <span className="inline-flex items-center gap-2">{content}</span>
-                        )}
-                      </li>
-                    );
-                  })}
-                </ul>
-              </address>
-            </motion.div>
-
-            {cv.summary.trim() && (
-              <section aria-labelledby="summary-heading">
-                <h2 id="summary-heading" className={`${sectionTitle} mb-4`} style={headingFont}>{m.sections.summary}</h2>
-                <p className="text-[15px] leading-relaxed text-zinc-700 dark:text-zinc-300 whitespace-pre-line">
-                  {cv.summary}
-                </p>
-              </section>
-            )}
-
-            {(cv.skills.length > 0 || cv.tools.length > 0) && (
-              <section aria-labelledby="skills-heading" className="space-y-6">
-                <h2 id="skills-heading" className={`${sectionTitle} flex items-center gap-2`} style={headingFont}>
-                  <Zap size={16} className="text-zinc-500" aria-hidden="true" />
-                  {m.sections.skills}
-                </h2>
-                {cv.skills.length > 0 && (
-                  <div>
-                    <h3 className="mb-3 text-xs font-medium text-zinc-600 dark:text-zinc-400">{m.sections.coreSkills}</h3>
-                    <ul className="flex flex-wrap gap-x-2 gap-y-1.5 text-sm text-zinc-700 dark:text-zinc-300">
-                      {cv.skills.map((s) => (
-                        <li key={s} className="rounded-full border border-zinc-300 dark:border-zinc-700 px-2.5 py-0.5">{s}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-                {cv.tools.length > 0 && (
-                  <div>
-                    <h3 className="mb-3 text-xs font-medium text-zinc-600 dark:text-zinc-400">{m.sections.tools}</h3>
-                    <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-                      {cv.tools.map((tool) => (
-                        <ToolBadge key={tool.id} icon={tool.icon} name={tool.name} description={tool.description} />
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </section>
-            )}
-
-            <section aria-labelledby="experience-heading">
-              <h2 id="experience-heading" className={`${sectionTitle} mb-6 flex items-center gap-2`} style={headingFont}>
-                <Briefcase size={16} className="text-zinc-500" aria-hidden="true" />
-                {m.sections.experience}
-              </h2>
-              <div className="space-y-4">
-                {cv.experience.map((exp, index) => (
-                  <ExperienceCard key={exp.id} {...exp} index={index} />
-                ))}
-                {cv.experience.length === 0 && (
-                  <button
-                    type="button"
-                    onClick={() => setEditing(true)}
-                    className="w-full rounded-lg border border-dashed border-zinc-300 dark:border-zinc-700 p-8 text-sm text-zinc-600 dark:text-zinc-400 hover:border-zinc-400 focus-visible:outline-2 focus-visible:outline-blue-600"
-                  >
-                    {m.app.addFirstRole}
-                  </button>
-                )}
-              </div>
+          {cv.summary.trim() && (
+            <section aria-labelledby="summary-heading">
+              <SectionHead id="summary-heading" title={m.sections.summary} n={1} />
+              <p className="max-w-[60ch] whitespace-pre-line text-lg leading-relaxed md:text-xl">{cv.summary}</p>
             </section>
+          )}
 
-            {cv.education.length > 0 && (
-              <section aria-labelledby="education-heading">
-                <h2 id="education-heading" className={`${sectionTitle} mb-4 flex items-center gap-2`} style={headingFont}>
-                  <GraduationCap size={16} className="text-zinc-500" aria-hidden="true" />
-                  {m.sections.education}
-                </h2>
-                <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {cv.education.map((e, index) => (
-                    <CertificationCard
-                      key={e.id}
-                      title={e.degree}
-                      description={[e.location, e.details].filter(Boolean).join(' · ')}
-                      institution={e.school}
-                      year={[e.start, e.end].filter(Boolean).join(' – ')}
-                      index={index}
-                      icon="education"
-                    />
-                  ))}
-                </ul>
-              </section>
-            )}
-
-            {cv.certifications.length > 0 && (
-              <section aria-labelledby="certifications-heading">
-                <h2 id="certifications-heading" className={`${sectionTitle} mb-4 flex items-center gap-2`} style={headingFont}>
-                  <Award size={16} className="text-zinc-500" aria-hidden="true" />
-                  {m.sections.certifications}
-                </h2>
-                <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {cv.certifications.map((cert, index) => (
-                    <CertificationCard
-                      key={cert.id}
-                      title={cert.title}
-                      description={cert.description}
-                      institution={cert.issuer}
-                      year={cert.year}
-                      index={index}
-                    />
-                  ))}
-                </ul>
-              </section>
-            )}
-
-            {cv.languages.length > 0 && (
-              <section aria-labelledby="languages-heading">
-                <h2 id="languages-heading" className={`${sectionTitle} mb-4 flex items-center gap-2`} style={headingFont}>
-                  <Languages size={16} className="text-zinc-500" aria-hidden="true" />
-                  {m.sections.languages}
-                </h2>
-                <dl className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
-                  {cv.languages.map((l) => (
-                    <div key={l.id} className="rounded-lg border border-zinc-200 dark:border-zinc-800 px-4 py-3">
-                      <dt className="font-medium text-zinc-900 dark:text-zinc-100">{l.name}</dt>
-                      <dd className="text-zinc-600 dark:text-zinc-400">{l.level}</dd>
-                    </div>
-                  ))}
-                </dl>
-              </section>
-            )}
-          </main>
-
-          {/* Footer */}
-          <footer className="border-t border-zinc-200 dark:border-zinc-800 py-12 text-center">
-            <div className="max-w-3xl mx-auto px-4 sm:px-6 flex flex-col md:flex-row justify-between items-center gap-6 text-sm text-zinc-600 dark:text-zinc-400">
-              <p>© {new Date().getFullYear()} {name}. {m.app.rights}</p>
-              {profile.email && (
-                <a href={`mailto:${profile.email}`} className="rounded-sm hover:text-zinc-900 dark:hover:text-zinc-200 underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 transition-colors">{m.app.contact}</a>
+          {(cv.skills.length > 0 || cv.tools.length > 0) && (
+            <section aria-labelledby="skills-heading" className="space-y-8">
+              <SectionHead id="skills-heading" title={m.sections.skills} n={2} />
+              {cv.skills.length > 0 && (
+                <div>
+                  <h3 className={`${microLabel} mb-3`}>{m.sections.coreSkills}</h3>
+                  <ul className="flex flex-wrap gap-2 text-[15px]">
+                    {cv.skills.map((s) => (
+                      <li key={s} className="rounded-sm border border-ink px-2.5 py-1">{s}</li>
+                    ))}
+                  </ul>
+                </div>
               )}
+              {cv.tools.length > 0 && (
+                <div>
+                  <h3 className={`${microLabel} mb-3`}>{m.sections.tools}</h3>
+                  <ul className="grid grid-cols-1 gap-px border border-rule bg-rule sm:grid-cols-2 lg:grid-cols-3">
+                    {cv.tools.map((tool) => (
+                      <ToolBadge key={tool.id} icon={tool.icon} name={tool.name} description={tool.description} />
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </section>
+          )}
+
+          <section aria-labelledby="experience-heading">
+            <SectionHead id="experience-heading" title={m.sections.experience} n={3} />
+            <div className="border-b border-rule">
+              {cv.experience.map((exp, index) => (
+                <ExperienceCard key={exp.id} {...exp} index={index} />
+              ))}
             </div>
-          </footer>
-        </div>
+            {cv.experience.length === 0 && (
+              <button
+                type="button"
+                onClick={() => {
+                  setEditorTab('experience');
+                  setEditing(true);
+                }}
+                className="w-full rounded-sm border border-dashed border-ink p-8 font-sans text-sm hover:bg-zinc-100 dark:hover:bg-zinc-800"
+              >
+                {m.app.addFirstRole}
+              </button>
+            )}
+          </section>
+
+          {cv.education.length > 0 && (
+            <section aria-labelledby="education-heading">
+              <SectionHead id="education-heading" title={m.sections.education} n={4} />
+              <ul className="border-b border-rule">
+                {cv.education.map((e, index) => (
+                  <CertificationCard
+                    key={e.id}
+                    title={e.degree}
+                    description={[e.location, e.details].filter(Boolean).join(' · ')}
+                    institution={e.school}
+                    year={[e.start, e.end].filter(Boolean).join(' – ')}
+                    index={index}
+                    icon="education"
+                  />
+                ))}
+              </ul>
+            </section>
+          )}
+
+          {cv.certifications.length > 0 && (
+            <section aria-labelledby="certifications-heading">
+              <SectionHead id="certifications-heading" title={m.sections.certifications} n={5} />
+              <ul className="border-b border-rule">
+                {cv.certifications.map((cert, index) => (
+                  <CertificationCard
+                    key={cert.id}
+                    title={cert.title}
+                    description={cert.description}
+                    institution={cert.issuer}
+                    year={cert.year}
+                    index={index}
+                  />
+                ))}
+              </ul>
+            </section>
+          )}
+
+          {cv.languages.length > 0 && (
+            <section aria-labelledby="languages-heading">
+              <SectionHead id="languages-heading" title={m.sections.languages} n={6} />
+              <dl className="grid grid-cols-1 gap-px border border-rule bg-rule sm:grid-cols-3">
+                {cv.languages.map((l) => (
+                  <div key={l.id} className="bg-paper px-4 py-4">
+                    <dt className="text-xl">{l.name}</dt>
+                    <dd className="mt-1 font-mono text-[12px] uppercase tracking-[0.1em] text-ink-soft">{l.level}</dd>
+                  </div>
+                ))}
+              </dl>
+            </section>
+          )}
+        </main>
+
+        <footer className="border-t border-ink">
+          <div className="mx-auto flex max-w-4xl flex-col justify-between gap-4 px-4 py-10 text-sm text-ink-soft sm:flex-row sm:items-center sm:px-6">
+            <Wordmark href="../" />
+            <p>© {new Date().getFullYear()} {name}</p>
+            {profile.email && (
+              <a href={`mailto:${profile.email}`} className="rounded-sm underline underline-offset-4 hover:text-ink">{m.app.contact}</a>
+            )}
+          </div>
+        </footer>
       </div>
 
       <ShareDialog open={shareOpen} onOpenChange={setShareOpen} cv={cv} />

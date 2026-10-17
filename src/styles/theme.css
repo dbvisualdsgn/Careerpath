@@ -1,36 +1,47 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
+  /* curriculi curricula: monochrome e-reader tokens (see DESIGN.md). */
+  --paper: #eceae5;
+  --ink: #111111;
+  --ink-soft: #45433f;
+  --rule: #cfccc5;
+  --focus: #111111;
+  --font-sans: 'Inter Tight', ui-sans-serif, system-ui, sans-serif;
+  --font-serif: 'Literata', Georgia, serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+  /* The "Aa" switch sets data-type on <html>; text that is read follows it. */
+  --reading-font: var(--font-sans);
   --font-size: 16px;
-  --background: #ffffff;
-  --foreground: oklch(0.145 0 0);
-  --card: #ffffff;
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: #030213;
-  --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.95 0.0058 264.53);
-  --secondary-foreground: #030213;
-  --muted: #ececf0;
-  --muted-foreground: #717182;
-  --accent: #e9ebef;
-  --accent-foreground: #030213;
+  --background: var(--paper);
+  --foreground: var(--ink);
+  --card: var(--paper);
+  --card-foreground: var(--ink);
+  --popover: var(--paper);
+  --popover-foreground: var(--ink);
+  --primary: var(--ink);
+  --primary-foreground: var(--paper);
+  --secondary: #dedbd5;
+  --secondary-foreground: var(--ink);
+  --muted: #dedbd5;
+  --muted-foreground: var(--ink-soft);
+  --accent: #dedbd5;
+  --accent-foreground: var(--ink);
   --destructive: #d4183d;
   --destructive-foreground: #ffffff;
-  --border: rgba(0, 0, 0, 0.1);
-  --input: transparent;
-  --input-background: #f3f3f5;
+  --border: var(--rule);
+  --input: var(--rule);
+  --input-background: transparent;
   --switch-background: #cbced4;
   --font-weight-medium: 500;
   --font-weight-normal: 400;
-  --ring: oklch(0.708 0 0);
+  --ring: var(--focus);
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
-  --radius: 0.625rem;
+  --radius: 0.125rem;
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: #030213;
@@ -42,25 +53,30 @@
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.145 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.145 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.985 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
+  --paper: #111111;
+  --ink: #eceae5;
+  --ink-soft: #b5b2ab;
+  --rule: #33312e;
+  --focus: #eceae5;
+  --background: var(--paper);
+  --foreground: var(--ink);
+  --card: var(--paper);
+  --card-foreground: var(--ink);
+  --popover: var(--paper);
+  --popover-foreground: var(--ink);
+  --primary: var(--ink);
+  --primary-foreground: var(--paper);
+  --secondary: #252421;
+  --secondary-foreground: var(--ink);
+  --muted: #252421;
+  --muted-foreground: var(--ink-soft);
+  --accent: #252421;
+  --accent-foreground: var(--ink);
   --destructive: oklch(0.396 0.141 25.723);
   --destructive-foreground: oklch(0.637 0.237 25.331);
-  --border: oklch(0.269 0 0);
-  --input: oklch(0.269 0 0);
-  --ring: oklch(0.439 0 0);
+  --border: var(--rule);
+  --input: var(--rule);
+  --ring: var(--focus);
   --font-weight-medium: 500;
   --font-weight-normal: 400;
   --chart-1: oklch(0.488 0.243 264.376);
@@ -78,7 +94,42 @@
   --sidebar-ring: oklch(0.439 0 0);
 }
 
+[data-type='serif'] { --reading-font: var(--font-serif); }
+[data-type='mono'] { --reading-font: var(--font-mono); }
+
+/* Warm neutral scale. Tailwind's zinc and white are remapped onto paper and ink so every
+   existing utility follows the monochrome system; shadows are switched off (flat, e-ink). */
+@theme {
+  --color-white: var(--paper);
+  --color-zinc-50: #e5e3dd;
+  --color-zinc-100: #dedbd5;
+  --color-zinc-200: #cfccc5;
+  --color-zinc-300: #c4c1ba;
+  --color-zinc-400: #a8a59e;
+  --color-zinc-500: #6b6862;
+  --color-zinc-600: #45433f;
+  --color-zinc-700: #33312e;
+  --color-zinc-800: #252421;
+  --color-zinc-900: #1a1917;
+  --color-zinc-950: #111111;
+  --shadow-xs: 0 0 #0000;
+  --shadow-sm: 0 0 #0000;
+  --shadow: 0 0 #0000;
+  --shadow-md: 0 0 #0000;
+  --shadow-lg: 0 0 #0000;
+  --shadow-xl: 0 0 #0000;
+  --shadow-2xl: 0 0 #0000;
+  --font-sans: 'Inter Tight', ui-sans-serif, system-ui, sans-serif;
+  --font-serif: 'Literata', Georgia, serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+}
+
 @theme inline {
+  --color-paper: var(--paper);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-rule: var(--rule);
+  --font-reading: var(--reading-font);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -126,6 +177,19 @@
 
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    font-feature-settings: 'ss01', 'cv11';
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background: var(--ink);
+    color: var(--paper);
   }
 
   /**

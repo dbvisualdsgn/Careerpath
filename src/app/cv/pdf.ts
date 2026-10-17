@@ -126,7 +126,7 @@ export async function buildPdf(cv: CVData, m: Messages): Promise<Blob> {
     author: profile.name,
     subject: profile.headline,
     keywords: [...cv.skills, ...cv.tools.map((t) => t.name)].join(', '),
-    creator: 'careerpath.CV',
+    creator: 'curriculi curricula',
   });
   return doc.output('blob');
 }

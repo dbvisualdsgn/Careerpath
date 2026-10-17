@@ -1,5 +1,3 @@
-import { motion } from 'motion/react';
-import { Building2, MapPin } from 'lucide-react';
 import { BrandIcon } from './BrandIcon';
 import { dateRange } from '../cv/format';
 import type { Experience } from '../cv/types';
@@ -8,67 +6,37 @@ interface ExperienceCardProps extends Experience {
   index: number;
 }
 
-export function ExperienceCard({
-  title,
-  company,
-  location,
-  employmentType,
-  start,
-  end,
-  bullets,
-  logo,
-  index
-}: ExperienceCardProps) {
+/** One role as a ruled entry: logo, title and dates on one line, then company and achievements. */
+export function ExperienceCard({ title, company, location, employmentType, start, end, bullets, logo }: ExperienceCardProps) {
   const dates = dateRange(start, end);
   const items = bullets.filter((b) => b.trim());
   return (
-    <motion.article
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.1, duration: 0.4 }}
-      className="group relative bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 rounded-lg p-6 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors duration-200"
-    >
-      <div className="flex gap-4 items-start">
-        {/* Company logo - full-frame tile */}
-        <div className="flex-shrink-0 w-10 h-10 rounded-md overflow-hidden ring-1 ring-inset ring-black/5 dark:ring-white/10">
-          <BrandIcon src={logo} name={company} fill />
-        </div>
-
-        <div className="flex-1 min-w-0 space-y-2">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-            <h3 className="font-semibold text-zinc-900 dark:text-zinc-100 text-base">
-              {title}
-            </h3>
-            {dates && (
-              <span className="self-start sm:self-auto text-xs font-mono text-zinc-600 dark:text-zinc-300 bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 rounded whitespace-nowrap">
-                {dates}
-              </span>
-            )}
-          </div>
-
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-zinc-600 dark:text-zinc-400">
-            <div className="flex items-center gap-1.5">
-              <Building2 size={14} aria-hidden="true" />
-              <span className="font-medium">{company}</span>
-            </div>
-            {location && (
-              <div className="flex items-center gap-1.5">
-                <MapPin size={14} aria-hidden="true" />
-                <span>{location}</span>
-              </div>
-            )}
-            {employmentType && <span>{employmentType}</span>}
-          </div>
-
-          {items.length > 0 && (
-            <ul className="list-disc pl-4 space-y-1 text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed pt-1 marker:text-zinc-400 dark:marker:text-zinc-500">
-              {items.map((b, i) => (
-                <li key={i}>{b}</li>
-              ))}
-            </ul>
-          )}
-        </div>
+    <article className="grid grid-cols-[2.5rem_minmax(0,1fr)] gap-x-5 border-t border-rule py-7 first:border-t-0 first:pt-1">
+      {/* Company logo - full-frame tile */}
+      <div className="h-10 w-10 overflow-hidden rounded-sm ring-1 ring-inset ring-rule">
+        <BrandIcon src={logo} name={company} fill />
       </div>
-    </motion.article>
+
+      <div className="min-w-0">
+        <div className="flex flex-col justify-between gap-1 sm:flex-row sm:items-baseline sm:gap-6">
+          <h3 className="text-xl font-medium leading-tight md:text-2xl">{title}</h3>
+          {dates && <span className="whitespace-nowrap font-mono text-[12px] text-ink-soft">{dates}</span>}
+        </div>
+        <p className="mt-1.5 font-sans text-[14px] text-ink-soft">
+          {[company, location, employmentType].filter(Boolean).join(' · ')}
+        </p>
+
+        {items.length > 0 && (
+          <ul className="mt-4 space-y-1.5 text-[16px] leading-relaxed">
+            {items.map((b, i) => (
+              <li key={i} className="grid grid-cols-[1rem_minmax(0,1fr)]">
+                <span aria-hidden="true" className="text-ink-soft">–</span>
+                <span>{b}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </article>
   );
 }

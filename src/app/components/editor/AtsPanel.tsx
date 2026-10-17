@@ -9,9 +9,9 @@ import { fmt, useI18n } from '../../i18n';
 import type { CVData } from '../../cv/types';
 
 const severityStyle: Record<Finding['severity'], { icon: typeof AlertCircle; className: string }> = {
-  error: { icon: AlertCircle, className: 'text-red-700 dark:text-red-400' },
-  warning: { icon: AlertTriangle, className: 'text-amber-700 dark:text-amber-400' },
-  tip: { icon: Lightbulb, className: 'text-blue-700 dark:text-blue-400' },
+  error: { icon: AlertCircle, className: 'text-ink' },
+  warning: { icon: AlertTriangle, className: 'text-ink' },
+  tip: { icon: Lightbulb, className: 'text-ink-soft' },
 };
 
 const JD_KEY = 'careerpath.jd.v1';
@@ -89,7 +89,7 @@ export function AtsPanel({ cv, onJump }: { cv: CVData; onJump: (section: Finding
                 <button
                   type="button"
                   onClick={() => onJump(f.section)}
-                  className="flex w-full gap-2 rounded-md p-2 text-left text-sm hover:bg-zinc-100 focus-visible:outline-2 focus-visible:outline-blue-600 dark:hover:bg-zinc-800/60"
+                  className="flex w-full gap-2 rounded-md p-2 text-left text-sm hover:bg-zinc-100 focus-visible:outline-2 focus-visible:outline-[var(--focus)] dark:hover:bg-zinc-800/60"
                 >
                   <s.icon size={16} className={`mt-0.5 shrink-0 ${s.className}`} aria-hidden="true" />
                   <span>
@@ -110,7 +110,7 @@ export function AtsPanel({ cv, onJump }: { cv: CVData; onJump: (section: Finding
           <ul className="space-y-1">
             {report.passed.map((p) => (
               <li key={p.key} className="flex gap-2 text-sm text-zinc-700 dark:text-zinc-300">
-                <CheckCircle2 size={16} className="mt-0.5 shrink-0 text-emerald-700 dark:text-emerald-400" aria-hidden="true" />
+                <CheckCircle2 size={16} className="mt-0.5 shrink-0 text-ink" aria-hidden="true" />
                 {fmt(m.ats.passed[p.key], p.params)}
               </li>
             ))}
@@ -147,7 +147,7 @@ export function AtsPanel({ cv, onJump }: { cv: CVData; onJump: (section: Finding
                 <h4 className="sr-only">{m.ats.missingKeywords}</h4>
                 <ul className="flex flex-wrap gap-1.5">
                   {match.missing.map((k) => (
-                    <li key={k} className="rounded border border-amber-300 bg-amber-50 px-1.5 py-0.5 text-xs text-amber-900 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-200">
+                    <li key={k} className="rounded-sm border border-dashed border-ink px-1.5 py-0.5 text-xs text-ink">
                       {k}
                     </li>
                   ))}
@@ -159,7 +159,7 @@ export function AtsPanel({ cv, onJump }: { cv: CVData; onJump: (section: Finding
                 <h4 className="sr-only">{m.ats.matchedKeywords}</h4>
                 <ul className="flex flex-wrap gap-1.5">
                   {match.matched.map((k) => (
-                    <li key={k} className="rounded border border-emerald-300 bg-emerald-50 px-1.5 py-0.5 text-xs text-emerald-900 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200">
+                    <li key={k} className="rounded-sm border border-ink bg-ink px-1.5 py-0.5 text-xs text-paper">
                       {k}
                     </li>
                   ))}

@@ -10,6 +10,15 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
+  build: {
+    rollupOptions: {
+      // Two pages: the homepage at / and the CV tool at /app/.
+      input: {
+        home: path.resolve(__dirname, 'index.html'),
+        app: path.resolve(__dirname, 'app/index.html'),
+      },
+    },
+  },
   resolve: {
     alias: {
       // Alias @ to the src directory

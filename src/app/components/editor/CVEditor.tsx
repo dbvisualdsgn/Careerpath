@@ -60,7 +60,7 @@ function ItemControls({ onUp, onDown, onRemove, label }: { onUp?: () => void; on
       <Button type="button" variant="ghost" size="icon" className="h-8 w-8" disabled={!onDown} onClick={onDown} title={down} aria-label={down}>
         <ArrowDown size={14} aria-hidden="true" />
       </Button>
-      <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-zinc-600 hover:text-red-700 dark:text-zinc-400" onClick={onRemove} title={remove} aria-label={remove}>
+      <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-zinc-600 hover:text-ink dark:text-zinc-400" onClick={onRemove} title={remove} aria-label={remove}>
         <Trash2 size={14} aria-hidden="true" />
       </Button>
     </div>
