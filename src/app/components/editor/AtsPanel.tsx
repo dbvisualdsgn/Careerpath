@@ -47,7 +47,7 @@ export function AtsPanel({ cv, onJump, onAddSkill }: { cv: CVData; onJump: (sect
       return '';
     }
   });
-  const match = useMemo(() => (jd.trim() ? matchKeywords(cv, jd) : null), [cv, jd]);
+  const match = useMemo(() => (jd.trim() ? matchKeywords(cv, jd, locale) : null), [cv, jd, locale]);
 
   const scoreLabel = report.score >= 85 ? m.ats.strong : report.score >= 65 ? m.ats.good : m.ats.needsWork;
   const order = { error: 0, warning: 1, tip: 2 };

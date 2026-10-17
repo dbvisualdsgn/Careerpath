@@ -113,7 +113,7 @@ function AtsInfographic() {
   const { m, locale } = useI18n();
   const h = m.homeX;
   const report = useMemo(() => runAtsCheck(sampleCV, locale), [locale]);
-  const match = useMemo(() => matchKeywords(sampleCV, DEMO_AD), []);
+  const match = useMemo(() => matchKeywords(sampleCV, DEMO_AD, 'en'), []);
   const ref = useReveal<HTMLDivElement>(0.25);
   const shown = useCountUp(report.score, 1100);
   const checks = [h.c1, h.c2, h.c3, h.c4, h.c5, h.c6];

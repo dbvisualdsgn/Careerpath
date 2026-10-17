@@ -2,6 +2,7 @@
 // parseable contact details, standard sections, dated roles, achievement-led bullets, keywords.
 import type { CVData } from './types';
 import type { Messages } from '../i18n/en';
+import { stopwordsFor } from './stopwords';
 
 export type Severity = 'error' | 'warning' | 'tip';
 type FindingKey = keyof Messages['ats']['findings'];
@@ -129,7 +130,7 @@ export function runAtsCheck(cv: CVData, locale: string = 'en'): AtsReport {
       const n = words(b).length;
       if (n > 40) add('tip', 'experience', 'expLength', { label, count: n }, id(`len-${i}`));
       if (!english) return;
-      const first = words(b)[0]?.toLowerCase().replace(/[^a-z]/g, '') ?? '';
+      const first = words(b)[0]?.toLowerCase().replace(/[^\p{L}]/gu, '') ?? '';
       const opening = b.trim().split(/\s+/).slice(0, 2).join(' ');
       if (WEAK_OPENERS.test(b.trim())) add('warning', 'experience', 'expWeak', { label, start: opening }, id(`weak-${i}`));
       else if (first && !ACTION_VERBS.has(first) && !first.endsWith('ed') && !IRREGULAR_PAST.has(first))
@@ -163,34 +164,29 @@ export function runAtsCheck(cv: CVData, locale: string = 'en'): AtsReport {
   return { score, findings, passed, wordCount };
 }
 
-const STOPWORDS = new Set(
-  `a about above across after again against all also am an and any are as at be because been before being below between
-  both but by can could did do does doing down during each few for from further had has have having he her here hers him
-  his how i if in into is it its itself just like make may more most must my no nor not now of off on once only or other
-  our ours out over own per same she should so some such than that the their them then there these they this those
-  through to too under until up us very via was we well were what when where which while who whom why will with within
-  without would you your yours etc including include includes strong ability experience experiences work working team
-  teams role roles years year looking join help using use new across based within plus great good best ideal candidate
-  responsibilities requirements required preferred qualifications skills skill knowledge understanding environment
-  company job position opportunity apply applicants candidates we're you'll you're it's day days`
-    .split(/\s+/)
-    .filter(Boolean),
-);
-
-/** Extracts the most frequent meaningful terms (single words and two-word phrases) from a job description. */
-export function extractKeywords(jobDescription: string, limit = 30) {
-  const tokens = jobDescription
+/** Lowercased word tokens in any script; accents survive, so "développement" stays one word. */
+export function tokenize(text: string) {
+  return text
+    .normalize('NFC')
     .toLowerCase()
-    .replace(/[^a-z0-9+#./\s-]/g, ' ')
+    .replace(/[\u2019']/g, ' ')
+    .replace(/[^\p{L}\p{N}+#./\s-]/gu, ' ')
     .split(/\s+/)
     .map((t) => t.replace(/^[-./]+|[-./]+$/g, ''))
     .filter(Boolean);
+}
+
+/** Extracts the most frequent meaningful terms (single words and two-word phrases) from a job description. */
+export function extractKeywords(jobDescription: string, locale = 'en', limit = 30) {
+  const stop = stopwordsFor(locale);
+  const tokens = tokenize(jobDescription);
   const counts = new Map<string, number>();
   const bump = (k: string, by = 1) => counts.set(k, (counts.get(k) ?? 0) + by);
+  const useful = (t: string) => t.length > 2 && !stop.has(t) && !/^\d+$/.test(t);
   tokens.forEach((t, i) => {
-    if (t.length > 2 && !STOPWORDS.has(t) && !/^\d+$/.test(t)) bump(t);
+    if (useful(t)) bump(t);
     const next = tokens[i + 1];
-    if (next && !STOPWORDS.has(t) && !STOPWORDS.has(next) && t.length > 2 && next.length > 2) bump(`${t} ${next}`, 1.5);
+    if (next && useful(t) && useful(next)) bump(`${t} ${next}`, 1.5);
   });
   return [...counts.entries()]
     .filter(([k, n]) => n >= (k.includes(' ') ? 3 : 1))
@@ -199,11 +195,20 @@ export function extractKeywords(jobDescription: string, limit = 30) {
     .map(([k]) => k);
 }
 
-export function matchKeywords(cv: CVData, jobDescription: string) {
-  const haystack = allText(cv).toLowerCase();
-  const keywords = extractKeywords(jobDescription);
-  const matched = keywords.filter((k) => haystack.includes(k));
-  const missing = keywords.filter((k) => !haystack.includes(k));
+const singular = (t: string) => (t.length > 3 && t.endsWith('s') && !t.endsWith('ss') ? t.slice(0, -1) : t);
+
+/** Whole-word matching: "java" does not match "javascript", plurals count as the same word. */
+export function matchKeywords(cv: CVData, jobDescription: string, locale = 'en') {
+  const tokens = tokenize(allText(cv)).map(singular);
+  const words = new Set(tokens);
+  const pairs = new Set(tokens.slice(1).map((t, i) => `${tokens[i]} ${t}`));
+  const has = (k: string) => {
+    const parts = k.split(' ').map(singular);
+    return parts.length === 1 ? words.has(parts[0]) : pairs.has(parts.join(' '));
+  };
+  const keywords = extractKeywords(jobDescription, locale);
+  const matched = keywords.filter(has);
+  const missing = keywords.filter((k) => !has(k));
   const rate = keywords.length ? Math.round((matched.length / keywords.length) * 100) : 0;
   return { keywords, matched, missing, rate };
 }
