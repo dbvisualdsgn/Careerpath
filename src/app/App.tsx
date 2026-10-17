@@ -1,5 +1,6 @@
+import { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
-import { Mail, Figma, Palette, Zap, Trello, FileText, Database, MousePointer, Sparkles, Share2, Download, Printer, Target } from 'lucide-react';
+import { Mail, Zap, Share2, Download, Phone, MapPin, Linkedin, PencilLine } from 'lucide-react';
 import { ThemeProvider } from 'next-themes';
 import { Toaster, toast } from 'sonner';
 import { TooltipProvider } from './components/ui/tooltip';
@@ -8,68 +9,43 @@ import { ExperienceCard } from './components/ExperienceCard';
 import { CertificationCard } from './components/CertificationCard';
 import { ThemeToggle } from './components/ThemeToggle';
 import { HeroBackground } from './components/HeroBackground';
+import { PrintCV } from './components/PrintCV';
+import { CVEditor } from './components/editor/CVEditor';
 import { Button } from './components/ui/button';
+import { useCV } from './cv/useCV';
+import { displayUrl, hrefUrl, initials, toJsonLd } from './cv/format';
+
+const headingFont = { fontFamily: "'Space Grotesk', sans-serif" };
+const sectionTitle = 'text-sm font-semibold text-zinc-900 dark:text-white uppercase tracking-wider';
 
 export default function App() {
-  const tools = [
-    { icon: Figma, name: 'Figma', description: 'Collaborative interface design tool' },
-    { icon: Palette, name: 'Adobe Suite', description: 'Photoshop, Illustrator, XD' },
-    { icon: Zap, name: 'Jitter', description: 'Motion design tool' },
-    { icon: Sparkles, name: 'AI Tools', description: 'ChatGPT, Midjourney' },
-    { icon: Trello, name: 'Linear', description: 'Project management' },
-    { icon: FileText, name: 'Notion', description: 'Documentation & Notes' },
-    { icon: Database, name: 'Productboard', description: 'Product management' },
-    { icon: MousePointer, name: 'Hotjar', description: 'Behavior analytics' },
-  ];
+  const { cv, setCV, update } = useCV();
+  const [editing, setEditing] = useState(false);
+  const { profile } = cv;
 
-  const experiences = [
-    {
-      title: 'Product & Brand Designer',
-      company: 'GitGuardian',
-      location: 'Paris (Remote)',
-      period: '2023 - Present',
-      description: 'Leading product design for a secrets security platform. Creating intuitive interfaces to help developers detect exposed API keys.',
-      companyIcon: '🔐'
-    },
-    {
-      title: 'Brand & UX/UI Designer',
-      company: 'Strapi',
-      location: 'Paris (Remote)',
-      period: '2022 - 2023',
-      description: 'Designed the brand identity and UX for the leading open-source headless CMS. Empowering developers to build APIs fast.',
-      companyIcon: '🚀'
-    },
-    {
-      title: 'Designer (Freelance)',
-      company: 'DB Visual Design',
-      location: 'Rennes (Remote)',
-      period: '2016 - Present',
-      description: 'Independent design consultancy providing brand identity and UX/UI design for startups across various industries.',
-      companyIcon: '🎨'
-    },
-    {
-      title: 'Senior Graphic Designer',
-      company: 'Mosaico Studio',
-      location: 'Rome',
-      period: 'Freelance',
-      description: 'Created compelling visual designs and brand materials for diverse clients, focusing on print and digital media.',
-      companyIcon: '🖼️'
-    },
-  ];
+  // Document title doubles as the default PDF file name when printing.
+  useEffect(() => {
+    document.title = [profile.name, profile.headline, 'CV'].filter(Boolean).join(' - ');
+  }, [profile.name, profile.headline]);
 
-  const certifications = [
-    { title: 'Accessibility for UX Design', description: 'WCAG 2.2 criteria', institution: 'Udemy' },
-    { title: 'Product Design', description: 'UX Research & Methodologies', institution: 'Udemy' },
-    { title: 'UI/UX Design', description: 'Advanced Prototyping', institution: 'Udemy' },
-    { title: 'Graphic & Visual Design', institution: 'AANT Academy' },
-  ];
+  // Structured data so AI tools and search engines can parse the CV reliably.
+  useEffect(() => {
+    let el = document.getElementById('cv-jsonld') as HTMLScriptElement | null;
+    if (!el) {
+      el = document.createElement('script');
+      el.type = 'application/ld+json';
+      el.id = 'cv-jsonld';
+      document.head.appendChild(el);
+    }
+    el.textContent = JSON.stringify(toJsonLd(cv));
+  }, [cv]);
 
   const handleShare = async () => {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: 'Daniele Brusca - CV',
-          text: 'Check out Daniele Brusca\'s CV',
+          title: `${profile.name} - CV`,
+          text: `Check out ${profile.name}'s CV`,
           url: window.location.href,
         });
       } catch (err) {
@@ -82,222 +58,259 @@ export default function App() {
   };
 
   const handleDownload = () => {
-    window.print();
+    toast('Choose "Save as PDF" and untick "Headers and footers"', {
+      description: 'Browser headers add the URL and date to your PDF text, which ATS parsers read as noise.',
+    });
+    // Let the toast render before the print dialog blocks the page.
+    setTimeout(() => window.print(), 300);
   };
+
+  const contacts = [
+    profile.email && { icon: Mail, label: profile.email, href: `mailto:${profile.email}` },
+    profile.phone && { icon: Phone, label: profile.phone, href: `tel:${profile.phone.replace(/[^\d+]/g, '')}` },
+    profile.location && { icon: MapPin, label: profile.location },
+    profile.linkedin && { icon: Linkedin, label: displayUrl(profile.linkedin), href: hrefUrl(profile.linkedin) },
+    profile.website && { icon: GlobeIcon, label: displayUrl(profile.website), href: hrefUrl(profile.website) },
+  ].filter(Boolean) as { icon: React.ComponentType<{ size?: number }>; label: string; href?: string }[];
 
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
       <TooltipProvider>
-        <div className="min-h-screen bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-50 transition-colors duration-300 font-sans selection:bg-blue-500/20" style={{ fontFamily: "'Manrope', sans-serif" }}>
-          <Toaster />
-          
-          {/* Print Styles to force light mode */}
+        <div className="min-h-screen bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-50 transition-colors duration-300 font-sans selection:bg-blue-500/20 print:bg-white print:min-h-0" style={{ fontFamily: "'Manrope', sans-serif" }}>
+          <Toaster className="print:hidden" />
+
           <style>{`
             @media print {
-              @page { margin: 0; }
-              body { 
-                background: white !important; 
-                color: black !important; 
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-              }
-              .dark {
-                color-scheme: light !important;
-              }
-              /* Hide interactive elements */
-              header nav button, 
-              header nav .theme-toggle,
-              .no-print {
-                display: none !important;
-              }
-              /* Ensure backgrounds print correctly */
-              * {
-                border-color: #e4e4e7 !important; /* zinc-200 */
-              }
-              .bg-zinc-100 { background-color: #f4f4f5 !important; }
-              .text-zinc-500 { color: #71717a !important; }
-              .text-zinc-600 { color: #52525b !important; }
-              .text-zinc-900 { color: #18181b !important; }
-              
-              /* Reset dark mode overrides */
-              .dark .bg-zinc-950 { background-color: white !important; }
-              .dark .text-zinc-50 { color: black !important; }
-              .dark .text-zinc-400 { color: #71717a !important; }
-              .dark .border-zinc-800 { border-color: #e4e4e7 !important; }
+              @page { margin: 14mm 16mm; }
+              body { background: white !important; }
             }
           `}</style>
 
-          {/* Header */}
-          <header className="sticky top-0 z-50 w-full border-b border-zinc-200 dark:border-zinc-800 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md">
-            <nav className="max-w-5xl mx-auto px-6 h-16 flex justify-between items-center">
-              <div className="text-sm font-bold tracking-tight text-zinc-900 dark:text-zinc-100" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-                DB.CV
-              </div>
-              <div className="flex items-center gap-2">
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={handleShare}
-                  className="hidden sm:flex gap-2 text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
-                >
-                  <Share2 size={16} />
-                  Share
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={handleDownload}
-                  className="gap-2 text-xs h-9"
-                >
-                  <Download size={16} />
-                  <span className="hidden sm:inline">Download PDF</span>
-                  <span className="sm:hidden">PDF</span>
-                </Button>
-                <div className="w-px h-4 bg-zinc-200 dark:bg-zinc-800 mx-2" />
-                <ThemeToggle />
-              </div>
-            </nav>
-          </header>
+          {/* ATS-friendly single-column version, shown only when printing / saving as PDF */}
+          <PrintCV cv={cv} />
 
-          <div className="relative">
-            <HeroBackground />
-
-            {/* Main Layout */}
-            <main className="max-w-5xl mx-auto px-6 py-12 md:py-20">
-              <div className="grid grid-cols-1 md:grid-cols-12 gap-12 lg:gap-24">
-                
-                {/* Left Sidebar / Intro Column */}
-                <div className="md:col-span-4 space-y-12">
-                  
-                  {/* Name Block */}
-                  <motion.div 
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5 }}
-                    className="space-y-4"
+          <div className={`print:hidden transition-[padding] duration-300 ${editing ? 'lg:pr-[480px]' : ''}`}>
+            {/* Header */}
+            <header className="sticky top-0 z-40 w-full border-b border-zinc-200 dark:border-zinc-800 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md">
+              <nav className="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex justify-between items-center">
+                <div className="text-sm font-bold tracking-tight text-zinc-900 dark:text-zinc-100" style={headingFont}>
+                  {initials(profile.name)}.CV
+                </div>
+                <div className="flex items-center gap-1 sm:gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleShare}
+                    className="hidden sm:flex gap-2 text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
                   >
-                    <div>
-                      <h1 className="text-4xl font-bold tracking-tight text-zinc-900 dark:text-white" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-                        Daniele Brusca
-                      </h1>
-                      <p className="text-lg text-zinc-500 dark:text-zinc-400 font-medium">
-                        Senior Product Designer
-                      </p>
-                    </div>
-
-                    <div className="flex flex-col gap-2 text-sm text-zinc-600 dark:text-zinc-400">
-                      <a 
-                        href="mailto:dbvisualdesign@gmail.com" 
-                        className="flex items-center gap-2 hover:text-blue-500 transition-colors"
-                      >
-                        <Mail size={16} />
-                        <span>dbvisualdesign@gmail.com</span>
-                      </a>
-                      <a 
-                        href="https://danielebrusca.com" 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-2 hover:text-blue-500 transition-colors"
-                      >
-                        <GlobeIcon />
-                        <span>danielebrusca.com</span>
-                      </a>
-                    </div>
-                  </motion.div>
-
-                  {/* Scope Section */}
-                  <section>
-                    <h3 className="text-sm font-semibold text-zinc-900 dark:text-white uppercase tracking-wider mb-4" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Scope</h3>
-                    <div className="prose prose-zinc dark:prose-invert text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-                      <p>
-                        Specialized in Product Design, Design Systems, and Brand Identity. Focusing on building scalable, user-centric interfaces for SaaS and developer tools.
-                      </p>
-                    </div>
-                  </section>
-
-                  {/* About Section */}
-                  <section>
-                    <h3 className="text-sm font-semibold text-zinc-900 dark:text-white uppercase tracking-wider mb-4" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>About</h3>
-                    <div className="prose prose-zinc dark:prose-invert text-sm leading-relaxed text-zinc-600 dark:text-zinc-400 space-y-4">
-                      <p>
-                        I'm Daniele, passionate about everything around design and UX.
-                      </p>
-                      <p>
-                        I kicked off as an Art Director in 2013, and now I'm crafting some new product features at GitGuardian.
-                      </p>
-                      <p>
-                        I truly believe in startups and every innovation bringing a positive impact and inclusivity.
-                      </p>
-                    </div>
-                  </section>
-
-                  <section>
-                    <h3 className="text-sm font-semibold text-zinc-900 dark:text-white uppercase tracking-wider mb-4" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Certifications</h3>
-                    <div className="space-y-3">
-                      {certifications.map((cert, index) => (
-                        <CertificationCard
-                          key={index}
-                          {...cert}
-                          index={index}
-                        />
-                      ))}
-                    </div>
-                  </section>
+                    <Share2 size={16} />
+                    Share
+                  </Button>
+                  <Button
+                    variant={editing ? 'secondary' : 'ghost'}
+                    size="sm"
+                    onClick={() => setEditing((v) => !v)}
+                    className="gap-2 text-xs h-9"
+                  >
+                    <PencilLine size={16} />
+                    <span className="hidden sm:inline">Edit CV</span>
+                    <span className="sm:hidden">Edit</span>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleDownload}
+                    className="gap-2 text-xs h-9"
+                  >
+                    <Download size={16} />
+                    <span className="hidden sm:inline">Download PDF</span>
+                    <span className="sm:hidden">PDF</span>
+                  </Button>
+                  <div className="w-px h-4 bg-zinc-200 dark:bg-zinc-800 mx-1 sm:mx-2" />
+                  <ThemeToggle />
                 </div>
+              </nav>
+            </header>
 
-                {/* Right Content Column */}
-                <div className="md:col-span-8 space-y-16">
-                  
-                  {/* Tools Section (Moved Up) */}
-                  <section>
-                    <h3 className="text-sm font-semibold text-zinc-900 dark:text-white uppercase tracking-wider mb-6 flex items-center gap-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-                      <Zap size={16} className="text-zinc-400" />
-                      Stack & Tools
-                    </h3>
-                    <div className="flex flex-wrap gap-2">
-                      {tools.map((tool) => (
-                        <ToolBadge
-                          key={tool.name}
-                          icon={tool.icon}
-                          name={tool.name}
-                          description={tool.description}
-                        />
-                      ))}
-                    </div>
-                  </section>
+            <div className="relative">
+              <HeroBackground />
 
-                  {/* Experience Section */}
-                  <section>
-                    <h3 className="text-sm font-semibold text-zinc-900 dark:text-white uppercase tracking-wider mb-8 flex items-center gap-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-                      <BriefcaseIcon />
-                      Experience
-                    </h3>
-                    <div className="space-y-4">
-                      {experiences.map((exp, index) => (
-                        <ExperienceCard
-                          key={index}
-                          {...exp}
-                          index={index}
-                        />
-                      ))}
-                    </div>
-                  </section>
+              {/* Main Layout */}
+              <main className="max-w-5xl mx-auto px-4 sm:px-6 py-12 md:py-20">
+                <div className="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] gap-12 lg:gap-16">
 
+                  {/* Left Sidebar / Intro Column */}
+                  <div className="space-y-12">
+
+                    {/* Name Block */}
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5 }}
+                      className="space-y-4"
+                    >
+                      <div>
+                        <h1 className="text-4xl font-bold tracking-tight text-zinc-900 dark:text-white" style={headingFont}>
+                          {profile.name}
+                        </h1>
+                        <p className="text-lg text-zinc-500 dark:text-zinc-400 font-medium">
+                          {profile.headline}
+                        </p>
+                      </div>
+
+                      <address className="not-italic flex flex-col gap-2 text-sm text-zinc-600 dark:text-zinc-400">
+                        {contacts.map(({ icon: Icon, label, href }) =>
+                          href ? (
+                            <a
+                              key={label}
+                              href={href}
+                              target={href.startsWith('http') ? '_blank' : undefined}
+                              rel="noopener noreferrer"
+                              className="flex items-center gap-2 hover:text-blue-500 transition-colors break-all"
+                            >
+                              <Icon size={16} />
+                              <span>{label}</span>
+                            </a>
+                          ) : (
+                            <span key={label} className="flex items-center gap-2">
+                              <Icon size={16} />
+                              <span>{label}</span>
+                            </span>
+                          ),
+                        )}
+                      </address>
+                    </motion.div>
+
+                    {/* Summary */}
+                    {cv.summary.trim() && (
+                      <section>
+                        <h2 className={`${sectionTitle} mb-4`} style={headingFont}>Professional Summary</h2>
+                        <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400 whitespace-pre-line">
+                          {cv.summary}
+                        </p>
+                      </section>
+                    )}
+
+                    {/* Core skills */}
+                    {cv.skills.length > 0 && (
+                      <section>
+                        <h2 className={`${sectionTitle} mb-4`} style={headingFont}>Skills</h2>
+                        <ul className="flex flex-wrap gap-x-2 gap-y-1.5 text-sm text-zinc-600 dark:text-zinc-400">
+                          {cv.skills.map((s) => (
+                            <li key={s} className="rounded-full border border-zinc-200 dark:border-zinc-800 px-2.5 py-0.5">{s}</li>
+                          ))}
+                        </ul>
+                      </section>
+                    )}
+
+                    {cv.education.length > 0 && (
+                      <section>
+                        <h2 className={`${sectionTitle} mb-4`} style={headingFont}>Education</h2>
+                        <div className="space-y-3">
+                          {cv.education.map((e, index) => (
+                            <CertificationCard
+                              key={e.id}
+                              title={e.degree}
+                              description={[e.location, e.details].filter(Boolean).join(' · ')}
+                              institution={e.school}
+                              year={[e.start, e.end].filter(Boolean).join(' – ')}
+                              index={index}
+                              icon="education"
+                            />
+                          ))}
+                        </div>
+                      </section>
+                    )}
+
+                    {cv.certifications.length > 0 && (
+                      <section>
+                        <h2 className={`${sectionTitle} mb-4`} style={headingFont}>Certifications</h2>
+                        <div className="space-y-3">
+                          {cv.certifications.map((cert, index) => (
+                            <CertificationCard
+                              key={cert.id}
+                              title={cert.title}
+                              description={cert.description}
+                              institution={cert.issuer}
+                              year={cert.year}
+                              index={index}
+                            />
+                          ))}
+                        </div>
+                      </section>
+                    )}
+
+                    {cv.languages.length > 0 && (
+                      <section>
+                        <h2 className={`${sectionTitle} mb-4`} style={headingFont}>Languages</h2>
+                        <ul className="space-y-1 text-sm text-zinc-600 dark:text-zinc-400">
+                          {cv.languages.map((l) => (
+                            <li key={l.id} className="flex justify-between gap-4">
+                              <span className="text-zinc-900 dark:text-zinc-100">{l.name}</span>
+                              <span>{l.level}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </section>
+                    )}
+                  </div>
+
+                  {/* Right Content Column */}
+                  <div className="space-y-16">
+
+                    {cv.tools.length > 0 && (
+                      <section>
+                        <h2 className={`${sectionTitle} mb-6 flex items-center gap-2`} style={headingFont}>
+                          <Zap size={16} className="text-zinc-400" aria-hidden="true" />
+                          Stack & Tools
+                        </h2>
+                        <ul className="flex flex-wrap gap-2">
+                          {cv.tools.map((tool) => (
+                            <ToolBadge key={tool.id} icon={tool.icon} name={tool.name} description={tool.description} />
+                          ))}
+                        </ul>
+                      </section>
+                    )}
+
+                    {/* Experience Section */}
+                    <section>
+                      <h2 className={`${sectionTitle} mb-8 flex items-center gap-2`} style={headingFont}>
+                        <BriefcaseIcon />
+                        Work Experience
+                      </h2>
+                      <div className="space-y-4">
+                        {cv.experience.map((exp, index) => (
+                          <ExperienceCard key={exp.id} {...exp} index={index} />
+                        ))}
+                        {cv.experience.length === 0 && (
+                          <button
+                            type="button"
+                            onClick={() => setEditing(true)}
+                            className="w-full rounded-lg border border-dashed border-zinc-300 dark:border-zinc-700 p-8 text-sm text-zinc-500 hover:border-zinc-400"
+                          >
+                            Add your first role in the editor
+                          </button>
+                        )}
+                      </div>
+                    </section>
+
+                  </div>
                 </div>
-              </div>
-            </main>
+              </main>
 
-            {/* Footer */}
-            <footer className="border-t border-zinc-200 dark:border-zinc-800 py-12 text-center no-print">
-              <div className="max-w-5xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6 text-sm text-zinc-500 dark:text-zinc-500">
-                <p>© {new Date().getFullYear()} Daniele Brusca. All rights reserved.</p>
-                <div className="flex gap-6">
-                   <a href="#" className="hover:text-zinc-900 dark:hover:text-zinc-300 transition-colors">Privacy</a>
-                   <a href="#" className="hover:text-zinc-900 dark:hover:text-zinc-300 transition-colors">Contact</a>
+              {/* Footer */}
+              <footer className="border-t border-zinc-200 dark:border-zinc-800 py-12 text-center">
+                <div className="max-w-5xl mx-auto px-4 sm:px-6 flex flex-col md:flex-row justify-between items-center gap-6 text-sm text-zinc-500 dark:text-zinc-500">
+                  <p>© {new Date().getFullYear()} {profile.name}. All rights reserved.</p>
+                  {profile.email && (
+                    <a href={`mailto:${profile.email}`} className="hover:text-zinc-900 dark:hover:text-zinc-300 transition-colors">Contact</a>
+                  )}
                 </div>
-              </div>
-            </footer>
+              </footer>
+            </div>
           </div>
+
+          <CVEditor open={editing} onOpenChange={setEditing} cv={cv} setCV={setCV} update={update} />
         </div>
       </TooltipProvider>
     </ThemeProvider>
@@ -308,6 +321,7 @@ function BriefcaseIcon() {
   return (
     <svg
       className="text-zinc-400"
+      aria-hidden="true"
       width="16"
       height="16"
       viewBox="0 0 24 24"
@@ -323,12 +337,13 @@ function BriefcaseIcon() {
   );
 }
 
-function GlobeIcon() {
+function GlobeIcon({ size = 16 }: { size?: number }) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width="16"
-      height="16"
+      aria-hidden="true"
+      width={size}
+      height={size}
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
