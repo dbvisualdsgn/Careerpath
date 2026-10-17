@@ -20,6 +20,7 @@ import { displayUrl, hrefUrl, toJsonLd } from './cv/format';
 import { DownloadMenu } from './components/DownloadMenu';
 import { AtsSummary } from './components/AtsSummary';
 import { SkimToggle } from './components/SkimToggle';
+import { BeyondNote, beyondNoteWanted } from './components/BeyondNote';
 import { PrivacySwitch } from './components/PrivacySwitch';
 import { Portrait } from './components/Portrait';
 import { findPerson } from './cv/people';
@@ -164,6 +165,7 @@ function CVPage() {
   const atsOpen = editing && editorTab === 'ats';
   const [skim, setSkim] = useState(false);
   const [jobAdRequest, setJobAdRequest] = useState(0);
+  const [beyondOpen, setBeyondOpen] = useState(false);
   const openJobAd = () => {
     setEditorTab('ats');
     setEditing(true);
@@ -288,7 +290,7 @@ function CVPage() {
                   </button>
                 </>
               )}
-              <DownloadMenu cv={cv} compact={editing} />
+              <DownloadMenu cv={cv} compact={editing} onDownloaded={() => beyondNoteWanted() && setBeyondOpen(true)} />
             </div>
             <div className="order-2 flex items-center gap-0.5 sm:order-3">
               <TypeSwitcher />
@@ -296,6 +298,8 @@ function CVPage() {
               <PaperControls />
             </div>
           </nav>
+          {/* A live region that is always there, so the note is announced when it appears. */}
+          <div role="status">{beyondOpen && <BeyondNote onClose={() => setBeyondOpen(false)} />}</div>
         </header>
 
         {sharedCV && (

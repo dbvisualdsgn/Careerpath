@@ -32,6 +32,11 @@ export const it: Messages = {
     on: 'Lettura veloce attiva. Spiccano nome, ruoli, aziende, date e primi risultati.',
     off: 'Lettura veloce disattivata. Il CV completo è tornato.',
   },
+  beyond: {
+    title: 'Oltre il CV',
+    body: 'Candidarti presto e chiedere a qualcuno in azienda di segnalarti spesso contano più della forma perfetta.',
+    close: 'Chiudi questa nota',
+  },
   privacy: {
     label: 'Visibilità',
     private: 'Privato',

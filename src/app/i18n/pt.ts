@@ -32,6 +32,11 @@ export const pt: Messages = {
     on: 'Vista rápida ligada. Sobressaem nome, cargos, empresas, datas e primeiros resultados.',
     off: 'Vista rápida desligada. O CV completo voltou.',
   },
+  beyond: {
+    title: 'Para além do CV',
+    body: 'Candidatar-te cedo e pedir a alguém da empresa que te recomende muitas vezes conta mais do que o acabamento.',
+    close: 'Fechar esta nota',
+  },
   privacy: {
     label: 'Visibilidade',
     private: 'Privado',

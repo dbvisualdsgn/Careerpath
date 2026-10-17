@@ -32,6 +32,11 @@ export const es: Messages = {
     on: 'Vista rápida activada. Destacan nombre, puestos, empresas, fechas y primeros resultados.',
     off: 'Vista rápida desactivada. Vuelve el CV completo.',
   },
+  beyond: {
+    title: 'Más allá del CV',
+    body: 'Postularte pronto y pedir a alguien de la empresa que te recomiende suele importar más que pulir cada detalle.',
+    close: 'Cerrar esta nota',
+  },
   privacy: {
     label: 'Visibilidad',
     private: 'Privado',

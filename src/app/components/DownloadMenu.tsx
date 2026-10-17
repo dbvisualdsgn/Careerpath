@@ -11,7 +11,7 @@ import type { CVData } from '../cv/types';
 import type { TypeStyle } from '../typography';
 
 /** Two downloads: the page as designed, or a plain one-column PDF for job portals. */
-export function DownloadMenu({ cv, compact = false }: { cv: CVData; compact?: boolean }) {
+export function DownloadMenu({ cv, compact = false, onDownloaded }: { cv: CVData; compact?: boolean; onDownloaded?: () => void }) {
   const { m } = useI18n();
   const d = m.download;
   const [open, setOpen] = useState(false);
@@ -25,7 +25,10 @@ export function DownloadMenu({ cv, compact = false }: { cv: CVData; compact?: bo
       const pdf = kind === 'designed' ? await buildDesignedPdf(cv, m, type) : await buildPdf(cv, m);
       const suffix = kind === 'designed' ? 'CV' : 'CV_ATS';
       const outcome = await saveFile(`${fileSlug(cv.profile.name)}_${suffix}.pdf`, pdf, 'application/pdf');
-      if (outcome === 'saved') toast.success(m.app.pdfSaved);
+      if (outcome === 'saved') {
+        toast.success(m.app.pdfSaved);
+        onDownloaded?.();
+      }
       else if (outcome === 'failed') toast.error(m.app.pdfError);
     } catch {
       toast.error(m.app.pdfError);

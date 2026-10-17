@@ -32,6 +32,11 @@ export const fr: Messages = {
     on: 'Lecture rapide activée. Nom, intitulés, entreprises, dates et premiers résultats ressortent.',
     off: 'Lecture rapide désactivée. Le CV complet est de retour.',
   },
+  beyond: {
+    title: 'Au-delà du CV',
+    body: 'Postuler tôt et demander à quelqu’un de l’entreprise de vous recommander comptent souvent plus que la finition.',
+    close: 'Fermer cette note',
+  },
   privacy: {
     label: 'Visibilité',
     private: 'Privé',

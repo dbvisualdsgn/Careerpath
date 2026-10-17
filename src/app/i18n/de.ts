@@ -32,6 +32,11 @@ export const de: Messages = {
     on: 'Schnellansicht an. Name, Jobtitel, Firmen, Daten und erste Ergebnisse fallen auf.',
     off: 'Schnellansicht aus. Der ganze Lebenslauf ist zurück.',
   },
+  beyond: {
+    title: 'Mehr als der Lebenslauf',
+    body: 'Früh bewerben und jemanden im Unternehmen um eine Empfehlung bitten zählt oft mehr als der letzte Feinschliff.',
+    close: 'Hinweis schließen',
+  },
   privacy: {
     label: 'Sichtbarkeit',
     private: 'Privat',

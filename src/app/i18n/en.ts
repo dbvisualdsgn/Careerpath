@@ -31,6 +31,11 @@ export const en = {
     on: 'Skim view on. Names, titles, companies, dates and first results stand out.',
     off: 'Skim view off. The full CV is back.',
   },
+  beyond: {
+    title: 'Beyond the CV',
+    body: 'Applying early, and asking someone at the company to refer you, often matter more than polish.',
+    close: 'Dismiss this note',
+  },
   privacy: {
     label: 'Visibility',
     private: 'Private',

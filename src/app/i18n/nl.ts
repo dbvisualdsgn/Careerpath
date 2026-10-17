@@ -32,6 +32,11 @@ export const nl: Messages = {
     on: 'Snelle blik aan. Naam, functies, bedrijven, data en eerste resultaten vallen op.',
     off: 'Snelle blik uit. Het hele cv is terug.',
   },
+  beyond: {
+    title: 'Meer dan je cv',
+    body: 'Vroeg solliciteren en iemand bij het bedrijf vragen je aan te bevelen telt vaak meer dan de laatste afwerking.',
+    close: 'Deze notitie sluiten',
+  },
   privacy: {
     label: 'Zichtbaarheid',
     private: 'Privé',
