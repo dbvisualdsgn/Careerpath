@@ -156,7 +156,7 @@ export function CVEditor({ open, onOpenChange, cv, setCV, update, tab, onTabChan
       <SheetContent
         side="right"
         onInteractOutside={(ev) => ev.preventDefault()}
-        className="w-full gap-0 border-l-2 border-ink bg-panel p-0 print:hidden sm:max-w-[480px] [&>button:last-child]:text-paper [&>button:last-child]:focus-visible:outline-[var(--paper)]"
+        className="w-full gap-0 border-l border-rule bg-paper p-0 print:hidden sm:max-w-[480px] [&>button:last-child]:text-paper [&>button:last-child]:focus-visible:outline-[var(--paper)]"
       >
         <SheetHeader className="bg-ink px-5 py-4 text-paper">
           <SheetTitle className="font-reading text-2xl font-normal tracking-[-0.01em] text-paper">{e.title}</SheetTitle>

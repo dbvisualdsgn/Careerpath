@@ -52,8 +52,8 @@ before first paint via `data-type` on `<html>` → `--reading-font` → the `fon
   down; selected (`aria-pressed`, open menu) = ink fill; focus = 2px ink outline, offset 2px; disabled = 50% opacity.
 - **Segmented tabs:** one hairline box divided by ink rules. Inactive = soft text, hover = tint + ink text,
   selected = ink fill with paper text, focus = inset outline.
-- **Editor sheet:** a lighter `--panel` surface, 2px ink edge and an ink header band, so the tool reads as laid
-  over the page rather than part of the CV.
+- **Editor sheet:** same paper as the page with a hairline edge; an ink header band is what marks it as the tool,
+  not part of the CV.
 - **ATS score mark:** dashed outline (<65), outline (65–84), filled (≥85), always with the number.
 - **Icons:** Lucide only, 16–22px, stroke 1.5–2, always `aria-hidden` next to a text label.
 
