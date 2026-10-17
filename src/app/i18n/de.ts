@@ -114,6 +114,18 @@ export const de: Messages = {
     peopleTitle: 'Öffentliche Lebensläufe',
     peopleMore: 'Alle öffentlichen Lebensläufe',
   },
+  paper: {
+    title: 'Licht',
+    brightness: 'Helligkeit',
+    warmth: 'Wärme',
+    soft: 'Sanft',
+    bright: 'Hell',
+    cool: 'Kühl',
+    warm: 'Warm',
+    contrast: 'Textkontrast mindestens {ratio}:1 · AAA',
+    reset: 'Zurücksetzen',
+    note: 'Wie ein E-Reader: immer Papier, nie ein dunkler Bildschirm. Wärmer oder sanfter, der Text bleibt immer lesbar.',
+  },
   type: {
     label: 'Schriftstil',
     sans: 'Sans',

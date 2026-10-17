@@ -5,13 +5,22 @@ e-readers and Swiss editorial layouts. No accent colours, no shadows, no gradien
 
 ## Colour tokens (`src/styles/theme.css`)
 
-| Token | Day | Night | Use |
-|---|---|---|---|
-| `--paper` | `#ECEAE5` | `#111111` | Page background (warm, e-ink paper) |
-| `--ink` | `#111111` | `#ECEAE5` | Text, rules that open a section, primary buttons |
-| `--ink-soft` | `#45433F` | `#B5B2AB` | Secondary text and metadata (AAA, ≥7:1 on paper) |
-| `--rule` | `#CFCCC5` | `#33312E` | Hairlines between entries, field borders |
-| `--focus` | ink | ink | 2px focus outline, offset 2px |
+| Token | Default | Use |
+|---|---|---|
+| `--paper` | `#ECEAE5` | Page background (e-ink paper), set by the Light panel |
+| `--ink` | `#111111` | Text, rules that open a section, primary buttons |
+| `--ink-soft` | computed | Secondary text, always ≥ 7:1 on the current paper (AAA) |
+| `--rule` | computed | Hairlines between entries, field borders |
+| `--focus` | ink | 2px focus outline, offset 2px |
+| `--highlight` / `--signal` / `--go` | `#E6F05A` / `#E5482A` / `#2F8F5B` | Highlighter, error dot, passed check; text on them stays ink |
+
+### Light (instead of dark mode)
+
+There is no dark theme: a CV is a page to read and print. Like a Kobo, the **Light** panel (`PaperControls`,
+`src/app/paper.ts`) has two sliders. **Warmth** moves the paper from cool white `#F5F6F3` through `#ECEAE5` to
+warm `#ECDDBF`; **Brightness** dims it down to 80%. Ink stays `#111`, and the secondary greys are recomputed
+for every setting, so all 441 combinations keep text contrast ≥ 7.2:1 (WCAG AAA). The choice is saved, applied
+before first paint by an inline script, and used as the paper colour of the "As on the page" PDF.
 
 Tailwind's `zinc-*` and `white` are remapped onto this warm neutral scale, and every `shadow-*` is
 flat. Brand logos inside a CV are the only colour on screen (they belong to the CV, not the brand).
@@ -45,5 +54,5 @@ before first paint via `data-type` on `<html>` → `--reading-font` → the `fon
 ## Accessibility
 
 WCAG 2.2 AA with zero axe-core violations, plus AAA text contrast (axe `color-contrast-enhanced`),
-in day and night. Includes a skip link, landmarks, a logical heading order, a native radio group
+at every Light setting. Includes a skip link, landmarks, a logical heading order, a native radio group
 for the type switch, visible focus, and no motion.

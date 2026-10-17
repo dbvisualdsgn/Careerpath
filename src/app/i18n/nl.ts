@@ -114,6 +114,18 @@ export const nl: Messages = {
     peopleTitle: 'Openbare cv’s',
     peopleMore: 'Bekijk alle openbare cv’s',
   },
+  paper: {
+    title: 'Licht',
+    brightness: 'Helderheid',
+    warmth: 'Warmte',
+    soft: 'Zacht',
+    bright: 'Helder',
+    cool: 'Koel',
+    warm: 'Warm',
+    contrast: 'Tekstcontrast minstens {ratio}:1 · AAA',
+    reset: 'Herstellen',
+    note: 'Zoals een e-reader: altijd papier, nooit een donker scherm. Warmer of zachter, de tekst blijft altijd leesbaar.',
+  },
   type: {
     label: 'Tekststijl',
     sans: 'Sans',

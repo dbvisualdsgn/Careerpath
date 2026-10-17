@@ -5,11 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Public CVs · curriculi curricula</title>
     <meta name="description" content="CVs people chose to make public on curriculi curricula." />
-    <meta name="theme-color" content="#eceae5" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#111111" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#eceae5" />
     <script>
-      // Apply the saved "Aa" type style before first paint.
-      try { var t = localStorage.getItem('curricula.type'); if (t === 'serif' || t === 'mono') document.documentElement.dataset.type = t; } catch (e) {}
+      // Apply the saved "Aa" type style and paper light before first paint.
+      try {
+        var t = localStorage.getItem('curricula.type');
+        if (t === 'serif' || t === 'mono') document.documentElement.dataset.type = t;
+        var v = JSON.parse(localStorage.getItem('curricula.paper.vars') || 'null');
+        if (v) for (var k in v) if (/^--[\w-]+$/.test(k) && /^#[0-9a-f]{6}$/i.test(v[k])) document.documentElement.style.setProperty(k, v[k]);
+      } catch (e) {}
     </script>
   </head>
   <body>

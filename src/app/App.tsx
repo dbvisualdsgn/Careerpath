@@ -1,13 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Mail, Share2, Phone, MapPin, Linkedin, PencilLine, Eye, Globe, ArrowLeft } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import { ThemeProvider } from 'next-themes';
 import { Toaster, toast } from 'sonner';
 import { TooltipProvider } from './components/ui/tooltip';
 import { ToolBadge } from './components/ToolBadge';
 import { ExperienceCard } from './components/ExperienceCard';
 import { CertificationCard } from './components/CertificationCard';
-import { ThemeToggle } from './components/ThemeToggle';
+import { PaperControls } from './components/PaperControls';
 import { LanguageSwitcher } from './components/LanguageSwitcher';
 import { TypeSwitcher } from './components/TypeSwitcher';
 import { Wordmark } from './components/Wordmark';
@@ -43,13 +42,11 @@ const headerBtn =
 
 export default function App() {
   return (
-    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-      <I18nProvider>
-        <TooltipProvider>
-          <CVPage />
-        </TooltipProvider>
-      </I18nProvider>
-    </ThemeProvider>
+    <I18nProvider>
+      <TooltipProvider>
+        <CVPage />
+      </TooltipProvider>
+    </I18nProvider>
   );
 }
 
@@ -254,7 +251,7 @@ function CVPage() {
             <div className="order-2 flex items-center gap-0.5 sm:order-3">
               <TypeSwitcher />
               <LanguageSwitcher />
-              <ThemeToggle />
+              <PaperControls />
             </div>
           </nav>
         </header>

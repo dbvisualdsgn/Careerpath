@@ -1,7 +1,7 @@
 import { Wordmark } from './Wordmark';
 import { TypeSwitcher } from './TypeSwitcher';
 import { LanguageSwitcher } from './LanguageSwitcher';
-import { ThemeToggle } from './ThemeToggle';
+import { PaperControls } from './PaperControls';
 import { useI18n } from '../i18n';
 
 /** Header for the homepage and the public CVs page. `root` is the relative path to the site root. */
@@ -21,7 +21,7 @@ export function SiteHeader({ root, current }: { root: string; current?: 'home' |
           </a>
           <TypeSwitcher />
           <LanguageSwitcher />
-          <ThemeToggle />
+          <PaperControls />
           <a href={`${root}app/`} className="ml-1 hidden h-9 items-center gap-2 rounded-sm border border-ink px-3 text-sm hover:bg-ink hover:text-paper sm:inline-flex">
             {m.home.openCV}
           </a>

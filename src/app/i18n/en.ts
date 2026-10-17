@@ -113,6 +113,18 @@ export const en = {
     peopleTitle: 'Public CVs',
     peopleMore: 'See all public CVs',
   },
+  paper: {
+    title: 'Light',
+    brightness: 'Brightness',
+    warmth: 'Warmth',
+    soft: 'Soft',
+    bright: 'Bright',
+    cool: 'Cool',
+    warm: 'Warm',
+    contrast: 'Text contrast at least {ratio}:1 · AAA',
+    reset: 'Reset',
+    note: 'Like an e-reader: always paper, never a dark screen. Make it warmer or softer; text always stays readable.',
+  },
   type: {
     label: 'Text style',
     sans: 'Sans',

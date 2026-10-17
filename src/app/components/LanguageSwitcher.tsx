@@ -8,7 +8,7 @@ import { locales, useI18n, type Locale } from '../i18n';
 export function LanguageSwitcher() {
   const { locale, setLocale, m } = useI18n();
   return (
-    <div className="relative inline-flex h-9 items-center gap-1.5 rounded-md px-2 text-xs font-medium text-zinc-700 hover:bg-zinc-100 focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-[var(--focus)] dark:text-zinc-300 dark:hover:bg-zinc-800">
+    <div className="relative inline-flex h-9 items-center gap-1.5 rounded-md px-2 text-xs font-medium text-ink hover:bg-zinc-100 focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-[var(--focus)] dark:text-zinc-300 dark:hover:bg-zinc-800">
       <Languages size={16} aria-hidden="true" />
       <span aria-hidden="true">{locales[locale].short}</span>
       <ChevronDown size={12} aria-hidden="true" className="text-zinc-500" />

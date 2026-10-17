@@ -114,6 +114,18 @@ export const fr: Messages = {
     peopleTitle: 'CV publics',
     peopleMore: 'Voir tous les CV publics',
   },
+  paper: {
+    title: 'Lumière',
+    brightness: 'Luminosité',
+    warmth: 'Chaleur',
+    soft: 'Douce',
+    bright: 'Vive',
+    cool: 'Froide',
+    warm: 'Chaude',
+    contrast: 'Contraste du texte d’au moins {ratio}:1 · AAA',
+    reset: 'Réinitialiser',
+    note: 'Comme une liseuse : toujours du papier, jamais d’écran sombre. Plus chaud ou plus doux, le texte reste toujours lisible.',
+  },
   type: {
     label: 'Style du texte',
     sans: 'Sans',

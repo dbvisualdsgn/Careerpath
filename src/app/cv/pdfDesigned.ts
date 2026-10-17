@@ -4,12 +4,13 @@ import { contactItems, dateRange } from './format';
 import type { CVData } from './types';
 import type { Messages } from '../i18n/en';
 import type { TypeStyle } from '../typography';
+import { currentPaper } from '../paper';
 
 const W = 595.28; // A4 in points
 const H = 841.89;
 const M = 48;
 const CW = W - M * 2;
-const C = { paper: '#ECEAE5', ink: '#111111', soft: '#45433F', rule: '#CFCCC5' };
+
 
 const families = {
   sans: { name: 'InterTight', file: 'InterTight' },
@@ -65,6 +66,8 @@ async function rasterize(src: string, px = 96): Promise<string | undefined> {
 export async function buildDesignedPdf(cv: CVData, m: Messages, type: TypeStyle): Promise<Blob> {
   const { jsPDF } = await import('jspdf');
   const doc = new jsPDF({ unit: 'pt', format: 'a4', compress: true });
+  // The PDF uses the paper the reader picked in the Light panel.
+  const C = { ink: '#111111', ...currentPaper() };
 
   // Fonts: the reading family plus Inter Tight (meta lines) and Plex Mono (labels).
   const needed = new Set([families[type].file, 'InterTight', 'IBMPlexMono']);

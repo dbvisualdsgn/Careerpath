@@ -341,3 +341,43 @@
   .bar-grow { transform: none; }
   .caret { animation: none; }
 }
+
+/* Kobo-style light sliders: square thumb, hairline track showing the range of the setting. */
+.paper-range {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 22px;
+  background: transparent;
+  cursor: pointer;
+}
+.paper-range::-webkit-slider-runnable-track {
+  height: 8px;
+  border: 1px solid var(--ink);
+  background: var(--track);
+}
+.paper-range::-moz-range-track {
+  height: 8px;
+  border: 1px solid var(--ink);
+  background: var(--track);
+}
+.paper-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  margin-top: -6px;
+  background: var(--ink);
+  border: 2px solid var(--paper);
+  outline: 1px solid var(--ink);
+}
+.paper-range::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 0;
+  background: var(--ink);
+  border: 2px solid var(--paper);
+  outline: 1px solid var(--ink);
+}
+.paper-range:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 4px;
+}
