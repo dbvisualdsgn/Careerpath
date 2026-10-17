@@ -24,6 +24,12 @@ export const nl: Messages = {
     headlinePlaceholder: 'Je functietitel',
     cvTitle: 'cv',
   },
+  skim: {
+    label: 'Snelle blik',
+    hint: 'Recruiters besteden bij een eerste ronde vaak maar seconden en kijken eerst naar functietitels. Dit laat zien wat opvalt.',
+    on: 'Snelle blik aan. Naam, functies, bedrijven, data en eerste resultaten vallen op.',
+    off: 'Snelle blik uit. Het hele cv is terug.',
+  },
   privacy: {
     label: 'Zichtbaarheid',
     private: 'Privé',

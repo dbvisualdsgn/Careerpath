@@ -5,6 +5,7 @@
   --paper: #eceae5;
   --ink: #111111;
   --ink-soft: #45433f;
+  --ink-faint: #706e6a;
   --rule: #cfccc5;
   /* Editor sheet: lighter than the paper so the tool reads as laid over the page. */
   --panel: #f6f5f2;
@@ -352,6 +353,24 @@
   .reveal .hl, .hl-draw { background-size: 100% 100%; }
   .bar-grow { transform: none; }
   .caret { animation: none; }
+}
+
+/* Skim view: what a recruiter sees on a first pass. Everything not marked data-skim-keep steps back to
+   --ink-faint (still ≥ 4.6:1). No animation. */
+main[data-skim] *,
+main[data-skim] .text-ink-soft {
+  color: var(--ink-faint);
+}
+main[data-skim] .border-ink {
+  border-color: var(--rule);
+}
+main[data-skim] [data-skim-keep],
+main[data-skim] [data-skim-keep] * {
+  color: var(--ink);
+}
+main[data-skim] img:not([data-skim-keep] img),
+main[data-skim] svg:not([data-skim-keep] svg) {
+  opacity: 0.4;
 }
 
 /* Kobo-style light sliders: square thumb, hairline track showing the range of the setting. */

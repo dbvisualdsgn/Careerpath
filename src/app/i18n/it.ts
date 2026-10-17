@@ -24,6 +24,12 @@ export const it: Messages = {
     headlinePlaceholder: 'Il tuo ruolo',
     cvTitle: 'CV',
   },
+  skim: {
+    label: 'Lettura veloce',
+    hint: 'Spesso i recruiter dedicano pochi secondi alla prima lettura e guardano prima i titoli. Qui vedi cosa salta all’occhio.',
+    on: 'Lettura veloce attiva. Spiccano nome, ruoli, aziende, date e primi risultati.',
+    off: 'Lettura veloce disattivata. Il CV completo è tornato.',
+  },
   privacy: {
     label: 'Visibilità',
     private: 'Privato',

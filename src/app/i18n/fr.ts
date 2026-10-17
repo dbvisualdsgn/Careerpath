@@ -24,6 +24,12 @@ export const fr: Messages = {
     headlinePlaceholder: 'Votre intitulé de poste',
     cvTitle: 'CV',
   },
+  skim: {
+    label: 'Lecture rapide',
+    hint: 'Les recruteurs passent souvent quelques secondes sur une première lecture et regardent d’abord les intitulés. Voici ce qui ressort.',
+    on: 'Lecture rapide activée. Nom, intitulés, entreprises, dates et premiers résultats ressortent.',
+    off: 'Lecture rapide désactivée. Le CV complet est de retour.',
+  },
   privacy: {
     label: 'Visibilité',
     private: 'Privé',

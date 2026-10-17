@@ -24,6 +24,12 @@ export const es: Messages = {
     headlinePlaceholder: 'Tu puesto',
     cvTitle: 'CV',
   },
+  skim: {
+    label: 'Vista rápida',
+    hint: 'Los reclutadores suelen dedicar unos segundos a una primera lectura y miran primero los puestos. Esto muestra lo que destaca.',
+    on: 'Vista rápida activada. Destacan nombre, puestos, empresas, fechas y primeros resultados.',
+    off: 'Vista rápida desactivada. Vuelve el CV completo.',
+  },
   privacy: {
     label: 'Visibilidad',
     private: 'Privado',

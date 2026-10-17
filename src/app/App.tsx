@@ -19,6 +19,7 @@ import { LibraryMenu } from './components/LibraryMenu';
 import { displayUrl, hrefUrl, toJsonLd } from './cv/format';
 import { DownloadMenu } from './components/DownloadMenu';
 import { AtsSummary } from './components/AtsSummary';
+import { SkimToggle } from './components/SkimToggle';
 import { PrivacySwitch } from './components/PrivacySwitch';
 import { Portrait } from './components/Portrait';
 import { findPerson } from './cv/people';
@@ -161,6 +162,7 @@ function CVPage() {
   const targetTitle = sharedCV ? undefined : jobAd.title;
   const atsScore = useMemo(() => runAtsCheck(cv, locale, { targetTitle }).score, [cv, locale, targetTitle]);
   const atsOpen = editing && editorTab === 'ats';
+  const [skim, setSkim] = useState(false);
   const toggleAts = () => {
     if (atsOpen) setEditing(false);
     else {
@@ -220,7 +222,7 @@ function CVPage() {
 
       <div className={`print:hidden ${editing ? 'lg:pr-[480px]' : ''}`}>
         <header className="sticky top-0 z-40 w-full border-b border-rule bg-paper">
-          <nav aria-label={m.app.home} className="mx-auto flex max-w-4xl flex-wrap items-center justify-between gap-x-2 gap-y-1 px-4 py-2 sm:h-16 sm:flex-nowrap sm:py-0 sm:px-6">
+          <nav aria-label={m.app.home} className="mx-auto flex max-w-4xl flex-wrap xl:max-w-6xl items-center justify-between gap-x-2 gap-y-1 px-4 py-2 sm:h-16 sm:flex-nowrap sm:py-0 sm:px-6">
             <div className="flex items-center gap-1">
               <a href="../" aria-label={m.app.home} className="hidden h-9 w-9 items-center justify-center rounded-sm hover:bg-zinc-100 dark:hover:bg-zinc-800 md:inline-flex">
                 <ArrowLeft size={18} aria-hidden="true" />
@@ -244,7 +246,7 @@ function CVPage() {
             </div>
             <div className="order-3 -mx-1.5 flex w-full items-center justify-between gap-0.5 border-t border-rule pt-1 sm:order-2 sm:mx-0 sm:w-auto sm:justify-end sm:gap-1 sm:border-0 sm:pt-0">
               {!sharedCV && (
-                <PrivacySwitch compact={editing} isPublic={Boolean(ownCV.isPublic)} onChange={(isPublic) => update((d) => ({ ...d, isPublic }))} />
+                <PrivacySwitch isPublic={Boolean(ownCV.isPublic)} onChange={(isPublic) => update((d) => ({ ...d, isPublic }))} />
               )}
               <button type="button" onClick={() => setShareOpen(true)} aria-label={m.app.share} className={headerBtn}>
                 <Share2 size={16} aria-hidden="true" />
@@ -260,7 +262,6 @@ function CVPage() {
                     title={`${m.ats.readiness}: ${atsScore}/100`}
                     className={`${headerBtn} ${atsOpen ? 'bg-zinc-100 dark:bg-zinc-800' : ''}`}
                   >
-                    <span className={editing ? 'hidden' : 'hidden whitespace-nowrap xl:inline'}>{m.editor.tabs.ats}</span>
                     <ScoreMark score={atsScore} />
                   </button>
                   <button
@@ -324,13 +325,22 @@ function CVPage() {
         )}
 
         {/* One column in standard ATS order: contact, summary, skills, experience, education, certifications, languages */}
-        <main id="main" tabIndex={-1} className="mx-auto max-w-4xl space-y-16 px-4 py-14 font-reading focus:outline-none sm:px-6 md:py-20">
+        <div className="mx-auto max-w-4xl px-4 pt-8 print:hidden sm:px-6">
+          <SkimToggle on={skim} onChange={setSkim} />
+        </div>
+
+        <main
+          id="main"
+          tabIndex={-1}
+          data-skim={skim ? '' : undefined}
+          className="mx-auto max-w-4xl space-y-16 px-4 py-14 font-reading focus:outline-none sm:px-6 md:py-20"
+        >
           <div>
             <div className="flex items-start justify-between gap-6">
               <div className="min-w-0">
                 <p className={microLabel}>{m.app.cvTitle}</p>
-                <h1 className="mt-4 text-[clamp(2.75rem,8vw,5.5rem)] font-normal leading-[0.92] tracking-[-0.035em]">{name}</h1>
-                <p className="mt-4 text-xl text-ink-soft md:text-2xl">{headline}</p>
+                <h1 data-skim-keep className="mt-4 text-[clamp(2.75rem,8vw,5.5rem)] font-normal leading-[0.92] tracking-[-0.035em]">{name}</h1>
+                <p data-skim-keep className="mt-4 text-xl text-ink-soft md:text-2xl">{headline}</p>
               </div>
               {profile.photo && (
                 <Portrait photo={profile.photo} name={name} alt={fmt(m.photo.alt, { name })} className="h-24 w-24 shrink-0 md:h-36 md:w-36" />

@@ -54,6 +54,8 @@ export function paperColors({ warmth, brightness }: PaperSettings) {
     '--paper': hex(paper),
     '--ink-soft': hex(inkSoft),
     '--rule': hex(mix(paper, INK, 0.16)),
+    // Secondary text in the skim view: clearly quieter, still ≥ 4.6:1 (WCAG AA).
+    '--ink-faint': hex(textOn(paper, 4.6, 0.4)),
     '--panel': hex(mix(paper, [255, 255, 255], 0.55)),
     '--color-zinc-50': hex(mix(paper, INK, 0.035)),
     '--color-zinc-100': hex(mix(paper, INK, 0.07)),

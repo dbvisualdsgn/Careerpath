@@ -23,6 +23,12 @@ export const en = {
     headlinePlaceholder: 'Your Job Title',
     cvTitle: 'CV',
   },
+  skim: {
+    label: 'Skim view',
+    hint: 'Recruiters often spend seconds on a first pass and look at titles first. This shows what stands out.',
+    on: 'Skim view on. Names, titles, companies, dates and first results stand out.',
+    off: 'Skim view off. The full CV is back.',
+  },
   privacy: {
     label: 'Visibility',
     private: 'Private',

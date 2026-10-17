@@ -24,6 +24,12 @@ export const pt: Messages = {
     headlinePlaceholder: 'O teu cargo',
     cvTitle: 'CV',
   },
+  skim: {
+    label: 'Vista rápida',
+    hint: 'Os recrutadores passam muitas vezes poucos segundos numa primeira leitura e olham primeiro para os cargos. Isto mostra o que sobressai.',
+    on: 'Vista rápida ligada. Sobressaem nome, cargos, empresas, datas e primeiros resultados.',
+    off: 'Vista rápida desligada. O CV completo voltou.',
+  },
   privacy: {
     label: 'Visibilidade',
     private: 'Privado',

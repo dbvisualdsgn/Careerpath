@@ -24,6 +24,12 @@ export const de: Messages = {
     headlinePlaceholder: 'Deine Berufsbezeichnung',
     cvTitle: 'Lebenslauf',
   },
+  skim: {
+    label: 'Schnellansicht',
+    hint: 'Recruiter verbringen beim ersten Durchgang oft nur Sekunden und schauen zuerst auf Jobtitel. Hier siehst du, was auffällt.',
+    on: 'Schnellansicht an. Name, Jobtitel, Firmen, Daten und erste Ergebnisse fallen auf.',
+    off: 'Schnellansicht aus. Der ganze Lebenslauf ist zurück.',
+  },
   privacy: {
     label: 'Sichtbarkeit',
     private: 'Privat',
