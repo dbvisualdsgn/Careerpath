@@ -71,7 +71,7 @@ export function LibraryMenu({ items, activeId, onSelect, onNew, onImportPdf, com
                   <Portrait photo={it.cv.profile.photo} name={name} className="h-10 w-10 shrink-0 text-sm" />
                   <span className="min-w-0 flex-1">
                     <span className="block truncate font-reading text-[16px]">{current ? <span className="hl">{name}</span> : name}</span>
-                    <span className="block truncate text-[12px] text-ink-soft">{it.cv.profile.headline || '—'}</span>
+                    <span className="block truncate text-[12px] text-ink-soft">{it.name || it.cv.profile.headline || '—'}</span>
                     <span className="block font-mono text-[11px] text-ink-soft">
                       {current ? l.current : fmt(l.edited, { time: relative(it.updatedAt, locale) })}
                     </span>

@@ -9,6 +9,8 @@ export interface CVEntry {
   id: string;
   updatedAt: number;
   cv: CVData;
+  /** A version name only the person sees, e.g. "Product Designer, Doctolib". */
+  name?: string;
 }
 
 interface Library {
@@ -19,7 +21,7 @@ interface Library {
 const KEY = 'curricula.library.v1';
 const LEGACY_KEY = 'careerpath.cv.v1';
 
-const entry = (cv: CVData): CVEntry => ({ id: newId(), updatedAt: Date.now(), cv });
+const entry = (cv: CVData, name?: string): CVEntry => ({ id: newId(), updatedAt: Date.now(), cv, ...(name ? { name } : {}) });
 
 function read(key: string) {
   try {
@@ -39,7 +41,12 @@ function load(): Library {
       const lib = JSON.parse(raw) as Library;
       const items = (Array.isArray(lib.items) ? lib.items : [])
         .filter((it) => it && typeof it.id === 'string')
-        .map((it) => ({ id: it.id, updatedAt: Number(it.updatedAt) || Date.now(), cv: normalize(it.cv) }));
+        .map((it) => ({
+          id: it.id,
+          updatedAt: Number(it.updatedAt) || Date.now(),
+          cv: normalize(it.cv),
+          ...(typeof it.name === 'string' && it.name ? { name: it.name } : {}),
+        }));
       if (items.length) {
         return { activeId: items.some((i) => i.id === lib.activeId) ? lib.activeId : items[0].id, items };
       }
@@ -82,11 +89,20 @@ export function useLibrary() {
   const setCV = useCallback((cv: CVData) => update(() => cv), [update]);
 
   /** Add a CV to the library and open it. */
-  const create = useCallback((cv: CVData = structuredClone(blankCV)) => {
-    const e = entry(cv);
+  const create = useCallback((cv: CVData = structuredClone(blankCV), name?: string) => {
+    const e = entry(cv, name);
     setLib((l) => ({ activeId: e.id, items: [e, ...l.items] }));
     return e.id;
   }, []);
+
+  /** Copy the open CV as a new named version and open the copy; the original stays as it was. */
+  const duplicate = useCallback((name: string) => create(structuredClone(active.cv), name.trim() || undefined), [active, create]);
+
+  /** Rename the open version. */
+  const rename = useCallback(
+    (name: string) => setLib((l) => ({ ...l, items: l.items.map((i) => (i.id === l.activeId ? { ...i, name: name || undefined } : i)) })),
+    [],
+  );
 
   const select = useCallback((id: string) => setLib((l) => (l.items.some((i) => i.id === id) ? { ...l, activeId: id } : l)), []);
 
@@ -104,5 +120,5 @@ export function useLibrary() {
     [],
   );
 
-  return { cv: active.cv, activeId: active.id, items: lib.items, update, setCV, create, select, remove };
+  return { cv: active.cv, activeId: active.id, versionName: active.name ?? '', items: lib.items, update, setCV, create, duplicate, rename, select, remove };
 }

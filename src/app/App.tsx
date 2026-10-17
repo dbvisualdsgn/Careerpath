@@ -79,7 +79,7 @@ function ScoreMark({ score }: { score: number }) {
 }
 
 function CVPage() {
-  const { cv: ownCV, setCV, update, items, activeId, create, select, remove } = useLibrary();
+  const { cv: ownCV, setCV, update, items, activeId, versionName, create, duplicate, rename, select, remove } = useLibrary();
   const pdfRef = useRef<HTMLInputElement>(null);
   const { m, locale } = useI18n();
   // A CV opened from a share link (#cv=…) is shown read-only and never overwrites the visitor's own CV.
@@ -508,6 +508,9 @@ function CVPage() {
         cv={ownCV}
         setCV={setCV}
         update={update}
+        versionName={versionName}
+        onRenameVersion={rename}
+        onSaveVersion={(name) => duplicate(name)}
         tab={editorTab}
         onTabChange={setEditorTab}
         onCreate={(next) => create(next)}

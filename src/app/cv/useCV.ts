@@ -1,18 +1,6 @@
-import { useCallback, useEffect, useState } from 'react';
-import { blankCV, sampleCV } from './defaultCV';
+// Reading CVs from storage, files and links: fill in whatever is missing so older data still renders.
+import { blankCV } from './defaultCV';
 import type { CVData } from './types';
-
-const STORAGE_KEY = 'careerpath.cv.v1';
-
-function load(): CVData {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return normalize(JSON.parse(raw));
-  } catch {
-    // Storage unavailable or corrupted: fall back to the sample.
-  }
-  return sampleCV;
-}
 
 /** Fills in any missing fields so older or hand-edited JSON still renders. */
 export function normalize(input: unknown): CVData {
@@ -30,20 +18,4 @@ export function normalize(input: unknown): CVData {
     certifications: arr(data.certifications),
     languages: arr(data.languages),
   };
-}
-
-export function useCV() {
-  const [cv, setCV] = useState<CVData>(load);
-
-  useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(cv));
-    } catch {
-      // Ignore quota or privacy-mode errors; the CV still works for this session.
-    }
-  }, [cv]);
-
-  const update = useCallback((fn: (draft: CVData) => CVData) => setCV((prev) => fn(prev)), []);
-
-  return { cv, setCV, update };
 }

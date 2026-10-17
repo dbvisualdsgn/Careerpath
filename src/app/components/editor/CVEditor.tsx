@@ -23,6 +23,7 @@ import { Label } from '../ui/label';
 import { Button } from '../ui/button';
 import { IconPicker } from './IconPicker';
 import { AtsPanel } from './AtsPanel';
+import { SaveVersionDialog } from './SaveVersionDialog';
 import { blankCV, emptyItems, sampleCV } from '../../cv/defaultCV';
 import { findIcon } from '../../cv/iconCatalog';
 import { normalize } from '../../cv/useCV';
@@ -44,6 +45,11 @@ interface CVEditorProps {
   onCreate: (cv: CVData) => void;
   onImportPdf: () => void;
   onDelete: () => void;
+  /** Name of the open version (only the person sees it). */
+  versionName: string;
+  onRenameVersion: (name: string) => void;
+  /** Copy the open CV as a new named version. */
+  onSaveVersion: (name: string) => void;
 }
 
 export type EditorTab = 'profile' | 'skills' | 'experience' | 'more' | 'ats';
@@ -102,7 +108,9 @@ const parseSkills = (text: string) => text.split(/[\n,]/).map((s) => s.trim()).f
 
 const cardClass = 'rounded-lg border border-zinc-200 dark:border-zinc-800 p-4 space-y-3';
 
-export function CVEditor({ open, onOpenChange, cv, setCV, update, tab, onTabChange: setTab, onCreate, onImportPdf, onDelete }: CVEditorProps) {
+export function CVEditor({
+  open, onOpenChange, cv, setCV, update, tab, onTabChange: setTab, onCreate, onImportPdf, onDelete, versionName, onRenameVersion, onSaveVersion,
+}: CVEditorProps) {
   const { m } = useI18n();
   const e = m.editor;
   const importRef = useRef<HTMLInputElement>(null);
@@ -192,8 +200,11 @@ export function CVEditor({ open, onOpenChange, cv, setCV, update, tab, onTabChan
 
           <div className="flex-1 overflow-y-auto px-5 py-5">
             <TabsContent value="profile" className="space-y-4 mt-0">
-              <div className="border-b border-rule pb-4">
+              <div className="space-y-4 border-b border-rule pb-4">
                 <PrivacySwitch isPublic={Boolean(cv.isPublic)} onChange={(isPublic) => update((d) => ({ ...d, isPublic }))} withHint />
+                <Field label={m.library.versionName} hint={m.library.versionHint}>
+                  <Input value={versionName} placeholder={m.library.versionPlaceholder} onChange={(ev) => onRenameVersion(ev.target.value)} />
+                </Field>
               </div>
               <div className="flex items-start gap-4">
                 <Portrait photo={cv.profile.photo} name={cv.profile.name} className="h-20 w-20 shrink-0 text-2xl" alt={fmt(m.photo.alt, { name: cv.profile.name })} />
@@ -429,6 +440,13 @@ export function CVEditor({ open, onOpenChange, cv, setCV, update, tab, onTabChan
         </Tabs>
 
         <div className="grid grid-cols-2 gap-2 border-t border-rule px-5 py-3">
+          <SaveVersionDialog
+            onSave={(name) => {
+              onSaveVersion(name);
+              setTab('profile');
+              toast.success(m.library.versionSaved);
+            }}
+          />
           <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={onImportPdf}>
             <FileText size={14} aria-hidden="true" /> {m.library.importPdf}
           </Button>
