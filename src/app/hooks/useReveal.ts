@@ -5,7 +5,8 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
  *  fallback, a timer as a last resort, and the class re-applied after every render. */
 export function useReveal<T extends HTMLElement>(threshold = 0.2) {
   const ref = useRef<T>(null);
-  const [inView, setInView] = useState(false);
+  // With reduced motion there is nothing to reveal: content is shown from the start.
+  const [inView, setInView] = useState(() => Boolean(window.matchMedia?.('(prefers-reduced-motion: reduce)').matches));
 
   useEffect(() => {
     const el = ref.current;

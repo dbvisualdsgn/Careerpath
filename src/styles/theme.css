@@ -331,6 +331,13 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  /* Menus, sheets and dialogs open instantly too. */
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
   .link-dot { animation: none; left: calc(50% - 4px); }
   .reveal,
   .reveal .hl,
@@ -339,6 +346,8 @@
   .nudge svg {
     transition: none !important;
   }
+  .nudge:hover svg, .nudge:focus-visible svg,
+  .nudge-up:hover svg, .nudge-up:focus-visible svg { transform: none; }
   .reveal { opacity: 1; transform: none; }
   .reveal .hl, .hl-draw { background-size: 100% 100%; }
   .bar-grow { transform: none; }

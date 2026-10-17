@@ -1,7 +1,7 @@
 # curriculi curricula: design system
 
 A CV tool that reads like a page. Black and white, built from type, inspired by Kindle/Kobo
-e-readers and Swiss editorial layouts. No accent colours, no shadows, no gradients, no motion.
+e-readers and Swiss editorial layouts. Three small accents (highlight, signal, go), no shadows, no gradients, and only the quiet motion described below.
 
 ## Brand
 
@@ -63,8 +63,21 @@ before first paint via `data-type` on `<html>` → `--reading-font` → the `fon
 - **ATS score mark:** dashed outline (<65), outline (65–84), filled (≥85), always with the number.
 - **Icons:** Lucide only, 16–22px, stroke 1.5–2, always `aria-hidden` next to a text label.
 
+## Motion
+
+Motion is allowed only where it helps reading, and it never hides content for long:
+- **One reveal per section:** a section fades and rises 8px once, the first time it scrolls into view
+  (`useReveal` + `.reveal`). A timer shows it anyway after 2.5s.
+- **Count-up on scores:** score numbers count up once (`useCountUp`), about 0.7–1.1s.
+- **Small details:** the highlighter stroke draws in, score bars grow, arrows nudge 2–3px on hover, the
+  share-link dot travels, the hero caret blinks, switches slide.
+- **Reduced motion:** with `prefers-reduced-motion: reduce`, all of it is off. Sections, highlights and bars
+  are shown at once, numbers show their final value, nothing loops.
+
+No page transitions, parallax, scroll-jacking or motion that carries meaning on its own.
+
 ## Accessibility
 
 WCAG 2.2 AA with zero axe-core violations, plus AAA text contrast (axe `color-contrast-enhanced`),
 at every Light setting. Includes a skip link, landmarks, a logical heading order, a native radio group
-for the type switch, visible focus, and no motion.
+for the type switch, visible focus, and motion that switches off under reduced motion.
