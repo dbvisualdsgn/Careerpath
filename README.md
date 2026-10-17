@@ -22,6 +22,17 @@ Type a tool or company name and its official logo is added automatically. Click 
 4,400 brands or upload your own. Logos come from the Iconify "logos" set and Simple Icons (both CC0).
 `npm run icons` regenerates `src/app/cv/brandIcons.ts` and `src/app/cv/icon-catalog/` after updating either package.
 
+## Share links
+
+**Share** creates a personal link that contains the whole CV, compressed into the URL fragment (`#cv=…`).
+Nothing is stored on a server and fragments are never sent to one, so any static host works.
+Anyone who opens the link sees that CV read-only and can **Edit a copy** or **Create your own CV**, then share their
+own link. Links are snapshots: after editing, create a new link. Built-in logos travel as short tokens. Very large
+uploaded logos are left out to keep links short.
+
+For other people to open links, the app must be hosted publicly (for example GitHub Pages, Vercel or Netlify).
+Set `VITE_PUBLIC_URL` at build time if share links should point to a different address than the current page.
+
 ## Languages
 
 Pick a language from the header (English is the default). It translates the interface, the CV section headings
@@ -38,9 +49,9 @@ selector, and animations that respect "reduce motion".
 
 ## ATS / AI screening best practices built in
 
-- **Download PDF** prints a separate single-column, text-only layout. It has standard section headings
-  (Professional Summary, Skills, Work Experience, Education, Certifications, Languages), contact details in
-  the body, plain Arial text, and no icons, tables or columns. In the print dialog, untick "Headers and footers".
+- **Download PDF** builds a single-column, text-only PDF in the browser (jsPDF, Helvetica). It has standard section
+  headings, contact details in the body, real selectable text, no icons, tables or columns, and title/author/keyword
+  metadata. Printing the page (Ctrl+P) uses the same single-column layout.
 - The page title becomes the PDF file name: `Name - Headline - CV`.
 - Experience uses separate start/end dates and achievement bullets. Skills and tools are plain-text keywords.
 - schema.org `Person` JSON-LD is embedded so AI tools can read the CV.

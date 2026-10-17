@@ -1,5 +1,6 @@
 import type { CVData, Experience } from './types';
 import type { Messages } from '../i18n/en';
+import { saveFile } from './save';
 
 export const dateRange = (start: string, end: string) => [start, end].filter((s) => s.trim()).join(' – ');
 
@@ -94,13 +95,7 @@ export function toJsonLd(cv: CVData) {
 
 const PRESENT = /^(present|current|now)$/i;
 
-export function downloadFile(filename: string, content: string, type: string) {
-  const url = URL.createObjectURL(new Blob([content], { type }));
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  a.click();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-}
+/** Saves a text file, through the claude.ai downloads prompt when embedded there. */
+export const downloadFile = (filename: string, content: string, type: string) => saveFile(filename, content, type);
 
 export const fileSlug = (name: string) => name.trim().replace(/\s+/g, '_').replace(/[^\w-]/g, '') || 'CV';

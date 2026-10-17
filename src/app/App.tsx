@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { MotionConfig, motion } from 'motion/react';
-import { Mail, Zap, Share2, Download, Phone, MapPin, Linkedin, PencilLine, Gauge, Briefcase, Globe, Route, GraduationCap, Award, Languages } from 'lucide-react';
+import { Mail, Zap, Share2, Download, Phone, MapPin, Linkedin, PencilLine, Gauge, Eye, Loader2, Briefcase, Globe, Route, GraduationCap, Award, Languages } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { ThemeProvider } from 'next-themes';
 import { Toaster, toast } from 'sonner';
@@ -16,8 +16,14 @@ import { CVEditor, type EditorTab } from './components/editor/CVEditor';
 import { runAtsCheck } from './cv/atsCheck';
 import { Button } from './components/ui/button';
 import { useCV } from './cv/useCV';
-import { displayUrl, hrefUrl, toJsonLd } from './cv/format';
-import { I18nProvider, fmt, useI18n } from './i18n';
+import { displayUrl, fileSlug, hrefUrl, toJsonLd } from './cv/format';
+import { buildPdf } from './cv/pdf';
+import { saveFile } from './cv/save';
+import { clearShareHash, readSharedCV } from './cv/share';
+import { blankCV } from './cv/defaultCV';
+import { ShareDialog } from './components/ShareDialog';
+import type { CVData } from './cv/types';
+import { I18nProvider, useI18n } from './i18n';
 
 const headingFont = { fontFamily: "'Space Grotesk', sans-serif" };
 const sectionTitle = 'text-sm font-semibold text-zinc-900 dark:text-white uppercase tracking-wider';
@@ -57,8 +63,37 @@ function AppLogo() {
 }
 
 function CVPage() {
-  const { cv, setCV, update } = useCV();
+  const { cv: ownCV, setCV, update } = useCV();
   const { m, locale } = useI18n();
+  // A CV opened from a share link (#cv=…) is shown read-only and never overwrites the visitor's own CV.
+  const [sharedCV, setSharedCV] = useState<CVData | null>(null);
+  const cv = sharedCV ?? ownCV;
+  const [shareOpen, setShareOpen] = useState(false);
+  const [pdfBusy, setPdfBusy] = useState(false);
+
+  useEffect(() => {
+    const load = () =>
+      readSharedCV(window.location.hash)
+        .then(setSharedCV)
+        .catch(() => {
+          setSharedCV(null);
+          toast.error(m.shared.loadError);
+        });
+    load();
+    window.addEventListener('hashchange', load);
+    return () => window.removeEventListener('hashchange', load);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const leaveShared = (next: CVData, openEditor: boolean) => {
+    setCV(structuredClone(next));
+    setSharedCV(null);
+    clearShareHash();
+    if (openEditor) {
+      setEditorTab('profile');
+      setEditing(true);
+    }
+  };
   const [editing, setEditing] = useState(false);
   const [editorTab, setEditorTab] = useState<EditorTab>('profile');
   const atsScore = useMemo(() => runAtsCheck(cv, locale).score, [cv, locale]);
@@ -97,27 +132,18 @@ function CVPage() {
     el.textContent = JSON.stringify(toJsonLd(cv));
   }, [cv]);
 
-  const handleShare = async () => {
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: `${name} - ${m.app.cvTitle}`,
-          text: fmt(m.app.shareText, { name }),
-          url: window.location.href,
-        });
-      } catch (err) {
-        console.error('Error sharing:', err);
-      }
-    } else {
-      navigator.clipboard.writeText(window.location.href);
-      toast.success(m.app.linkCopied);
+  const handleDownload = async () => {
+    setPdfBusy(true);
+    try {
+      const pdf = await buildPdf(cv, m);
+      const outcome = await saveFile(`${fileSlug(cv.profile.name)}_CV.pdf`, pdf, 'application/pdf');
+      if (outcome === 'saved') toast.success(m.app.pdfSaved);
+      else if (outcome === 'failed') toast.error(m.app.pdfError);
+    } catch {
+      toast.error(m.app.pdfError);
+    } finally {
+      setPdfBusy(false);
     }
-  };
-
-  const handleDownload = () => {
-    toast(m.app.pdfToastTitle, { description: m.app.pdfToastBody });
-    // Let the toast render before the print dialog blocks the page.
-    setTimeout(() => window.print(), 300);
   };
 
   const contacts = [
@@ -157,12 +183,14 @@ function CVPage() {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={handleShare}
-                className="hidden md:flex gap-2 text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+                onClick={() => setShareOpen(true)}
+                aria-label={m.app.share}
+                className="gap-2 text-xs h-9 px-2 sm:px-3 text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
               >
                 <Share2 size={16} aria-hidden="true" />
-                {m.app.share}
+                <span className="hidden md:inline">{m.app.share}</span>
               </Button>
+              {!sharedCV && (<>
               <Button
                 variant={atsOpen ? 'secondary' : 'ghost'}
                 size="sm"
@@ -195,14 +223,17 @@ function CVPage() {
                 <PencilLine size={16} aria-hidden="true" />
                 <span className="hidden sm:inline">{m.app.edit}</span>
               </Button>
+              </>)}
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handleDownload}
+                disabled={pdfBusy}
+                aria-busy={pdfBusy}
                 aria-label={m.app.downloadPdf}
-                className="gap-2 text-xs h-9"
+                className="gap-2 text-xs h-9 px-2 sm:px-3"
               >
-                <Download size={16} aria-hidden="true" />
+                {pdfBusy ? <Loader2 size={16} className="animate-spin motion-reduce:animate-none" aria-hidden="true" /> : <Download size={16} aria-hidden="true" />}
                 <span className="hidden sm:inline">{m.app.downloadPdf}</span>
               </Button>
               <LanguageSwitcher />
@@ -210,6 +241,25 @@ function CVPage() {
             </div>
           </nav>
         </header>
+
+        {sharedCV && (
+          <div role="region" aria-label={m.shared.banner} className="border-b border-blue-200 bg-blue-50 dark:border-blue-900 dark:bg-blue-950/40">
+            <div className="max-w-3xl mx-auto px-4 sm:px-6 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <p className="flex items-center gap-2 text-sm text-blue-950 dark:text-blue-100">
+                <Eye size={16} aria-hidden="true" className="shrink-0" />
+                {m.shared.banner}
+              </p>
+              <div className="flex gap-2">
+                <Button size="sm" variant="outline" className="h-8 text-xs" onClick={() => leaveShared(sharedCV, true)}>
+                  {m.shared.makeCopy}
+                </Button>
+                <Button size="sm" className="h-8 text-xs" onClick={() => leaveShared(blankCV, true)}>
+                  {m.shared.createOwn}
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="relative">
           <HeroBackground />
@@ -397,7 +447,8 @@ function CVPage() {
         </div>
       </div>
 
-      <CVEditor open={editing} onOpenChange={setEditing} cv={cv} setCV={setCV} update={update} tab={editorTab} onTabChange={setEditorTab} />
+      <ShareDialog open={shareOpen} onOpenChange={setShareOpen} cv={cv} />
+      <CVEditor open={editing && !sharedCV} onOpenChange={setEditing} cv={ownCV} setCV={setCV} update={update} tab={editorTab} onTabChange={setEditorTab} />
     </div>
   );
 }
