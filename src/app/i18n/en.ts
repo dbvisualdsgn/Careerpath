@@ -121,6 +121,9 @@ export const en = {
   },
   ats: {
     readiness: 'ATS readiness',
+    refresh: 'Refresh check',
+    refreshed: 'Check updated',
+    lastChecked: 'Last checked at {time}',
     strong: 'Strong',
     good: 'Good, can improve',
     needsWork: 'Needs work',

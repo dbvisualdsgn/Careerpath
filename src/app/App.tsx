@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { MotionConfig, motion } from 'motion/react';
-import { Mail, Zap, Share2, Download, Phone, MapPin, Linkedin, PencilLine, Briefcase, Globe, Route, GraduationCap, Award, Languages } from 'lucide-react';
+import { Mail, Zap, Share2, Download, Phone, MapPin, Linkedin, PencilLine, Gauge, Briefcase, Globe, Route, GraduationCap, Award, Languages } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { ThemeProvider } from 'next-themes';
 import { Toaster, toast } from 'sonner';
@@ -12,7 +12,8 @@ import { ThemeToggle } from './components/ThemeToggle';
 import { LanguageSwitcher } from './components/LanguageSwitcher';
 import { HeroBackground } from './components/HeroBackground';
 import { PrintCV } from './components/PrintCV';
-import { CVEditor } from './components/editor/CVEditor';
+import { CVEditor, type EditorTab } from './components/editor/CVEditor';
+import { runAtsCheck } from './cv/atsCheck';
 import { Button } from './components/ui/button';
 import { useCV } from './cv/useCV';
 import { displayUrl, hrefUrl, toJsonLd } from './cv/format';
@@ -47,7 +48,7 @@ function AppLogo() {
       <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-zinc-900 text-white shadow-sm ring-4 ring-zinc-100 dark:bg-white dark:text-zinc-900 dark:ring-zinc-800">
         <Route size={18} strokeWidth={2.25} aria-hidden="true" />
       </span>
-      <span className="text-sm font-bold tracking-tight text-zinc-900 dark:text-zinc-100" style={headingFont} aria-hidden="true">
+      <span className="hidden sm:inline text-sm font-bold tracking-tight text-zinc-900 dark:text-zinc-100" style={headingFont} aria-hidden="true">
         {m.app.name}
         <span className="text-zinc-600 dark:text-zinc-400">.CV</span>
       </span>
@@ -57,8 +58,24 @@ function AppLogo() {
 
 function CVPage() {
   const { cv, setCV, update } = useCV();
-  const { m } = useI18n();
+  const { m, locale } = useI18n();
   const [editing, setEditing] = useState(false);
+  const [editorTab, setEditorTab] = useState<EditorTab>('profile');
+  const atsScore = useMemo(() => runAtsCheck(cv, locale).score, [cv, locale]);
+  const atsTone =
+    atsScore >= 85
+      ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-200'
+      : atsScore >= 65
+        ? 'bg-amber-100 text-amber-900 dark:bg-amber-900/40 dark:text-amber-200'
+        : 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-200';
+  const atsOpen = editing && editorTab === 'ats';
+  const toggleAts = () => {
+    if (atsOpen) setEditing(false);
+    else {
+      setEditorTab('ats');
+      setEditing(true);
+    }
+  };
   const { profile } = cv;
   const name = profile.name || m.app.namePlaceholder;
   const headline = profile.headline || m.app.headlinePlaceholder;
@@ -147,10 +164,31 @@ function CVPage() {
                 {m.app.share}
               </Button>
               <Button
-                variant={editing ? 'secondary' : 'ghost'}
+                variant={atsOpen ? 'secondary' : 'ghost'}
                 size="sm"
-                onClick={() => setEditing((v) => !v)}
-                aria-pressed={editing}
+                onClick={toggleAts}
+                aria-pressed={atsOpen}
+                aria-label={`${m.editor.tabs.ats}: ${atsScore}/100`}
+                title={`${m.ats.readiness}: ${atsScore}/100`}
+                className="gap-2 text-xs h-9 px-2 sm:px-3"
+              >
+                <Gauge size={16} aria-hidden="true" />
+                <span className="hidden lg:inline">{m.editor.tabs.ats}</span>
+                <span className={`rounded-full px-1.5 py-0.5 text-[11px] font-semibold tabular-nums leading-none ${atsTone}`} aria-hidden="true">
+                  {atsScore}
+                </span>
+              </Button>
+              <Button
+                variant={editing && !atsOpen ? 'secondary' : 'ghost'}
+                size="sm"
+                onClick={() => {
+                  if (editing && !atsOpen) setEditing(false);
+                  else {
+                    if (editorTab === 'ats') setEditorTab('profile');
+                    setEditing(true);
+                  }
+                }}
+                aria-pressed={editing && !atsOpen}
                 aria-label={m.app.edit}
                 className="gap-2 text-xs h-9"
               >
@@ -359,7 +397,7 @@ function CVPage() {
         </div>
       </div>
 
-      <CVEditor open={editing} onOpenChange={setEditing} cv={cv} setCV={setCV} update={update} />
+      <CVEditor open={editing} onOpenChange={setEditing} cv={cv} setCV={setCV} update={update} tab={editorTab} onTabChange={setEditorTab} />
     </div>
   );
 }

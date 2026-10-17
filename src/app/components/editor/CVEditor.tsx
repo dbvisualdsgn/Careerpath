@@ -1,4 +1,4 @@
-import { cloneElement, isValidElement, useId, useRef, useState } from 'react';
+import { cloneElement, isValidElement, useEffect, useId, useRef, useState } from 'react';
 import { ArrowDown, ArrowUp, Copy, FileDown, FileUp, Plus, RotateCcw, Trash2, FilePlus2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '../ui/sheet';
@@ -23,9 +23,13 @@ interface CVEditorProps {
   cv: CVData;
   setCV: (cv: CVData) => void;
   update: (fn: (cv: CVData) => CVData) => void;
+  /** Active tab, controlled by the page so the header's ATS button can open the check directly. */
+  tab: EditorTab;
+  onTabChange: (tab: EditorTab) => void;
 }
 
-type Tab = 'profile' | 'skills' | 'experience' | 'more' | 'ats';
+export type EditorTab = 'profile' | 'skills' | 'experience' | 'more' | 'ats';
+type Tab = EditorTab;
 const sectionTab: Record<Finding['section'], Tab> = {
   profile: 'profile', summary: 'profile', skills: 'skills', experience: 'experience', education: 'more', extras: 'more',
 };
@@ -76,13 +80,21 @@ function SectionHeading({ title, onAdd, addLabel }: { title: string; onAdd?: () 
   );
 }
 
+const parseSkills = (text: string) => text.split(/[\n,]/).map((s) => s.trim()).filter(Boolean);
+
 const cardClass = 'rounded-lg border border-zinc-200 dark:border-zinc-800 p-4 space-y-3';
 
-export function CVEditor({ open, onOpenChange, cv, setCV, update }: CVEditorProps) {
+export function CVEditor({ open, onOpenChange, cv, setCV, update, tab, onTabChange: setTab }: CVEditorProps) {
   const { m } = useI18n();
   const e = m.editor;
-  const [tab, setTab] = useState<Tab>('profile');
   const importRef = useRef<HTMLInputElement>(null);
+  // Raw text keeps trailing commas/new lines while typing; the parsed list is saved on every keystroke.
+  const [skillsText, setSkillsText] = useState(() => cv.skills.join('\n'));
+  useEffect(() => {
+    // Re-sync when skills change from outside the field (import, reset, start blank).
+    if (parseSkills(skillsText).join('|') !== cv.skills.join('|')) setSkillsText(cv.skills.join('\n'));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cv.skills]);
 
   const setProfile = (key: keyof Profile, value: string) =>
     update((d) => ({ ...d, profile: { ...d.profile, [key]: value } }));
@@ -194,11 +206,11 @@ export function CVEditor({ open, onOpenChange, cv, setCV, update }: CVEditorProp
               <Field label={e.coreSkills} hint={e.coreSkillsHint}>
                 <Textarea
                   className="min-h-28"
-                  defaultValue={cv.skills.join('\n')}
-                  key={cv.skills.join('|')}
-                  onBlur={(ev) =>
-                    update((d) => ({ ...d, skills: ev.target.value.split(/[\n,]/).map((s) => s.trim()).filter(Boolean) }))
-                  }
+                  value={skillsText}
+                  onChange={(ev) => {
+                    setSkillsText(ev.target.value);
+                    update((d) => ({ ...d, skills: parseSkills(ev.target.value) }));
+                  }}
                 />
               </Field>
 

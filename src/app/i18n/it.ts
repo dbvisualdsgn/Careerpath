@@ -122,6 +122,9 @@ export const it: Messages = {
   },
   ats: {
     readiness: 'Compatibilità ATS',
+    refresh: 'Aggiorna verifica',
+    refreshed: 'Verifica aggiornata',
+    lastChecked: 'Ultima verifica alle {time}',
     strong: 'Ottima',
     good: 'Buona, migliorabile',
     needsWork: 'Da migliorare',

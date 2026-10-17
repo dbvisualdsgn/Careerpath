@@ -122,6 +122,9 @@ export const pt: Messages = {
   },
   ats: {
     readiness: 'Preparação para ATS',
+    refresh: 'Atualizar análise',
+    refreshed: 'Análise atualizada',
+    lastChecked: 'Última análise às {time}',
     strong: 'Excelente',
     good: 'Bom, pode melhorar',
     needsWork: 'Precisa de melhorias',

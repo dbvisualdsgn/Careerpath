@@ -122,6 +122,9 @@ export const nl: Messages = {
   },
   ats: {
     readiness: 'ATS-geschiktheid',
+    refresh: 'Check vernieuwen',
+    refreshed: 'Check bijgewerkt',
+    lastChecked: 'Laatst gecontroleerd om {time}',
     strong: 'Sterk',
     good: 'Goed, kan beter',
     needsWork: 'Moet beter',

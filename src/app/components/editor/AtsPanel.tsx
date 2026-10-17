@@ -1,5 +1,7 @@
 import { useId, useMemo, useState } from 'react';
-import { AlertCircle, AlertTriangle, CheckCircle2, Lightbulb } from 'lucide-react';
+import { AlertCircle, AlertTriangle, CheckCircle2, Lightbulb, RotateCw } from 'lucide-react';
+import { toast } from 'sonner';
+import { Button } from '../ui/button';
 import { Textarea } from '../ui/textarea';
 import { Progress } from '../ui/progress';
 import { matchKeywords, runAtsCheck, type Finding } from '../../cv/atsCheck';
@@ -18,7 +20,26 @@ const headingClass = 'text-xs font-semibold uppercase tracking-wider text-zinc-6
 export function AtsPanel({ cv, onJump }: { cv: CVData; onJump: (section: Finding['section']) => void }) {
   const { m, locale } = useI18n();
   const jdId = useId();
-  const report = useMemo(() => runAtsCheck(cv, locale), [cv, locale]);
+  // Bumped by the refresh button to force a fresh run (the check also re-runs on every edit).
+  const [runId, setRunId] = useState(0);
+  const [spinning, setSpinning] = useState(false);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const report = useMemo(() => runAtsCheck(cv, locale), [cv, locale, runId]);
+  const [checkedAt, setCheckedAt] = useState(() => new Date());
+  const timeLabel = checkedAt.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+  const refresh = () => {
+    // Commit a field that is still being edited (e.g. skills save on blur) before re-checking.
+    if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
+    setSpinning(true);
+    // Wait a tick so the blur's state update lands before the new run.
+    setTimeout(() => {
+      setRunId((n) => n + 1);
+      setCheckedAt(new Date());
+      setSpinning(false);
+      toast.success(m.ats.refreshed);
+    }, 350);
+  };
   const [jd, setJd] = useState(() => {
     try {
       return localStorage.getItem(JD_KEY) ?? '';
@@ -48,6 +69,13 @@ export function AtsPanel({ cv, onJump }: { cv: CVData; onJump: (section: Finding
         <p className="mt-2 text-xs text-zinc-600 dark:text-zinc-400" aria-live="polite">
           {fmt(m.ats.summaryLine, { label: scoreLabel, words: report.wordCount, count: report.findings.length })}
         </p>
+        <div className="mt-3 flex items-center justify-between gap-3 border-t border-zinc-200 dark:border-zinc-800 pt-3">
+          <p className="text-[11px] text-zinc-600 dark:text-zinc-400">{fmt(m.ats.lastChecked, { time: timeLabel })}</p>
+          <Button type="button" variant="outline" size="sm" className="h-8 gap-1.5 text-xs" onClick={refresh} disabled={spinning}>
+            <RotateCw size={14} aria-hidden="true" className={spinning ? 'animate-spin motion-reduce:animate-none' : ''} />
+            {m.ats.refresh}
+          </Button>
+        </div>
       </div>
 
       <section>
