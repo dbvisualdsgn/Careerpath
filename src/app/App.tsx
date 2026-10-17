@@ -13,6 +13,7 @@ import { Wordmark } from './components/Wordmark';
 import { PrintCV } from './components/PrintCV';
 import { CVEditor, type EditorTab } from './components/editor/CVEditor';
 import { runAtsCheck } from './cv/atsCheck';
+import { useJobAd } from './cv/jobAd';
 import { hasSavedCV, useLibrary } from './cv/library';
 import { LibraryMenu } from './components/LibraryMenu';
 import { displayUrl, hrefUrl, toJsonLd } from './cv/format';
@@ -155,7 +156,10 @@ function CVPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const atsScore = useMemo(() => runAtsCheck(cv, locale).score, [cv, locale]);
+  // The job ad belongs to the person, so its title only counts for their own CV.
+  const jobAd = useJobAd();
+  const targetTitle = sharedCV ? undefined : jobAd.title;
+  const atsScore = useMemo(() => runAtsCheck(cv, locale, { targetTitle }).score, [cv, locale, targetTitle]);
   const atsOpen = editing && editorTab === 'ats';
   const toggleAts = () => {
     if (atsOpen) setEditing(false);
@@ -310,6 +314,7 @@ function CVPage() {
           <aside aria-label={m.atsCard.title} className="mx-auto max-w-4xl px-4 pt-8 sm:px-6 md:pt-10">
             <AtsSummary
               cv={cv}
+              targetTitle={targetTitle}
               onOpen={(section) => {
                 setEditorTab(section === 'profile' || section === 'summary' ? 'profile' : section === 'skills' ? 'skills' : section === 'experience' ? 'experience' : section ? 'more' : 'ats');
                 setEditing(true);

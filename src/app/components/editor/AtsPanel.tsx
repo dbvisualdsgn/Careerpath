@@ -3,8 +3,10 @@ import { AlertCircle, AlertTriangle, Check, CheckCircle2, Lightbulb, Plus, Rotat
 import { toast } from 'sonner';
 import { Button } from '../ui/button';
 import { Textarea } from '../ui/textarea';
+import { Input } from '../ui/input';
 import { Progress } from '../ui/progress';
-import { matchKeywords, runAtsCheck, type Finding } from '../../cv/atsCheck';
+import { matchKeywords, runAtsCheck, titleMatch, type Finding } from '../../cv/atsCheck';
+import { setJobAdText, setJobAdTitle, useJobAd } from '../../cv/jobAd';
 import { fmt, useI18n } from '../../i18n';
 import type { CVData } from '../../cv/types';
 
@@ -14,17 +16,26 @@ const severityStyle: Record<Finding['severity'], { icon: typeof AlertCircle; cla
   tip: { icon: Lightbulb, className: 'text-ink-soft' },
 };
 
-const JD_KEY = 'careerpath.jd.v1';
 const headingClass = 'text-xs font-semibold uppercase tracking-wider text-zinc-600 dark:text-zinc-400 mb-2';
 
-export function AtsPanel({ cv, onJump, onAddSkill }: { cv: CVData; onJump: (section: Finding['section']) => void; onAddSkill: (skill: string) => void }) {
+interface AtsPanelProps {
+  cv: CVData;
+  onJump: (section: Finding['section']) => void;
+  onAddSkill: (skill: string) => void;
+  onSetHeadline: (headline: string) => void;
+}
+
+export function AtsPanel({ cv, onJump, onAddSkill, onSetHeadline }: AtsPanelProps) {
   const { m, locale } = useI18n();
   const jdId = useId();
+  const titleId = useId();
+  const titleStatusId = useId();
+  const { text: jd, title, hasAd } = useJobAd();
   // Bumped by the refresh button to force a fresh run (the check also re-runs on every edit).
   const [runId, setRunId] = useState(0);
   const [spinning, setSpinning] = useState(false);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const report = useMemo(() => runAtsCheck(cv, locale), [cv, locale, runId]);
+  const report = useMemo(() => runAtsCheck(cv, locale, { targetTitle: title }), [cv, locale, title, runId]);
   const [checkedAt, setCheckedAt] = useState(() => new Date());
   const timeLabel = checkedAt.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
@@ -40,18 +51,12 @@ export function AtsPanel({ cv, onJump, onAddSkill }: { cv: CVData; onJump: (sect
       toast.success(m.ats.refreshed);
     }, 350);
   };
-  const [jd, setJd] = useState(() => {
-    try {
-      return localStorage.getItem(JD_KEY) ?? '';
-    } catch {
-      return '';
-    }
-  });
-  const match = useMemo(() => (jd.trim() ? matchKeywords(cv, jd, locale) : null), [cv, jd, locale]);
+  const match = useMemo(() => (hasAd ? matchKeywords(cv, jd, locale) : null), [cv, jd, hasAd, locale]);
+  const fit = title.trim() ? titleMatch(cv, title) : null;
 
   const scoreLabel = report.score >= 85 ? m.ats.strong : report.score >= 65 ? m.ats.good : m.ats.needsWork;
-  const order = { error: 0, warning: 1, tip: 2 };
-  const findings = [...report.findings].sort((a, b) => order[a.severity] - order[b.severity]);
+  // The fixes worth the most points come first.
+  const findings = [...report.findings].sort((a, b) => b.weight - a.weight);
   const message = (f: Finding) =>
     fmt(m.ats.findings[f.key], { ...f.params, label: (f.params?.label as string) || m.ats.untitledRole });
 
@@ -92,10 +97,16 @@ export function AtsPanel({ cv, onJump, onAddSkill }: { cv: CVData; onJump: (sect
                   className="flex w-full gap-2 rounded-md p-2 text-left text-sm hover:bg-zinc-100 focus-visible:outline-2 focus-visible:outline-[var(--focus)] dark:hover:bg-zinc-800/60"
                 >
                   <s.icon size={16} className={`mt-0.5 shrink-0 ${s.className}`} aria-hidden="true" />
-                  <span>
+                  <span className="flex-1">
                     <span className="sr-only">{m.ats.severity[f.severity]}: </span>
                     {message(f)}
                   </span>
+                  {f.weight > 0 && (
+                    <span className="shrink-0 font-mono text-[11px] tabular-nums text-ink-soft">
+                      <span aria-hidden="true">−{f.weight}</span>
+                      <span className="sr-only">({fmt(m.ats.costSr, { n: f.weight })})</span>
+                    </span>
+                  )}
                 </button>
               </li>
             );
@@ -125,17 +136,49 @@ export function AtsPanel({ cv, onJump, onAddSkill }: { cv: CVData; onJump: (sect
         <Textarea
           id={jdId}
           value={jd}
-          onChange={(e) => {
-            setJd(e.target.value);
-            try {
-              localStorage.setItem(JD_KEY, e.target.value);
-            } catch {
-              // Not critical.
-            }
-          }}
+          onChange={(e) => setJobAdText(e.target.value)}
           placeholder={m.ats.jdPlaceholder}
           className="min-h-28 text-sm"
         />
+        {hasAd && (
+          <div className="mt-4 border border-ink p-3">
+            <label htmlFor={titleId} className="font-mono text-[11px] uppercase tracking-[0.12em] text-ink-soft">{m.ats.titleLabel}</label>
+            <Input
+              id={titleId}
+              value={title}
+              onChange={(e) => setJobAdTitle(e.target.value)}
+              aria-describedby={titleStatusId}
+              className="mt-1.5 font-medium"
+            />
+            <div id={titleStatusId} className="mt-2 flex flex-wrap items-center justify-between gap-2" aria-live="polite">
+              {fit && (
+                <p className="flex items-start gap-1.5 text-sm">
+                  {fit === 'headline' ? (
+                    <CheckCircle2 size={16} className="mt-0.5 shrink-0 text-go" aria-hidden="true" />
+                  ) : (
+                    <AlertCircle size={16} className={`mt-0.5 shrink-0 ${fit === 'none' ? 'text-signal' : 'text-ink'}`} aria-hidden="true" />
+                  )}
+                  {fit === 'headline' ? m.ats.titleIsHeadline : fit === 'past' ? m.ats.titleIsPast : m.ats.titleIsNone}
+                </p>
+              )}
+              <p className="text-xs text-ink-soft">{m.ats.titleHint}</p>
+            </div>
+            {fit && fit !== 'headline' && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="mt-2 h-8 text-xs"
+                onClick={() => {
+                  onSetHeadline(title.trim());
+                  toast.success(m.ats.headlineSet);
+                }}
+              >
+                {m.ats.useAsHeadline}
+              </Button>
+            )}
+          </div>
+        )}
         {match && (
           <div className="mt-3 space-y-3" aria-live="polite">
             <p className="text-sm">

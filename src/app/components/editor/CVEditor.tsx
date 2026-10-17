@@ -419,6 +419,7 @@ export function CVEditor({ open, onOpenChange, cv, setCV, update, tab, onTabChan
               <AtsPanel
                 cv={cv}
                 onJump={(section) => setTab(sectionTab[section])}
+                onSetHeadline={(headline) => update((d) => ({ ...d, profile: { ...d.profile, headline } }))}
                 onAddSkill={(skill) =>
                   update((d) => (d.skills.some((s) => s.toLowerCase() === skill.toLowerCase()) ? d : { ...d, skills: [...d.skills, skill] }))
                 }

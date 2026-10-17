@@ -1,5 +1,19 @@
-// Heuristic checks based on common ATS (applicant tracking system) and AI-screening guidance:
+// Heuristic checks based on how recruiters read, search and rank CVs (and how parsers read them):
 // parseable contact details, standard sections, dated roles, achievement-led bullets, keywords.
+//
+// SCORING. The score is 100 minus the points of every finding, clamped to 0–100. Points are explicit,
+// so a CV that only fills fields in does not reach the top: evidence (numbers, dates, a strong latest
+// role, the right title) weighs most.
+//
+//   Essentials       name 15 · email 12 · no experience 25 · headline 8 · empty summary 6 · education 4
+//   Per role         missing title/company 8 · missing dates 8 · unreadable dates 4 · no month on a date 4
+//                    fewer than 2 bullets 4 · no number in any bullet 2
+//   Evidence         share of bullets with a number: up to 25 (full marks at 50% or more)
+//                    latest role: fewer than 3 bullets 6 · first bullet without a number 6
+//   Job ad (if any)  title matches neither headline nor a past title 12 · matches a past title only 4
+//   Wording          weak opener 3 · emoji 4 · fewer than 6 skills 4 · no core skills 3 · phone 3 · location 3
+//   Tips (≤1 each)   LinkedIn, summary length, languages, pronouns, years in summary, verbs, tense,
+//                    long bullets, too many bullets, clichés, overall length
 import type { CVData } from './types';
 import type { Messages } from '../i18n/en';
 import { stopwordsFor } from './stopwords';
@@ -15,6 +29,8 @@ export interface Finding {
   section: 'profile' | 'summary' | 'skills' | 'experience' | 'education' | 'extras';
   key: FindingKey;
   params?: Params;
+  /** Points this finding takes off the score. */
+  weight: number;
 }
 
 export interface AtsReport {
@@ -65,11 +81,29 @@ export function allText(cv: CVData) {
   ].join(' ');
 }
 
-export function runAtsCheck(cv: CVData, locale: string = 'en'): AtsReport {
+const WEIGHTS: Partial<Record<FindingKey, number>> = {
+  name: 15, email: 12, experience: 25, headline: 8, summary: 6, education: 4,
+  expBasics: 8, expDates: 8, expDateFormat: 4, expMonth: 4, expBullets: 4, expMetrics: 2,
+  recentBullets: 6, recentFirst: 6, titleNone: 12, titleHeadline: 4,
+  expWeak: 3, emoji: 4, skills: 4, skillsCore: 3, phone: 3, location: 3,
+  linkedin: 1, summaryShort: 1, summaryLong: 1, languages: 1, summaryPronoun: 1, summaryYears: 1,
+  expVerb: 0.5, expTense: 0.5, expLength: 0.5, expTooMany: 1, cliches: 1, lengthShort: 1, lengthLong: 1,
+};
+
+/** Share of bullets with a number at which the evidence points are all earned. */
+const METRICS_TARGET = 0.5;
+const METRICS_WEIGHT = 25;
+
+export interface AtsOptions {
+  /** Job title from a pasted job ad, if any. */
+  targetTitle?: string;
+}
+
+export function runAtsCheck(cv: CVData, locale: string = 'en', options: AtsOptions = {}): AtsReport {
   const findings: Finding[] = [];
   const passed: AtsReport['passed'] = [];
-  const add = (severity: Severity, section: Finding['section'], key: FindingKey, params?: Params, id: string = key) =>
-    findings.push({ id, severity, section, key, params });
+  const add = (severity: Severity, section: Finding['section'], key: FindingKey, params?: Params, id: string = key, weight = WEIGHTS[key] ?? 0) =>
+    findings.push({ id, severity, section, key, params, weight });
   const pass = (key: PassedKey, params?: Params) => passed.push({ key, params });
   // Verb, tense, pronoun and cliché checks rely on English word lists.
   const english = locale === 'en';
@@ -116,7 +150,8 @@ export function runAtsCheck(cv: CVData, locale: string = 'en'): AtsReport {
     if (!start || !end) add('error', 'experience', 'expDates', { label }, id('dates'));
     else if (!DATE_RE.test(start) || !(DATE_RE.test(end) || PRESENT_RE.test(end)))
       add('warning', 'experience', 'expDateFormat', { label }, id('datefmt'));
-    else if (!MONTH_DATE_RE.test(start)) add('tip', 'experience', 'expMonth', { label }, id('month'));
+    else if (!MONTH_DATE_RE.test(start) || (finished && !MONTH_DATE_RE.test(end)))
+      add('warning', 'experience', 'expMonth', { label }, id('month'));
 
     const bullets = exp.bullets.filter((b) => b.trim());
     bulletTotal += bullets.length;
@@ -140,7 +175,34 @@ export function runAtsCheck(cv: CVData, locale: string = 'en'): AtsReport {
     });
   });
   if (cv.experience.length > 0 && cv.experience.every((e) => e.start && e.end)) pass('dates');
-  if (bulletTotal > 0 && quantified / bulletTotal >= 0.3) pass('quantified');
+
+  // Evidence: how many bullets carry a number.
+  if (bulletTotal > 0) {
+    const share = quantified / bulletTotal;
+    const percent = Math.round(share * 100);
+    const missing = Math.max(0, 1 - share / METRICS_TARGET);
+    if (missing > 0) add('warning', 'experience', 'metricsShare', { percent }, 'metrics-share', Math.round(METRICS_WEIGHT * missing * 10) / 10);
+    else pass('quantified', { percent });
+  }
+
+  // The latest role is read first, so it should carry the most.
+  const recent = cv.experience.find((e) => PRESENT_RE.test(e.end.trim())) ?? cv.experience[0];
+  if (recent) {
+    const label = recent.title || recent.company || '';
+    const bullets = recent.bullets.filter((b) => b.trim());
+    if (bullets.length < 3) add('warning', 'experience', 'recentBullets', { label, count: bullets.length }, 'recent-bullets');
+    if (bullets.length > 0 && !/\d/.test(bullets[0])) add('warning', 'experience', 'recentFirst', { label }, 'recent-first');
+    if (bullets.length >= 3 && /\d/.test(bullets[0])) pass('recent', { label });
+  }
+
+  // Job title from a pasted ad: recruiters search by title first.
+  const target = options.targetTitle?.trim();
+  if (target) {
+    const fit = titleMatch(cv, target);
+    if (fit === 'none') add('error', 'profile', 'titleNone', { title: target });
+    else if (fit === 'past') add('warning', 'profile', 'titleHeadline', { title: target });
+    else pass('title', { title: target });
+  }
 
   // Education & extras.
   if (cv.education.length === 0) add('warning', 'education', 'education');
@@ -158,8 +220,7 @@ export function runAtsCheck(cv: CVData, locale: string = 'en'): AtsReport {
   else if (wordCount > 1100) add('tip', 'experience', 'lengthLong', { words: wordCount });
   else pass('length');
 
-  const weights = { error: 12, warning: 5, tip: 1.5 };
-  const penalty = findings.reduce((sum, f) => sum + weights[f.severity], 0);
+  const penalty = findings.reduce((sum, f) => sum + f.weight, 0);
   const score = Math.max(0, Math.min(100, Math.round(100 - penalty)));
   return { score, findings, passed, wordCount };
 }
@@ -211,4 +272,65 @@ export function matchKeywords(cv: CVData, jobDescription: string, locale = 'en')
   const missing = keywords.filter((k) => !has(k));
   const rate = keywords.length ? Math.round((matched.length / keywords.length) * 100) : 0;
   return { keywords, matched, missing, rate };
+}
+
+const SENIORITY = new Set(
+  `senior junior sr jr lead principal staff head chief mid intern trainee i ii iii iv h/f f/h m/f m/w/d m/f/d w/m/d
+  confirmé confirmée expérimenté expérimentée stagiaire alternant alternante esperto esperta stagista
+  experimentado experimentada becario becaria erfahrener erfahrene praktikant praktikantin ervaren stagiair`
+    .split(/\s+/)
+    .filter(Boolean),
+);
+
+function titleWords(text: string) {
+  const stop = stopwordsFor('en');
+  return tokenize(text).map(singular).filter((t) => !SENIORITY.has(t) && !stop.has(t) && t !== '&' && t !== '/');
+}
+
+/** Where a job title shows up in the CV: in the headline, in a past role, or nowhere. */
+export function titleMatch(cv: CVData, title: string): 'headline' | 'past' | 'none' {
+  const wanted = titleWords(title);
+  if (!wanted.length) return 'headline';
+  const covers = (text: string) => {
+    const have = new Set(titleWords(text));
+    return wanted.every((w) => have.has(w));
+  };
+  if (covers(cv.profile.headline)) return 'headline';
+  if (cv.experience.some((e) => covers(e.title))) return 'past';
+  return 'none';
+}
+
+const TITLE_LEADS = [
+  /\b(?:we(?:['’]re| are)|i['’]m|i am)\s+(?:hiring|looking for|recruiting|seeking)\s+(?:an?\s+|our next\s+|our first\s+)?(.+)/i,
+  /\b(?:join us as|hiring:?)\s+(?:an?\s+)?(.+)/i,
+  /\b(?:nous\s+)?(?:recrutons|recherchons)\s+(?:un\(e\)|un·e|une?|des)?\s*(.+)/i,
+  /\b(?:cerchiamo|stiamo cercando|ricerchiamo|selezioniamo)\s+(?:un\(a\)|un\/una|un['’]|una?|uno)?\s*(.+)/i,
+  /\b(?:buscamos|estamos buscando|seleccionamos)\s+(?:un\/a|un\(a\)|una?)?\s*(.+)/i,
+  /\bwir suchen\s+(?:dich als|sie als|eine?n?)?\s*(.+)/i,
+  /\b(?:procuramos|estamos à procura de|buscamos)\s+(?:um\(a\)|uma?)?\s*(.+)/i,
+  /\b(?:wij zoeken|we zoeken)\s+(?:een)?\s*(.+)/i,
+  /^\s*(?:job title|title|position|role|poste|intitulé du poste|posizione|ruolo|puesto|stelle|position|vaga|função|functie|vacature)\s*[:：]\s*(.+)/im,
+];
+const TITLE_STOP =
+  /\s(?:to|who|for|with|in|at|on|that|pour|qui|avec|au|dans|chez|per|che|con|presso|para|que|con|en|der|die|das|für|mit|um|zur|zum|om|die|voor|met|bij)\s.*$/i;
+
+/** Best guess at the job title in an ad: the phrase after "we're hiring a…" (in 7 languages), or the first short line. */
+export function extractJobTitle(jobDescription: string) {
+  const text = jobDescription.normalize('NFC');
+  const clean = (raw: string) =>
+    raw
+      .split(/[.,;:!?\n(|–—]/)[0]
+      .replace(TITLE_STOP, '')
+      .trim()
+      .split(/\s+/)
+      .slice(0, 6)
+      .join(' ')
+      .replace(/[\s-]+$/, '');
+  for (const re of TITLE_LEADS) {
+    const m = text.match(re);
+    if (m?.[1] && clean(m[1])) return clean(m[1]);
+  }
+  const first = text.split('\n').map((l) => l.trim()).find(Boolean) ?? '';
+  const line = clean(first);
+  return line.split(/\s+/).length <= 8 ? line : '';
 }

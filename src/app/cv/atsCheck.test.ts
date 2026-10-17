@@ -47,3 +47,64 @@ describe('stopwords', () => {
     expect(keys).toEqual(['renforcer', 'design']);
   });
 });
+
+import { extractJobTitle, runAtsCheck, titleMatch } from './atsCheck';
+
+/** Every field filled, dates with months, but generic bullets without a single number. */
+const generic: CVData = {
+  ...structuredClone(blankCV),
+  profile: { name: 'Alex Martin', headline: 'Marketing Manager', email: 'alex@example.com', phone: '+33 6 00 00 00 00', location: 'Lyon, France', website: '', linkedin: 'linkedin.com/in/alex' },
+  summary:
+    'Marketing manager with a background in brand and digital campaigns for consumer products. Works across teams to plan launches, manage agencies and keep brands consistent across every channel and market, from print to social.',
+  skills: ['Brand strategy', 'Campaign planning', 'Content marketing', 'SEO', 'Budgeting', 'Team leadership'],
+  experience: [
+    { id: 'a', title: 'Marketing Manager', company: 'Brandco', location: 'Lyon', employmentType: '', start: 'Jan 2021', end: 'Present', bullets: ['Managed campaigns for the main product lines.', 'Coordinated agencies and freelancers.', 'Planned the yearly marketing calendar.'] },
+    { id: 'b', title: 'Marketing Specialist', company: 'Shopco', location: 'Lyon', employmentType: '', start: 'Mar 2017', end: 'Dec 2020', bullets: ['Created content for social channels.', 'Supported product launches.', 'Reported on campaign results.'] },
+  ],
+  education: [{ id: 'e', degree: 'MSc Marketing', school: 'Université de Lyon', location: '', start: '2015', end: '2017', details: '' }],
+  languages: [{ id: 'l', name: 'French', level: 'Native' }],
+};
+
+describe('scoring', () => {
+  it('keeps a filled-in but generic CV under 70', () => {
+    expect(runAtsCheck(generic, 'en').score).toBeLessThan(70);
+  });
+  it('rewards numbers and a strong latest role', () => {
+    const strong = structuredClone(generic);
+    strong.experience[0].bullets = ['Grew qualified leads by 40% in 12 months with a new content plan.', 'Cut agency costs by €120k a year.', 'Launched 3 product lines in 5 markets.'];
+    strong.experience[1].bullets = ['Built a social audience of 50k followers.', 'Supported 6 product launches.', 'Reported on campaign results.'];
+    strong.summary += ' 8 years of experience.';
+    expect(runAtsCheck(strong, 'en').score).toBeGreaterThanOrEqual(85);
+  });
+  it('makes LinkedIn and languages worth at most 1 point', () => {
+    const cv = structuredClone(generic);
+    cv.profile.linkedin = '';
+    cv.languages = [];
+    const diff = runAtsCheck(generic, 'en').score - runAtsCheck(cv, 'en').score;
+    expect(diff).toBeLessThanOrEqual(2);
+  });
+  it('weighs the job title when an ad is pasted', () => {
+    expect(runAtsCheck(generic, 'en', { targetTitle: 'Data Engineer' }).findings.some((f) => f.key === 'titleNone')).toBe(true);
+    expect(runAtsCheck(generic, 'en', { targetTitle: 'Senior Marketing Manager' }).findings.some((f) => f.key.startsWith('title'))).toBe(false);
+  });
+});
+
+describe('job title', () => {
+  it.each([
+    ["We're hiring a Senior Product Designer to lead our design system.", 'Senior Product Designer'],
+    ['Nous recherchons un(e) Chef de projet digital pour rejoindre notre équipe.', 'Chef de projet digital'],
+    ['Cerchiamo un Infermiere professionale per il reparto di cardiologia.', 'Infermiere professionale'],
+    ['Buscamos un Desarrollador Backend con experiencia en Go.', 'Desarrollador Backend'],
+    ['Wir suchen dich als UX Writer (m/w/d) in Berlin.', 'UX Writer'],
+    ['Procuramos um Analista de Dados para a nossa equipa.', 'Analista de Dados'],
+    ['Wij zoeken een Accountmanager voor onze klanten.', 'Accountmanager'],
+    ['Product Designer\nAbout us: we build tools.', 'Product Designer'],
+  ])('finds the title in "%s"', (ad, title) => {
+    expect(extractJobTitle(ad)).toBe(title);
+  });
+  it('tells headline, past title and no match apart', () => {
+    expect(titleMatch(generic, 'Senior Marketing Manager')).toBe('headline');
+    expect(titleMatch(generic, 'Marketing Specialist')).toBe('past');
+    expect(titleMatch(generic, 'Data Engineer')).toBe('none');
+  });
+});

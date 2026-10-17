@@ -7,17 +7,19 @@ import type { CVData } from '../cv/types';
 
 interface AtsSummaryProps {
   cv: CVData;
+  /** Job title from the pasted ad, if any. */
+  targetTitle?: string;
   onOpen: (section?: Finding['section']) => void;
 }
 
 /** The ATS check, up front on the CV page: big score, a 20-step meter and the first fixes as pills. */
-export function AtsSummary({ cv, onOpen }: AtsSummaryProps) {
+export function AtsSummary({ cv, targetTitle, onOpen }: AtsSummaryProps) {
   const { m, locale } = useI18n();
-  const report = useMemo(() => runAtsCheck(cv, locale), [cv, locale]);
+  const report = useMemo(() => runAtsCheck(cv, locale, { targetTitle }), [cv, locale, targetTitle]);
   const shown = useCountUp(report.score);
   const ref = useReveal<HTMLElement>(0.3);
-  const order = { error: 0, warning: 1, tip: 2 };
-  const top = [...report.findings].sort((a, b) => order[a.severity] - order[b.severity]).slice(0, 4);
+  // The fixes worth the most points come first.
+  const top = [...report.findings].sort((a, b) => b.weight - a.weight).slice(0, 4);
   const label = report.score >= 85 ? m.ats.strong : report.score >= 65 ? m.ats.good : m.ats.needsWork;
   const steps = 20;
   const filled = Math.round((report.score / 100) * steps);
