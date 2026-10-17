@@ -56,6 +56,13 @@ uploaded logos are left out to keep links short.
 For other people to open links, the app must be hosted publicly (for example GitHub Pages, Vercel or Netlify).
 Set `VITE_PUBLIC_URL` at build time if share links should point to a different address than the current page.
 
+### Renaming the GitHub repository
+
+The repository is still called `Careerpath`, so the site lives at `dbvisualdsgn.github.io/Careerpath/`. It can be
+renamed in the repository's **Settings → General**. Renaming changes the GitHub Pages URL, so share links people
+already sent (which point at the old address) would stop opening. Only the storage keys `careerpath.cv.v1` and
+`careerpath.jd.v1` keep the old name on purpose: saved CVs live under them.
+
 ## Languages
 
 Pick a language from the header (English is the default). It translates the interface, the CV section headings

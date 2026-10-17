@@ -1,7 +1,7 @@
 // Fills a CV from a PDF. PDFs made here carry the exact CV in their metadata and come back 1:1.
 // Any other PDF is read as text and split into sections with multilingual heading and date rules.
 import { blankCV, newId } from './defaultCV';
-import { PDF_DATA_NS, unpackCV } from './share';
+import { LEGACY_PDF_DATA_NS, PDF_DATA_NS, unpackCV } from './share';
 import { findIcon } from './iconCatalog';
 import type { CVData, Experience } from './types';
 
@@ -150,7 +150,8 @@ export async function importPdf(file: File): Promise<{ cv: CVData; exact: boolea
     const meta = await doc.getMetadata();
     const raw = (meta.metadata as { getAll?: () => Record<string, string>; getRaw?: () => string } | null);
     const payload = raw?.getAll?.()['jspdf:metadata'];
-    if (payload && raw?.getRaw?.().includes(PDF_DATA_NS)) return { cv: await unpackCV(payload.trim()), exact: true };
+    const xmp: string = raw?.getRaw?.() ?? '';
+    if (payload && (xmp.includes(PDF_DATA_NS) || xmp.includes(LEGACY_PDF_DATA_NS))) return { cv: await unpackCV(payload.trim()), exact: true };
   } catch {
     // Not ours, or damaged: fall back to reading the text.
   }

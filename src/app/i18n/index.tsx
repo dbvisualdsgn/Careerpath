@@ -19,7 +19,8 @@ export const locales = {
 
 export type Locale = keyof typeof locales;
 
-const STORAGE_KEY = 'careerpath.locale';
+const STORAGE_KEY = 'curricula.locale';
+const LEGACY_KEY = 'careerpath.locale';
 const DEFAULT_LOCALE: Locale = 'en';
 
 /** Replaces {placeholders} in a message. */
@@ -37,6 +38,12 @@ const I18nContext = createContext<I18nValue | null>(null);
 
 function initialLocale(): Locale {
   try {
+    // One-time move from the old key: copy first, then remove.
+    const legacy = localStorage.getItem(LEGACY_KEY);
+    if (legacy !== null) {
+      if (localStorage.getItem(STORAGE_KEY) === null) localStorage.setItem(STORAGE_KEY, legacy);
+      localStorage.removeItem(LEGACY_KEY);
+    }
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved && saved in locales) return saved as Locale;
   } catch {

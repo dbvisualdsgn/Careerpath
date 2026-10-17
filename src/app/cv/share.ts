@@ -7,7 +7,9 @@ import type { CVData } from './types';
 
 const PARAM = 'cv';
 /** XMP namespace for the CV data embedded in our PDFs (jsPDF writes it as `jspdf:metadata`). */
-export const PDF_DATA_NS = 'https://dbvisualdsgn.github.io/Careerpath/ns/cv/1.0/';
+export const PDF_DATA_NS = 'urn:curriculi-curricula:cv:1.0';
+/** Namespace written by earlier versions; still read so older PDFs import exactly. */
+export const LEGACY_PDF_DATA_NS = 'https://dbvisualdsgn.github.io/Careerpath/ns/cv/1.0/';
 const TOKEN = '@logo:';
 /** Above this length, custom uploaded logos are left out so the link stays usable in chat apps. */
 const MAX_LINK_CHARS = 24000;
