@@ -278,6 +278,18 @@ function CVPage() {
           </div>
         )}
 
+        {!sharedCV && (
+          <aside aria-label={m.atsCard.title} className="mx-auto max-w-4xl px-4 pt-8 sm:px-6 md:pt-10">
+            <AtsSummary
+              cv={cv}
+              onOpen={(section) => {
+                setEditorTab(section === 'profile' || section === 'summary' ? 'profile' : section === 'skills' ? 'skills' : section === 'experience' ? 'experience' : section ? 'more' : 'ats');
+                setEditing(true);
+              }}
+            />
+          </aside>
+        )}
+
         {/* One column in standard ATS order: contact, summary, skills, experience, education, certifications, languages */}
         <main id="main" tabIndex={-1} className="mx-auto max-w-4xl space-y-16 px-4 py-14 font-reading focus:outline-none sm:px-6 md:py-20">
           <div>
@@ -322,15 +334,6 @@ function CVPage() {
             </address>
           </div>
 
-          {!sharedCV && (
-            <AtsSummary
-              cv={cv}
-              onOpen={(section) => {
-                setEditorTab(section === 'profile' || section === 'summary' ? 'profile' : section === 'skills' ? 'skills' : section === 'experience' ? 'experience' : section ? 'more' : 'ats');
-                setEditing(true);
-              }}
-            />
-          )}
 
           {cv.summary.trim() && (
             <RevealSection aria-labelledby="summary-heading">

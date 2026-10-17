@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { ArrowRight, Plus } from 'lucide-react';
+import { ArrowRight, EyeOff, Plus } from 'lucide-react';
 import { runAtsCheck, type Finding } from '../cv/atsCheck';
 import { useCountUp, useReveal } from '../hooks/useReveal';
 import { fmt, useI18n } from '../i18n';
@@ -24,6 +24,10 @@ export function AtsSummary({ cv, onOpen }: AtsSummaryProps) {
 
   return (
     <section ref={ref} aria-labelledby="ats-summary" className="reveal border border-ink p-5 print:hidden md:p-7">
+      <p className="-mt-1 mb-5 flex items-center gap-2 border-b border-dashed border-rule pb-3 font-mono text-[11px] uppercase tracking-[0.12em] text-ink-soft">
+        <EyeOff size={13} aria-hidden="true" className="shrink-0" />
+        {m.atsCard.onlyYou}
+      </p>
       <div className="flex flex-wrap items-end justify-between gap-6">
         <div>
           <h2 id="ats-summary" className="font-mono text-[12px] font-medium uppercase tracking-[0.14em]">

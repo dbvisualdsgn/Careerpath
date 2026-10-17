@@ -50,6 +50,7 @@ export const en = {
     plainHint: 'One column, plain text, no images. Best for job portals.',
   },
   atsCard: {
+    onlyYou: 'Only you see this. It’s not part of your CV or the PDF.',
     title: 'ATS check',
     lead: 'How well hiring software can read this CV.',
     topFixes: 'Fix these first',

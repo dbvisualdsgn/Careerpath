@@ -51,6 +51,7 @@ export const fr: Messages = {
     plainHint: 'Une colonne, texte seul, sans images. Idéal pour les sites d’emploi.',
   },
   atsCard: {
+    onlyYou: 'Vous seul le voyez. Ça ne fait pas partie de votre CV ni du PDF.',
     title: 'Analyse ATS',
     lead: 'À quel point les logiciels de recrutement lisent bien ce CV.',
     topFixes: 'À corriger d’abord',

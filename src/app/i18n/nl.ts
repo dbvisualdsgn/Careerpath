@@ -51,6 +51,7 @@ export const nl: Messages = {
     plainHint: 'Eén kolom, alleen tekst, geen afbeeldingen. Het best voor vacaturesites.',
   },
   atsCard: {
+    onlyYou: 'Alleen jij ziet dit. Het hoort niet bij je cv of de PDF.',
     title: 'ATS-check',
     lead: 'Hoe goed sollicitatiesoftware dit cv kan lezen.',
     topFixes: 'Los dit eerst op',

@@ -51,6 +51,7 @@ export const de: Messages = {
     plainHint: 'Eine Spalte, nur Text, keine Bilder. Am besten für Jobportale.',
   },
   atsCard: {
+    onlyYou: 'Nur du siehst das. Es ist nicht Teil deines Lebenslaufs oder des PDFs.',
     title: 'ATS-Check',
     lead: 'Wie gut Bewerbungssoftware diesen Lebenslauf lesen kann.',
     topFixes: 'Zuerst beheben',
