@@ -156,16 +156,16 @@ export function CVEditor({ open, onOpenChange, cv, setCV, update, tab, onTabChan
       <SheetContent
         side="right"
         onInteractOutside={(ev) => ev.preventDefault()}
-        className="w-full sm:max-w-[480px] gap-0 p-0 print:hidden bg-white dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800 shadow-2xl"
+        className="w-full gap-0 border-l-2 border-ink bg-panel p-0 print:hidden sm:max-w-[480px] [&>button:last-child]:text-paper [&>button:last-child]:focus-visible:outline-[var(--paper)]"
       >
-        <SheetHeader className="border-b border-zinc-200 dark:border-zinc-800 px-5 py-4">
-          <SheetTitle>{e.title}</SheetTitle>
-          <SheetDescription className="text-xs text-zinc-600 dark:text-zinc-400">{e.description}</SheetDescription>
+        <SheetHeader className="bg-ink px-5 py-4 text-paper">
+          <SheetTitle className="font-reading text-2xl font-normal tracking-[-0.01em] text-paper">{e.title}</SheetTitle>
+          <SheetDescription className="text-xs text-paper/80">{e.description}</SheetDescription>
         </SheetHeader>
 
         <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)} className="flex-1 min-h-0 gap-0">
           <div className="px-5 pt-3">
-            <TabsList className="w-full h-auto flex-wrap">
+            <TabsList className="w-full">
               <TabsTrigger value="profile" className="text-xs">{e.tabs.profile}</TabsTrigger>
               <TabsTrigger value="skills" className="text-xs">{e.tabs.skills}</TabsTrigger>
               <TabsTrigger value="experience" className="text-xs">{e.tabs.experience}</TabsTrigger>

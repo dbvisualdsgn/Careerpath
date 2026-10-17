@@ -54,6 +54,7 @@ export function paperColors({ warmth, brightness }: PaperSettings) {
     '--paper': hex(paper),
     '--ink-soft': hex(inkSoft),
     '--rule': hex(mix(paper, INK, 0.16)),
+    '--panel': hex(mix(paper, [255, 255, 255], 0.55)),
     '--color-zinc-50': hex(mix(paper, INK, 0.035)),
     '--color-zinc-100': hex(mix(paper, INK, 0.07)),
     '--color-zinc-200': hex(mix(paper, INK, 0.16)),

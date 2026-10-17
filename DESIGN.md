@@ -48,6 +48,12 @@ before first paint via `data-type` on `<html>` → `--reading-font` → the `fon
 - **Ruled lists:** entries separated by `rule` hairlines (experience, education, FAQ).
 - **Hairline grids:** `gap-px` on a `rule` background (steps, tools, languages).
 - **Buttons:** primary = ink fill / paper text; secondary = 1px ink outline; tertiary = underlined text link.
+- **Button states (everywhere):** hover = outline fills with ink (or a tint for ghost buttons); pressed = 1px nudge
+  down; selected (`aria-pressed`, open menu) = ink fill; focus = 2px ink outline, offset 2px; disabled = 50% opacity.
+- **Segmented tabs:** one hairline box divided by ink rules. Inactive = soft text, hover = tint + ink text,
+  selected = ink fill with paper text, focus = inset outline.
+- **Editor sheet:** a lighter `--panel` surface, 2px ink edge and an ink header band, so the tool reads as laid
+  over the page rather than part of the CV.
 - **ATS score mark:** dashed outline (<65), outline (65–84), filled (≥85), always with the number.
 - **Icons:** Lucide only, 16–22px, stroke 1.5–2, always `aria-hidden` next to a text label.
 

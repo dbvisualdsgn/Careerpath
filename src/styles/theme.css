@@ -6,6 +6,8 @@
   --ink: #111111;
   --ink-soft: #45433f;
   --rule: #cfccc5;
+  /* Editor sheet: lighter than the paper so the tool reads as laid over the page. */
+  --panel: #f6f5f2;
   --focus: #111111;
   /* Accents, used sparingly as marks and fills; text on top of them stays ink. */
   --highlight: #e6f05a;
@@ -133,6 +135,7 @@
   --color-ink: var(--ink);
   --color-ink-soft: var(--ink-soft);
   --color-rule: var(--rule);
+  --color-panel: var(--panel);
   --color-highlight: var(--highlight);
   --color-signal: var(--signal);
   --color-go: var(--go);
