@@ -1,5 +1,5 @@
 import { useEffect, useId, useRef, useState } from 'react';
-import { Check, Copy, ExternalLink, Info, Loader2, RefreshCw, Share2 } from 'lucide-react';
+import { Check, Copy, ExternalLink, Globe, Info, Loader2, Lock, RefreshCw, Share2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './ui/dialog';
 import { Button } from './ui/button';
@@ -14,9 +14,12 @@ interface ShareDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   cv: CVData;
+  /** Private CVs cannot be shared; the dialog offers to switch to public instead. */
+  isPublic: boolean;
+  onMakePublic?: () => void;
 }
 
-export function ShareDialog({ open, onOpenChange, cv }: ShareDialogProps) {
+export function ShareDialog({ open, onOpenChange, cv, isPublic, onMakePublic }: ShareDialogProps) {
   const { m } = useI18n();
   const s = m.share;
   const inputId = useId();
@@ -42,9 +45,9 @@ export function ShareDialog({ open, onOpenChange, cv }: ShareDialogProps) {
 
   // A fresh link for the CV as it is now, every time the dialog opens.
   useEffect(() => {
-    if (open) generate();
+    if (open && isPublic) generate();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open]);
+  }, [open, isPublic]);
 
   const copy = async () => {
     if (!link) return;
@@ -79,6 +82,17 @@ export function ShareDialog({ open, onOpenChange, cv }: ShareDialogProps) {
           <DialogDescription className="text-zinc-600 dark:text-zinc-400">{s.description}</DialogDescription>
         </DialogHeader>
 
+        {!isPublic ? (
+          <div className="space-y-4">
+            <p className="flex gap-2 text-sm"><Lock size={16} aria-hidden="true" className="mt-0.5 shrink-0" />{m.privacy.shareOff}</p>
+            {onMakePublic && (
+              <Button type="button" onClick={onMakePublic} className="gap-2">
+                <Globe size={16} aria-hidden="true" /> {m.privacy.makePublic}
+              </Button>
+            )}
+            <p className="text-xs text-ink-soft">{m.privacy.note}</p>
+          </div>
+        ) : (<>
         <div className="space-y-2">
           <Label htmlFor={inputId} className="text-xs text-zinc-700 dark:text-zinc-300">{s.linkLabel}</Label>
           <div className="flex gap-2">
@@ -118,7 +132,10 @@ export function ShareDialog({ open, onOpenChange, cv }: ShareDialogProps) {
           </Button>
         </div>
 
-        {(link?.droppedLogos || isClaudeEmbedded()) && (
+        <p className="text-xs text-ink-soft">{m.privacy.note}</p>
+        </>)}
+
+        {isPublic && (link?.droppedLogos || isClaudeEmbedded()) && (
           <div className="space-y-2 rounded-md bg-zinc-50 p-3 text-xs text-zinc-700 dark:bg-zinc-900 dark:text-zinc-300">
             {link?.droppedLogos && (
               <p className="flex gap-2"><Info size={14} className="mt-0.5 shrink-0" aria-hidden="true" />{s.logosDropped}</p>

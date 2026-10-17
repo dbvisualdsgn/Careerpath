@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Mail, Share2, Download, Phone, MapPin, Linkedin, PencilLine, Eye, Loader2, Globe, ArrowLeft } from 'lucide-react';
+import { Mail, Share2, Phone, MapPin, Linkedin, PencilLine, Eye, Globe, ArrowLeft } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { ThemeProvider } from 'next-themes';
 import { Toaster, toast } from 'sonner';
@@ -15,14 +15,18 @@ import { PrintCV } from './components/PrintCV';
 import { CVEditor, type EditorTab } from './components/editor/CVEditor';
 import { runAtsCheck } from './cv/atsCheck';
 import { useCV } from './cv/useCV';
-import { displayUrl, fileSlug, hrefUrl, toJsonLd } from './cv/format';
-import { buildPdf } from './cv/pdf';
-import { saveFile } from './cv/save';
+import { displayUrl, hrefUrl, toJsonLd } from './cv/format';
+import { DownloadMenu } from './components/DownloadMenu';
+import { AtsSummary } from './components/AtsSummary';
+import { PrivacySwitch } from './components/PrivacySwitch';
+import { Portrait } from './components/Portrait';
+import { findPerson } from './cv/people';
+import { useReveal } from './hooks/useReveal';
 import { clearShareHash, readSharedCV } from './cv/share';
 import { blankCV, sampleCV } from './cv/defaultCV';
 import { ShareDialog } from './components/ShareDialog';
 import type { CVData } from './cv/types';
-import { I18nProvider, useI18n } from './i18n';
+import { I18nProvider, fmt, useI18n } from './i18n';
 
 // Read before the first render, because useCV saves the sample as soon as it mounts.
 const hadSavedCV = (() => {
@@ -46,6 +50,16 @@ export default function App() {
         </TooltipProvider>
       </I18nProvider>
     </ThemeProvider>
+  );
+}
+
+/** A CV section that rises in once when scrolled into view. */
+function RevealSection({ children, className = '', ...rest }: React.ComponentProps<'section'>) {
+  const ref = useReveal<HTMLElement>(0.15);
+  return (
+    <section ref={ref} className={`reveal ${className}`} {...rest}>
+      {children}
+    </section>
   );
 }
 
@@ -75,10 +89,9 @@ function CVPage() {
   const { m, locale } = useI18n();
   // A CV opened from a share link (#cv=…) is shown read-only and never overwrites the visitor's own CV.
   const [sharedCV, setSharedCV] = useState<CVData | null>(null);
-  const [isExample, setIsExample] = useState(false);
+  const [banner, setBanner] = useState<'shared' | 'example' | 'directory'>('shared');
   const cv = sharedCV ?? ownCV;
   const [shareOpen, setShareOpen] = useState(false);
-  const [pdfBusy, setPdfBusy] = useState(false);
   const [editing, setEditing] = useState(false);
   const [editorTab, setEditorTab] = useState<EditorTab>('profile');
 
@@ -100,7 +113,7 @@ function CVPage() {
   const leaveShared = (next: CVData, openEditor: boolean) => {
     setCV(structuredClone(next));
     setSharedCV(null);
-    setIsExample(false);
+    setBanner('shared');
     clearShareHash();
     if (openEditor) {
       setEditorTab('profile');
@@ -110,10 +123,15 @@ function CVPage() {
   // Entry points from the homepage: ?new=1 (start writing) and ?example=1 (read the sample).
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    if (!params.has('new') && !params.has('example')) return;
+    if (!params.has('new') && !params.has('example') && !params.has('person')) return;
     if (params.has('example')) {
       setSharedCV(structuredClone(sampleCV));
-      setIsExample(true);
+      setBanner('example');
+    }
+    const person = params.get('person') && findPerson(params.get('person')!);
+    if (person) {
+      setSharedCV(structuredClone(person.cv));
+      setBanner('directory');
     }
     if (params.has('new')) {
       if (!hadSavedCV) setCV(structuredClone(blankCV));
@@ -134,6 +152,7 @@ function CVPage() {
     }
   };
   const { profile } = cv;
+  const bannerText = banner === 'example' ? m.shared.example : banner === 'directory' ? m.directory.banner : m.shared.banner;
   const name = profile.name || m.app.namePlaceholder;
   const headline = profile.headline || m.app.headlinePlaceholder;
 
@@ -153,20 +172,6 @@ function CVPage() {
     }
     el.textContent = JSON.stringify(toJsonLd(cv));
   }, [cv]);
-
-  const handleDownload = async () => {
-    setPdfBusy(true);
-    try {
-      const pdf = await buildPdf(cv, m);
-      const outcome = await saveFile(`${fileSlug(cv.profile.name)}_CV.pdf`, pdf, 'application/pdf');
-      if (outcome === 'saved') toast.success(m.app.pdfSaved);
-      else if (outcome === 'failed') toast.error(m.app.pdfError);
-    } catch {
-      toast.error(m.app.pdfError);
-    } finally {
-      setPdfBusy(false);
-    }
-  };
 
   const contacts = [
     profile.email && { icon: Mail, kind: m.contact.email, label: profile.email, href: `mailto:${profile.email}` },
@@ -198,17 +203,20 @@ function CVPage() {
 
       <div className={`print:hidden ${editing ? 'lg:pr-[480px]' : ''}`}>
         <header className="sticky top-0 z-40 w-full border-b border-rule bg-paper">
-          <nav aria-label={m.app.home} className="mx-auto flex h-16 max-w-4xl items-center justify-between gap-2 px-4 sm:px-6">
+          <nav aria-label={m.app.home} className="mx-auto flex max-w-4xl flex-wrap items-center justify-between gap-x-2 gap-y-1 px-4 py-2 sm:h-16 sm:flex-nowrap sm:py-0 sm:px-6">
             <div className="flex items-center gap-1">
               <a href="../" aria-label={m.app.home} className="hidden h-9 w-9 items-center justify-center rounded-sm hover:bg-zinc-100 dark:hover:bg-zinc-800 md:inline-flex">
                 <ArrowLeft size={18} aria-hidden="true" />
               </a>
               <Wordmark href="../" compact />
             </div>
-            <div className="flex items-center gap-0.5 sm:gap-1">
+            <div className="order-3 -mx-1.5 flex w-full items-center justify-between gap-0.5 border-t border-rule pt-1 sm:order-2 sm:mx-0 sm:w-auto sm:justify-end sm:gap-1 sm:border-0 sm:pt-0">
+              {!sharedCV && (
+                <PrivacySwitch compact={editing} isPublic={Boolean(ownCV.isPublic)} onChange={(isPublic) => update((d) => ({ ...d, isPublic }))} />
+              )}
               <button type="button" onClick={() => setShareOpen(true)} aria-label={m.app.share} className={headerBtn}>
                 <Share2 size={16} aria-hidden="true" />
-                <span className="hidden md:inline">{m.app.share}</span>
+                <span className={editing ? 'hidden' : 'hidden xl:inline'}>{m.app.share}</span>
               </button>
               {!sharedCV && (
                 <>
@@ -220,7 +228,7 @@ function CVPage() {
                     title={`${m.ats.readiness}: ${atsScore}/100`}
                     className={`${headerBtn} ${atsOpen ? 'bg-zinc-100 dark:bg-zinc-800' : ''}`}
                   >
-                    <span className="hidden lg:inline">{m.editor.tabs.ats}</span>
+                    <span className={editing ? 'hidden' : 'hidden whitespace-nowrap xl:inline'}>{m.editor.tabs.ats}</span>
                     <ScoreMark score={atsScore} />
                   </button>
                   <button
@@ -237,21 +245,13 @@ function CVPage() {
                     className={`${headerBtn} ${editing && !atsOpen ? 'bg-zinc-100 dark:bg-zinc-800' : ''}`}
                   >
                     <PencilLine size={16} aria-hidden="true" />
-                    <span className="hidden sm:inline">{m.app.edit}</span>
+                    <span className={editing ? 'hidden' : 'hidden whitespace-nowrap xl:inline'}>{m.app.edit}</span>
                   </button>
                 </>
               )}
-              <button
-                type="button"
-                onClick={handleDownload}
-                disabled={pdfBusy}
-                aria-busy={pdfBusy}
-                aria-label={m.app.downloadPdf}
-                className="inline-flex h-9 items-center gap-2 rounded-sm border border-ink px-2 text-[13px] text-ink hover:bg-ink hover:text-paper disabled:opacity-60 sm:px-3"
-              >
-                {pdfBusy ? <Loader2 size={16} className="animate-spin motion-reduce:animate-none" aria-hidden="true" /> : <Download size={16} aria-hidden="true" />}
-                <span className="hidden sm:inline">{m.app.downloadPdf}</span>
-              </button>
+              <DownloadMenu cv={cv} compact={editing} />
+            </div>
+            <div className="order-2 flex items-center gap-0.5 sm:order-3">
               <TypeSwitcher />
               <LanguageSwitcher />
               <ThemeToggle />
@@ -260,11 +260,11 @@ function CVPage() {
         </header>
 
         {sharedCV && (
-          <div role="region" aria-label={isExample ? m.shared.example : m.shared.banner} className="bg-ink text-paper">
+          <div role="region" aria-label={bannerText} className="bg-ink text-paper">
             <div className="mx-auto flex max-w-4xl flex-col justify-between gap-3 px-4 py-3 sm:flex-row sm:items-center sm:px-6">
               <p className="flex items-center gap-2 text-sm">
                 <Eye size={16} aria-hidden="true" className="shrink-0" />
-                {isExample ? m.shared.example : m.shared.banner}
+                {bannerText}
               </p>
               <div className="flex gap-2">
                 <button type="button" className="h-8 rounded-sm border border-paper px-3 text-xs hover:bg-paper hover:text-ink" onClick={() => leaveShared(sharedCV, true)}>
@@ -281,9 +281,16 @@ function CVPage() {
         {/* One column in standard ATS order: contact, summary, skills, experience, education, certifications, languages */}
         <main id="main" tabIndex={-1} className="mx-auto max-w-4xl space-y-16 px-4 py-14 font-reading focus:outline-none sm:px-6 md:py-20">
           <div>
-            <p className={microLabel}>{m.app.cvTitle}</p>
-            <h1 className="mt-4 text-[clamp(2.75rem,8vw,5.5rem)] font-normal leading-[0.92] tracking-[-0.035em]">{name}</h1>
-            <p className="mt-4 text-xl text-ink-soft md:text-2xl">{headline}</p>
+            <div className="flex items-start justify-between gap-6">
+              <div className="min-w-0">
+                <p className={microLabel}>{m.app.cvTitle}</p>
+                <h1 className="mt-4 text-[clamp(2.75rem,8vw,5.5rem)] font-normal leading-[0.92] tracking-[-0.035em]">{name}</h1>
+                <p className="mt-4 text-xl text-ink-soft md:text-2xl">{headline}</p>
+              </div>
+              {profile.photo && (
+                <Portrait photo={profile.photo} name={name} alt={fmt(m.photo.alt, { name })} className="h-24 w-24 shrink-0 md:h-36 md:w-36" />
+              )}
+            </div>
             <address className="mt-8 not-italic">
               <ul className="flex flex-wrap gap-x-6 gap-y-2 font-sans text-[14px] text-ink-soft">
                 {contacts.map(({ icon: Icon, kind, label, href }) => {
@@ -315,15 +322,25 @@ function CVPage() {
             </address>
           </div>
 
+          {!sharedCV && (
+            <AtsSummary
+              cv={cv}
+              onOpen={(section) => {
+                setEditorTab(section === 'profile' || section === 'summary' ? 'profile' : section === 'skills' ? 'skills' : section === 'experience' ? 'experience' : section ? 'more' : 'ats');
+                setEditing(true);
+              }}
+            />
+          )}
+
           {cv.summary.trim() && (
-            <section aria-labelledby="summary-heading">
+            <RevealSection aria-labelledby="summary-heading">
               <SectionHead id="summary-heading" title={m.sections.summary} n={1} />
               <p className="max-w-[60ch] whitespace-pre-line text-lg leading-relaxed md:text-xl">{cv.summary}</p>
-            </section>
+            </RevealSection>
           )}
 
           {(cv.skills.length > 0 || cv.tools.length > 0) && (
-            <section aria-labelledby="skills-heading" className="space-y-8">
+            <RevealSection aria-labelledby="skills-heading" className="space-y-8">
               <SectionHead id="skills-heading" title={m.sections.skills} n={2} />
               {cv.skills.length > 0 && (
                 <div>
@@ -338,17 +355,17 @@ function CVPage() {
               {cv.tools.length > 0 && (
                 <div>
                   <h3 className={`${microLabel} mb-3`}>{m.sections.tools}</h3>
-                  <ul className="grid grid-cols-1 gap-px border border-rule bg-rule sm:grid-cols-2 lg:grid-cols-3">
+                  <ul className="grid grid-cols-1 border-l border-t border-rule sm:grid-cols-2 lg:grid-cols-3">
                     {cv.tools.map((tool) => (
                       <ToolBadge key={tool.id} icon={tool.icon} name={tool.name} description={tool.description} />
                     ))}
                   </ul>
                 </div>
               )}
-            </section>
+            </RevealSection>
           )}
 
-          <section aria-labelledby="experience-heading">
+          <RevealSection aria-labelledby="experience-heading">
             <SectionHead id="experience-heading" title={m.sections.experience} n={3} />
             <div className="border-b border-rule">
               {cv.experience.map((exp, index) => (
@@ -367,10 +384,10 @@ function CVPage() {
                 {m.app.addFirstRole}
               </button>
             )}
-          </section>
+          </RevealSection>
 
           {cv.education.length > 0 && (
-            <section aria-labelledby="education-heading">
+            <RevealSection aria-labelledby="education-heading">
               <SectionHead id="education-heading" title={m.sections.education} n={4} />
               <ul className="border-b border-rule">
                 {cv.education.map((e, index) => (
@@ -385,11 +402,11 @@ function CVPage() {
                   />
                 ))}
               </ul>
-            </section>
+            </RevealSection>
           )}
 
           {cv.certifications.length > 0 && (
-            <section aria-labelledby="certifications-heading">
+            <RevealSection aria-labelledby="certifications-heading">
               <SectionHead id="certifications-heading" title={m.sections.certifications} n={5} />
               <ul className="border-b border-rule">
                 {cv.certifications.map((cert, index) => (
@@ -403,21 +420,21 @@ function CVPage() {
                   />
                 ))}
               </ul>
-            </section>
+            </RevealSection>
           )}
 
           {cv.languages.length > 0 && (
-            <section aria-labelledby="languages-heading">
+            <RevealSection aria-labelledby="languages-heading">
               <SectionHead id="languages-heading" title={m.sections.languages} n={6} />
-              <dl className="grid grid-cols-1 gap-px border border-rule bg-rule sm:grid-cols-3">
+              <dl className="grid grid-cols-1 border-l border-t border-rule sm:grid-cols-3">
                 {cv.languages.map((l) => (
-                  <div key={l.id} className="bg-paper px-4 py-4">
+                  <div key={l.id} className="border-b border-r border-rule bg-paper px-4 py-4">
                     <dt className="text-xl">{l.name}</dt>
                     <dd className="mt-1 font-mono text-[12px] uppercase tracking-[0.1em] text-ink-soft">{l.level}</dd>
                   </div>
                 ))}
               </dl>
-            </section>
+            </RevealSection>
           )}
         </main>
 
@@ -432,7 +449,13 @@ function CVPage() {
         </footer>
       </div>
 
-      <ShareDialog open={shareOpen} onOpenChange={setShareOpen} cv={cv} />
+      <ShareDialog
+        open={shareOpen}
+        onOpenChange={setShareOpen}
+        cv={cv}
+        isPublic={sharedCV ? true : Boolean(ownCV.isPublic)}
+        onMakePublic={() => update((d) => ({ ...d, isPublic: true }))}
+      />
       <CVEditor open={editing && !sharedCV} onOpenChange={setEditing} cv={ownCV} setCV={setCV} update={update} tab={editorTab} onTabChange={setEditorTab} />
     </div>
   );

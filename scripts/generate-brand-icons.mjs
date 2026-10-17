@@ -1,6 +1,11 @@
-// Generates src/app/cv/brandIcons.ts with the official logos used by the sample CV.
-// Icons come from the Iconify "logos" set (CC0). Run: node scripts/generate-brand-icons.mjs
+// Generates src/app/cv/brandIcons.ts with the official logos used by the sample CV and the example
+// public CVs. Icons come from the Iconify "logos" set and Simple Icons (both CC0).
+// Run: node scripts/generate-brand-icons.mjs
 import { readFileSync, writeFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
+
+const simpleIcons = createRequire(import.meta.url)('simple-icons');
+const bySlug = Object.fromEntries(Object.values(simpleIcons).filter((i) => i?.slug).map((i) => [i.slug, i]));
 
 const set = JSON.parse(readFileSync(new URL('../node_modules/@iconify-json/logos/icons.json', import.meta.url)));
 const wanted = {
@@ -13,9 +18,43 @@ const wanted = {
   productboard: 'productboard-icon',
   hotjar: 'hotjar-icon',
   strapi: 'strapi-icon',
+  teams: 'microsoft-teams',
+  typescript: 'typescript-icon',
+  react: 'react',
+  docker: 'docker-icon',
+  github: 'github-icon',
+  sap: 'sap',
+  python: 'python',
+  tableau: 'tableau-icon',
+  postgresql: 'postgresql',
+  miro: 'miro-icon',
+  salesforce: 'salesforce',
+  googleanalytics: 'google-analytics',
+  mailchimp: 'mailchimp-freddie',
+  zendesk: 'zendesk-icon',
+  slack: 'slack-icon',
+  jira: 'jira',
+  shopify: 'shopify',
+  trello: 'trello',
+  meta: 'meta-icon',
+  // Simple Icons (single brand colour), for brands missing from the logos set.
+  autocad: 'si:autocad',
+  classroom: 'si:googleclassroom',
+  quickbooks: 'si:quickbooks',
+  sketchup: 'si:sketchup',
+  hubspot: 'si:hubspot',
+  revit: 'si:autodeskrevit',
+  rhino: 'si:rhinoceros',
+  square: 'si:square',
+  sheets: 'si:googlesheets',
 };
 
 function toDataUrl(name) {
+  if (name.startsWith('si:')) {
+    const icon = bySlug[name.slice(3)];
+    if (!icon) throw new Error(`Missing simple icon ${name}`);
+    return 'data:image/svg+xml;utf8,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#${icon.hex}"><path d="${icon.path}"/></svg>`);
+  }
   const icon = set.icons[name];
   if (!icon) throw new Error(`Missing icon ${name}`);
   const w = icon.width ?? set.width ?? 16;

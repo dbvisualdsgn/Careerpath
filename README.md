@@ -7,7 +7,15 @@ The original design is available at https://www.figma.com/design/68PhbcZDT2IDB8n
 ## Pages
 
 - `/` is the homepage (`index.html` → `src/home/`).
-- `/app/` is the CV tool (`app/index.html` → `src/app/`). `app/?new=1` starts writing, and `app/?example=1` opens the sample read-only.
+- `/app/` is the CV tool (`app/index.html` → `src/app/`). `app/?new=1` starts writing, `app/?example=1` opens the sample read-only,
+  and `app/?person=<id>` opens a public CV from the directory.
+- `/people/` lists public CVs (`people/index.html` → `src/people/`). The 17 profiles in `src/app/cv/people.ts` are fictional examples.
+
+**Private / Public:** a CV is private by default (it stays in the browser and sharing is off). Switching to public turns on
+share links. A link carries its own copy of the CV, so links already sent cannot be revoked.
+
+**Downloads:** "As on the page" builds a PDF with the same layout, embedded fonts (`public/fonts`, SIL OFL), logos and
+photo. "ATS plain" builds the one-column, text-only version for job portals.
 
 The brand and tokens are documented in [DESIGN.md](DESIGN.md).
 

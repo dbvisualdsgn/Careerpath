@@ -9,7 +9,7 @@ interface ToolBadgeProps {
 /** Tool name and description as visible text, so ATS parsers and screen readers read both. */
 export function ToolBadge({ icon, name, description }: ToolBadgeProps) {
   return (
-    <li className="flex items-center gap-3 bg-paper px-4 py-3">
+    <li className="flex items-center gap-3 border-b border-r border-rule bg-paper px-4 py-3">
       {/* Logos keep their colours; in night mode they sit on a light tile so dark marks stay visible. */}
       <span className="inline-flex shrink-0 dark:rounded-sm dark:bg-[#eceae5] dark:p-0.5">
         <BrandIcon src={icon} name={name} size={18} />

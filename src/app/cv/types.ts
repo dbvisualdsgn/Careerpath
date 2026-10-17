@@ -6,6 +6,8 @@ export interface Profile {
   location: string;
   website: string;
   linkedin: string;
+  /** Square photo as a small grayscale JPEG data URL. */
+  photo?: string;
 }
 
 export interface Tool {
@@ -54,6 +56,8 @@ export interface Language {
 
 export interface CVData {
   version: 1;
+  /** Private (default) keeps sharing off; public turns on share links. */
+  isPublic?: boolean;
   profile: Profile;
   summary: string;
   skills: string[];

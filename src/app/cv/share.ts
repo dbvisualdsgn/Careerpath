@@ -8,7 +8,7 @@ import type { CVData } from './types';
 const PARAM = 'cv';
 const TOKEN = '@logo:';
 /** Above this length, custom uploaded logos are left out so the link stays usable in chat apps. */
-const MAX_LINK_CHARS = 12000;
+const MAX_LINK_CHARS = 24000;
 
 // Built-in logos travel as short tokens instead of full SVG/PNG data.
 const knownLogos: Record<string, string> = {
@@ -55,8 +55,13 @@ export async function createShareLink(cv: CVData, baseUrl: string): Promise<Shar
   let payload = await encode(tokenized);
   let droppedLogos = false;
   if (payload.length > MAX_LINK_CHARS) {
-    payload = await encode(mapLogos(tokenized, (logo) => (logo?.startsWith(TOKEN) ? logo : undefined)));
+    // Drop uploaded logos first, then the photo, so the link stays usable in chat apps.
+    const noCustomLogos = mapLogos(tokenized, (logo) => (logo?.startsWith(TOKEN) ? logo : undefined));
+    payload = await encode(noCustomLogos);
     droppedLogos = true;
+    if (payload.length > MAX_LINK_CHARS) {
+      payload = await encode({ ...noCustomLogos, profile: { ...noCustomLogos.profile, photo: undefined } });
+    }
   }
   return { url: `${baseUrl}#${PARAM}=${payload}`, droppedLogos };
 }

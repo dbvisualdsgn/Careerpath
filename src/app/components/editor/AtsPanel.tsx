@@ -1,5 +1,5 @@
 import { useId, useMemo, useState } from 'react';
-import { AlertCircle, AlertTriangle, CheckCircle2, Lightbulb, RotateCw } from 'lucide-react';
+import { AlertCircle, AlertTriangle, Check, CheckCircle2, Lightbulb, Plus, RotateCw } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '../ui/button';
 import { Textarea } from '../ui/textarea';
@@ -9,7 +9,7 @@ import { fmt, useI18n } from '../../i18n';
 import type { CVData } from '../../cv/types';
 
 const severityStyle: Record<Finding['severity'], { icon: typeof AlertCircle; className: string }> = {
-  error: { icon: AlertCircle, className: 'text-ink' },
+  error: { icon: AlertCircle, className: 'text-signal' },
   warning: { icon: AlertTriangle, className: 'text-ink' },
   tip: { icon: Lightbulb, className: 'text-ink-soft' },
 };
@@ -17,7 +17,7 @@ const severityStyle: Record<Finding['severity'], { icon: typeof AlertCircle; cla
 const JD_KEY = 'careerpath.jd.v1';
 const headingClass = 'text-xs font-semibold uppercase tracking-wider text-zinc-600 dark:text-zinc-400 mb-2';
 
-export function AtsPanel({ cv, onJump }: { cv: CVData; onJump: (section: Finding['section']) => void }) {
+export function AtsPanel({ cv, onJump, onAddSkill }: { cv: CVData; onJump: (section: Finding['section']) => void; onAddSkill: (skill: string) => void }) {
   const { m, locale } = useI18n();
   const jdId = useId();
   // Bumped by the refresh button to force a fresh run (the check also re-runs on every edit).
@@ -59,8 +59,8 @@ export function AtsPanel({ cv, onJump }: { cv: CVData; onJump: (section: Finding
     <div className="space-y-6">
       <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 p-4">
         <div className="flex items-baseline justify-between">
-          <h3 className="text-sm font-medium">{m.ats.readiness}</h3>
-          <p className="text-2xl font-bold tabular-nums">
+          <h3 className="text-sm font-medium"><span className="hl">{m.ats.readiness}</span></h3>
+          <p className="font-reading text-5xl tabular-nums tracking-[-0.03em]">
             {report.score}
             <span className="text-sm text-zinc-600 dark:text-zinc-400">/100</span>
           </p>
@@ -110,7 +110,7 @@ export function AtsPanel({ cv, onJump }: { cv: CVData; onJump: (section: Finding
           <ul className="space-y-1">
             {report.passed.map((p) => (
               <li key={p.key} className="flex gap-2 text-sm text-zinc-700 dark:text-zinc-300">
-                <CheckCircle2 size={16} className="mt-0.5 shrink-0 text-ink" aria-hidden="true" />
+                <CheckCircle2 size={16} className="mt-0.5 shrink-0 text-go" aria-hidden="true" />
                 {fmt(m.ats.passed[p.key], p.params)}
               </li>
             ))}
@@ -147,8 +147,20 @@ export function AtsPanel({ cv, onJump }: { cv: CVData; onJump: (section: Finding
                 <h4 className="sr-only">{m.ats.missingKeywords}</h4>
                 <ul className="flex flex-wrap gap-1.5">
                   {match.missing.map((k) => (
-                    <li key={k} className="rounded-sm border border-dashed border-ink px-1.5 py-0.5 text-xs text-ink">
-                      {k}
+                    <li key={k}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          onAddSkill(k);
+                          toast.success(m.atsCard.added);
+                        }}
+                        aria-label={fmt(m.atsCard.addKeyword, { k })}
+                        title={fmt(m.atsCard.addKeyword, { k })}
+                        className="group inline-flex items-center gap-1 rounded-full border border-ink px-2.5 py-1 text-[13px] text-ink hover:bg-highlight hover:text-[#111]"
+                      >
+                        {k}
+                        <Plus size={13} aria-hidden="true" className="transition-transform group-hover:rotate-90 motion-reduce:transition-none" />
+                      </button>
                     </li>
                   ))}
                 </ul>
@@ -159,8 +171,9 @@ export function AtsPanel({ cv, onJump }: { cv: CVData; onJump: (section: Finding
                 <h4 className="sr-only">{m.ats.matchedKeywords}</h4>
                 <ul className="flex flex-wrap gap-1.5">
                   {match.matched.map((k) => (
-                    <li key={k} className="rounded-sm border border-ink bg-ink px-1.5 py-0.5 text-xs text-paper">
+                    <li key={k} className="inline-flex items-center gap-1 rounded-full border border-ink bg-highlight px-2.5 py-1 font-reading text-[13px] italic text-[#111]">
                       {k}
+                      <Check size={13} aria-hidden="true" />
                     </li>
                   ))}
                 </ul>

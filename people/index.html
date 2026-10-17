@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Public CVs · curriculi curricula</title>
+    <meta name="description" content="CVs people chose to make public on curriculi curricula." />
+    <meta name="theme-color" content="#eceae5" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#111111" media="(prefers-color-scheme: dark)" />
+    <script>
+      // Apply the saved "Aa" type style before first paint.
+      try { var t = localStorage.getItem('curricula.type'); if (t === 'serif' || t === 'mono') document.documentElement.dataset.type = t; } catch (e) {}
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/people/main.tsx"></script>
+  </body>
+</html>

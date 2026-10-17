@@ -1,5 +1,8 @@
 import { cloneElement, isValidElement, useEffect, useId, useRef, useState } from 'react';
-import { ArrowDown, ArrowUp, Copy, FileDown, FileUp, Plus, RotateCcw, Trash2, FilePlus2 } from 'lucide-react';
+import { ArrowDown, ArrowUp, Camera, Copy, FileDown, FileUp, Plus, RotateCcw, Trash2, FilePlus2 } from 'lucide-react';
+import { PrivacySwitch } from '../PrivacySwitch';
+import { Portrait } from '../Portrait';
+import { processPhoto } from '../../cv/photo';
 import { toast } from 'sonner';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '../ui/sheet';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
@@ -88,6 +91,7 @@ export function CVEditor({ open, onOpenChange, cv, setCV, update, tab, onTabChan
   const { m } = useI18n();
   const e = m.editor;
   const importRef = useRef<HTMLInputElement>(null);
+  const photoRef = useRef<HTMLInputElement>(null);
   // Raw text keeps trailing commas/new lines while typing; the parsed list is saved on every keystroke.
   const [skillsText, setSkillsText] = useState(() => cv.skills.join('\n'));
   useEffect(() => {
@@ -172,6 +176,44 @@ export function CVEditor({ open, onOpenChange, cv, setCV, update, tab, onTabChan
 
           <div className="flex-1 overflow-y-auto px-5 py-5">
             <TabsContent value="profile" className="space-y-4 mt-0">
+              <div className="border-b border-rule pb-4">
+                <PrivacySwitch isPublic={Boolean(cv.isPublic)} onChange={(isPublic) => update((d) => ({ ...d, isPublic }))} withHint />
+              </div>
+              <div className="flex items-start gap-4">
+                <Portrait photo={cv.profile.photo} name={cv.profile.name} className="h-20 w-20 shrink-0 text-2xl" alt={fmt(m.photo.alt, { name: cv.profile.name })} />
+                <div className="space-y-2">
+                  <p className="text-xs font-medium text-zinc-700 dark:text-zinc-300">{m.photo.label}</p>
+                  <div className="flex flex-wrap gap-2">
+                    <Button type="button" variant="outline" size="sm" className="h-8 gap-1.5 text-xs" onClick={() => photoRef.current?.click()}>
+                      <Camera size={14} aria-hidden="true" /> {cv.profile.photo ? m.photo.change : m.photo.add}
+                    </Button>
+                    {cv.profile.photo && (
+                      <Button type="button" variant="ghost" size="sm" className="h-8 text-xs" onClick={() => setProfile('photo', '')}>
+                        {m.photo.remove}
+                      </Button>
+                    )}
+                  </div>
+                  <p className="text-[11px] leading-snug text-zinc-600 dark:text-zinc-400">{m.photo.hint}</p>
+                  <input
+                    ref={photoRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    tabIndex={-1}
+                    aria-hidden="true"
+                    onChange={async (ev) => {
+                      const file = ev.target.files?.[0];
+                      ev.target.value = '';
+                      if (!file) return;
+                      try {
+                        setProfile('photo', await processPhoto(file));
+                      } catch {
+                        toast.error(m.photo.error);
+                      }
+                    }}
+                  />
+                </div>
+              </div>
               <Field label={e.fullName}>
                 <Input autoComplete="name" value={cv.profile.name} onChange={(ev) => setProfile('name', ev.target.value)} />
               </Field>
@@ -358,7 +400,13 @@ export function CVEditor({ open, onOpenChange, cv, setCV, update, tab, onTabChan
             </TabsContent>
 
             <TabsContent value="ats" className="mt-0">
-              <AtsPanel cv={cv} onJump={(section) => setTab(sectionTab[section])} />
+              <AtsPanel
+                cv={cv}
+                onJump={(section) => setTab(sectionTab[section])}
+                onAddSkill={(skill) =>
+                  update((d) => (d.skills.some((s) => s.toLowerCase() === skill.toLowerCase()) ? d : { ...d, skills: [...d.skills, skill] }))
+                }
+              />
             </TabsContent>
           </div>
         </Tabs>

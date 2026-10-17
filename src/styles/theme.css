@@ -7,6 +7,10 @@
   --ink-soft: #45433f;
   --rule: #cfccc5;
   --focus: #111111;
+  /* Accents, used sparingly as marks and fills; text on top of them stays ink. */
+  --highlight: #e6f05a;
+  --signal: #e5482a;
+  --go: #2f8f5b;
   --font-sans: 'Inter Tight', ui-sans-serif, system-ui, sans-serif;
   --font-serif: 'Literata', Georgia, serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
@@ -129,6 +133,9 @@
   --color-ink: var(--ink);
   --color-ink-soft: var(--ink-soft);
   --color-rule: var(--rule);
+  --color-highlight: var(--highlight);
+  --color-signal: var(--signal);
+  --color-go: var(--go);
   --font-reading: var(--reading-font);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -242,4 +249,95 @@
     font-weight: var(--font-weight-normal);
     line-height: 1.5;
   }
+}
+
+/* ---------- Micro-interactions (all disabled with prefers-reduced-motion) ---------- */
+
+/* Highlighter: a marker stroke that draws itself behind the text. */
+.hl {
+  color: #111111;
+  background-image: linear-gradient(transparent 14%, var(--highlight) 14%, var(--highlight) 90%, transparent 90%);
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  padding: 0 0.12em;
+  margin: 0 -0.06em;
+}
+.reveal .hl,
+.hl-draw {
+  background-size: 0% 100%;
+  transition: background-size 700ms cubic-bezier(0.2, 0.7, 0.2, 1) 250ms;
+}
+.reveal.is-in .hl,
+.hl-draw.is-in {
+  background-size: 100% 100%;
+}
+
+/* Sections rise in once, gently. */
+.reveal {
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 600ms ease, transform 600ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.reveal.is-in {
+  opacity: 1;
+  transform: none;
+}
+
+/* Arrows nudge on hover. */
+.nudge svg {
+  transition: transform 200ms ease;
+}
+.nudge:hover svg,
+.nudge:focus-visible svg {
+  transform: translateX(3px);
+}
+.nudge-up:hover svg,
+.nudge-up:focus-visible svg {
+  transform: translate(2px, -2px);
+}
+
+/* Bars grow from the left when revealed. */
+.bar-grow {
+  transform-origin: left;
+  transform: scaleX(0);
+  transition: transform 900ms cubic-bezier(0.2, 0.7, 0.2, 1) 200ms;
+}
+.is-in .bar-grow {
+  transform: scaleX(1);
+}
+
+/* Blinking caret for the "typing" detail. */
+@keyframes caret {
+  50% { opacity: 0; }
+}
+.caret {
+  animation: caret 1.1s steps(1) infinite;
+}
+
+/* A dot that travels along the share-link line. */
+@keyframes link-travel {
+  0% { left: 0; opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { left: calc(100% - 9px); opacity: 0; }
+}
+.link-dot {
+  animation: link-travel 3.2s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .link-dot { animation: none; left: calc(50% - 4px); }
+  .reveal,
+  .reveal .hl,
+  .hl-draw,
+  .bar-grow,
+  .nudge svg {
+    transition: none !important;
+  }
+  .reveal { opacity: 1; transform: none; }
+  .reveal .hl, .hl-draw { background-size: 100% 100%; }
+  .bar-grow { transform: none; }
+  .caret { animation: none; }
 }

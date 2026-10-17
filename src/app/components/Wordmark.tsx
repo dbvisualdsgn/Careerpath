@@ -9,7 +9,7 @@ export function Wordmark({ href, compact = false }: { href: string; compact?: bo
       <span className="flex h-8 w-8 items-center justify-center rounded-sm bg-ink text-paper">
         <BookOpenText size={18} strokeWidth={1.75} aria-hidden="true" />
       </span>
-      <span aria-hidden="true" className={`font-reading text-[17px] leading-none tracking-[-0.01em] ${compact ? 'hidden sm:inline' : ''}`}>
+      <span aria-hidden="true" className={`whitespace-nowrap font-reading text-[17px] leading-none tracking-[-0.01em] ${compact ? 'hidden lg:inline' : ''}`}>
         curriculi <span className="italic">curricula</span>
       </span>
     </a>

@@ -20,6 +20,7 @@ export function normalize(input: unknown): CVData {
   const arr = <T,>(v: T[] | undefined) => (Array.isArray(v) ? v : []);
   return {
     version: 1,
+    isPublic: data.isPublic === true,
     profile: { ...blankCV.profile, ...(data.profile ?? {}) },
     summary: typeof data.summary === 'string' ? data.summary : '',
     skills: arr(data.skills).filter((s) => typeof s === 'string'),
