@@ -2,6 +2,7 @@
 // screen, with real selectable text. Fonts are the OFL files in /public/fonts, embedded on demand.
 import { contactItems, dateRange } from './format';
 import type { CVData } from './types';
+import { packCV, PDF_DATA_NS } from './share';
 import type { Messages } from '../i18n/en';
 import type { TypeStyle } from '../typography';
 import { currentPaper } from '../paper';
@@ -324,5 +325,7 @@ export async function buildDesignedPdf(cv: CVData, m: Messages, type: TypeStyle)
     keywords: [...cv.skills, ...cv.tools.map((t) => t.name)].join(', '),
     creator: 'curriculi curricula',
   });
+  // The full CV travels inside the PDF metadata (invisible to readers and ATS) so it can be imported back exactly.
+  doc.addMetadata(await packCV(cv), PDF_DATA_NS);
   return doc.output('blob');
 }

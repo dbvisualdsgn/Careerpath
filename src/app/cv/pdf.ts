@@ -3,6 +3,7 @@
 // No print dialog, so no browser headers/footers end up in the text.
 import { contactItems, dateRange } from './format';
 import type { CVData } from './types';
+import { packCV, PDF_DATA_NS } from './share';
 import type { Messages } from '../i18n/en';
 
 const PAGE = { margin: 50, width: 595.28, height: 841.89 }; // A4 in points
@@ -128,5 +129,7 @@ export async function buildPdf(cv: CVData, m: Messages): Promise<Blob> {
     keywords: [...cv.skills, ...cv.tools.map((t) => t.name)].join(', '),
     creator: 'curriculi curricula',
   });
+  // The full CV travels inside the PDF metadata (invisible to readers and ATS) so it can be imported back exactly.
+  doc.addMetadata(await packCV(cv), PDF_DATA_NS);
   return doc.output('blob');
 }

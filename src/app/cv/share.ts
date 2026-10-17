@@ -6,6 +6,8 @@ import { normalize } from './useCV';
 import type { CVData } from './types';
 
 const PARAM = 'cv';
+/** XMP namespace for the CV data embedded in our PDFs (jsPDF writes it as `jspdf:metadata`). */
+export const PDF_DATA_NS = 'https://dbvisualdsgn.github.io/Careerpath/ns/cv/1.0/';
 const TOKEN = '@logo:';
 /** Above this length, custom uploaded logos are left out so the link stays usable in chat apps. */
 const MAX_LINK_CHARS = 24000;
@@ -66,14 +68,23 @@ export async function createShareLink(cv: CVData, baseUrl: string): Promise<Shar
   return { url: `${baseUrl}#${PARAM}=${payload}`, droppedLogos };
 }
 
+/** Compact, lossless CV payload (built-in logos as tokens, deflate + base64url). Used inside our PDFs. */
+export async function packCV(cv: CVData) {
+  return encode(mapLogos(cv, (logo) => (logo ? tokenFor.get(logo) ?? logo : logo)));
+}
+
+export async function unpackCV(payload: string): Promise<CVData> {
+  const json = new TextDecoder().decode(await pipe(fromBase64Url(payload), new DecompressionStream('deflate-raw')));
+  const cv = normalize(JSON.parse(json));
+  return mapLogos(cv, (logo) => (logo?.startsWith(TOKEN) ? knownLogos[logo.slice(TOKEN.length)] : logo));
+}
+
 /** Reads a shared CV from a location hash, or returns null when there is none. Throws on a broken link. */
 export async function readSharedCV(hash: string): Promise<CVData | null> {
   const params = new URLSearchParams(hash.replace(/^#/, ''));
   const payload = params.get(PARAM);
   if (!payload) return null;
-  const json = new TextDecoder().decode(await pipe(fromBase64Url(payload), new DecompressionStream('deflate-raw')));
-  const cv = normalize(JSON.parse(json));
-  return mapLogos(cv, (logo) => (logo?.startsWith(TOKEN) ? knownLogos[logo.slice(TOKEN.length)] : logo));
+  return unpackCV(payload);
 }
 
 /** Where share links point: a configured public URL (VITE_PUBLIC_URL) or the current page. */

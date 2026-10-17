@@ -11,6 +11,14 @@ The original design is available at https://www.figma.com/design/68PhbcZDT2IDB8n
   and `app/?person=<id>` opens a public CV from the directory.
 - `/people/` lists public CVs (`people/index.html` → `src/people/`). The 17 profiles in `src/app/cv/people.ts` are fictional examples.
 
+**My CVs:** keep several CVs in the same browser (`src/app/cv/library.ts`). Switch, create and delete them from the
+"My CVs" menu and the editor. An older single CV is migrated automatically.
+
+**Import from PDF:** PDFs downloaded here carry the full CV in their XMP metadata (invisible to readers and ATS), so
+importing one restores it exactly, photo and logos included. Any other PDF with selectable text is read with pdf.js and
+split into sections using multilingual headings, month names and date ranges (`src/app/cv/importPdf.ts`). Check the
+result in the editor; scanned PDFs without text can't be read.
+
 **Private / Public:** a CV is private by default (it stays in the browser and sharing is off). Switching to public turns on
 share links. A link carries its own copy of the CV, so links already sent cannot be revoked.
 

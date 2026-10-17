@@ -1,5 +1,16 @@
 import { cloneElement, isValidElement, useEffect, useId, useRef, useState } from 'react';
-import { ArrowDown, ArrowUp, Camera, Copy, FileDown, FileUp, Plus, RotateCcw, Trash2, FilePlus2 } from 'lucide-react';
+import { ArrowDown, ArrowUp, Camera, Copy, FileDown, FileText, FileUp, Plus, RotateCcw, Trash2, FilePlus2 } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '../ui/alert-dialog';
 import { PrivacySwitch } from '../PrivacySwitch';
 import { Portrait } from '../Portrait';
 import { processPhoto } from '../../cv/photo';
@@ -29,6 +40,10 @@ interface CVEditorProps {
   /** Active tab, controlled by the page so the header's ATS button can open the check directly. */
   tab: EditorTab;
   onTabChange: (tab: EditorTab) => void;
+  /** Add a CV to the library and open it (new CV, JSON import). */
+  onCreate: (cv: CVData) => void;
+  onImportPdf: () => void;
+  onDelete: () => void;
 }
 
 export type EditorTab = 'profile' | 'skills' | 'experience' | 'more' | 'ats';
@@ -87,7 +102,7 @@ const parseSkills = (text: string) => text.split(/[\n,]/).map((s) => s.trim()).f
 
 const cardClass = 'rounded-lg border border-zinc-200 dark:border-zinc-800 p-4 space-y-3';
 
-export function CVEditor({ open, onOpenChange, cv, setCV, update, tab, onTabChange: setTab }: CVEditorProps) {
+export function CVEditor({ open, onOpenChange, cv, setCV, update, tab, onTabChange: setTab, onCreate, onImportPdf, onDelete }: CVEditorProps) {
   const { m } = useI18n();
   const e = m.editor;
   const importRef = useRef<HTMLInputElement>(null);
@@ -135,7 +150,8 @@ export function CVEditor({ open, onOpenChange, cv, setCV, update, tab, onTabChan
   const onImport = async (file: File | undefined) => {
     if (!file) return;
     try {
-      setCV(normalize(JSON.parse(await file.text())));
+      onCreate(normalize(JSON.parse(await file.text())));
+      setTab('profile');
       toast.success(e.imported);
     } catch {
       toast.error(e.importError);
@@ -411,9 +427,12 @@ export function CVEditor({ open, onOpenChange, cv, setCV, update, tab, onTabChan
           </div>
         </Tabs>
 
-        <div className="border-t border-zinc-200 dark:border-zinc-800 px-5 py-3 grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-2 gap-2 border-t border-rule px-5 py-3">
+          <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={onImportPdf}>
+            <FileText size={14} aria-hidden="true" /> {m.library.importPdf}
+          </Button>
           <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={() => importRef.current?.click()}>
-            <FileUp size={14} aria-hidden="true" /> {e.import}
+            <FileUp size={14} aria-hidden="true" /> {m.library.importJson}
           </Button>
           <Button
             variant="outline"
@@ -442,19 +461,46 @@ export function CVEditor({ open, onOpenChange, cv, setCV, update, tab, onTabChan
           <Button
             variant="ghost"
             size="sm"
-            className="gap-1.5 text-xs col-span-3 sm:col-span-1"
-            onClick={() => confirmReplace(blankCV, e.confirmBlank)}
+            className="gap-1.5 text-xs"
+            onClick={() => {
+              onCreate(structuredClone(blankCV));
+              setTab('profile');
+              toast.success(m.library.created);
+            }}
           >
-            <FilePlus2 size={14} aria-hidden="true" /> {e.startBlank}
+            <FilePlus2 size={14} aria-hidden="true" /> {m.library.newCv}
           </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="gap-1.5 text-xs col-span-3 sm:col-span-2"
-            onClick={() => confirmReplace(sampleCV, e.confirmReset)}
-          >
+          <Button variant="ghost" size="sm" className="gap-1.5 text-xs" onClick={() => confirmReplace(sampleCV, e.confirmReset)}>
             <RotateCcw size={14} aria-hidden="true" /> {e.resetSample}
           </Button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="ghost" size="sm" className="col-span-2 gap-1.5 border-t border-rule text-xs">
+                <Trash2 size={14} aria-hidden="true" className="text-signal" /> {m.library.delete}
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent className="rounded-sm border-ink bg-paper text-ink">
+              <AlertDialogHeader>
+                <AlertDialogTitle className="font-reading text-2xl font-normal">
+                  {fmt(m.library.deleteTitle, { name: cv.profile.name || m.library.untitled })}
+                </AlertDialogTitle>
+                <AlertDialogDescription className="text-ink-soft">{m.library.deleteBody}</AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel className="rounded-sm">{m.library.cancel}</AlertDialogCancel>
+                <AlertDialogAction
+                  className="gap-1.5 rounded-sm"
+                  onClick={() => {
+                    onDelete();
+                    setTab('profile');
+                    toast.success(m.library.deleted);
+                  }}
+                >
+                  <Trash2 size={14} aria-hidden="true" /> {m.library.deleteConfirm}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
           <input
             ref={importRef}
             type="file"

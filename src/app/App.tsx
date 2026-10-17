@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Mail, Share2, Phone, MapPin, Linkedin, PencilLine, Eye, Globe, ArrowLeft } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { Toaster, toast } from 'sonner';
@@ -13,7 +13,8 @@ import { Wordmark } from './components/Wordmark';
 import { PrintCV } from './components/PrintCV';
 import { CVEditor, type EditorTab } from './components/editor/CVEditor';
 import { runAtsCheck } from './cv/atsCheck';
-import { useCV } from './cv/useCV';
+import { hasSavedCV, useLibrary } from './cv/library';
+import { LibraryMenu } from './components/LibraryMenu';
 import { displayUrl, hrefUrl, toJsonLd } from './cv/format';
 import { DownloadMenu } from './components/DownloadMenu';
 import { AtsSummary } from './components/AtsSummary';
@@ -27,14 +28,8 @@ import { ShareDialog } from './components/ShareDialog';
 import type { CVData } from './cv/types';
 import { I18nProvider, fmt, useI18n } from './i18n';
 
-// Read before the first render, because useCV saves the sample as soon as it mounts.
-const hadSavedCV = (() => {
-  try {
-    return localStorage.getItem('careerpath.cv.v1') !== null;
-  } catch {
-    return false;
-  }
-})();
+// Read before the first render, because the library saves the sample as soon as it mounts.
+const hadSavedCV = hasSavedCV();
 
 const microLabel = 'font-mono text-[11px] uppercase tracking-[0.14em] text-ink-soft';
 const headerBtn =
@@ -82,7 +77,8 @@ function ScoreMark({ score }: { score: number }) {
 }
 
 function CVPage() {
-  const { cv: ownCV, setCV, update } = useCV();
+  const { cv: ownCV, setCV, update, items, activeId, create, select, remove } = useLibrary();
+  const pdfRef = useRef<HTMLInputElement>(null);
   const { m, locale } = useI18n();
   // A CV opened from a share link (#cv=…) is shown read-only and never overwrites the visitor's own CV.
   const [sharedCV, setSharedCV] = useState<CVData | null>(null);
@@ -108,13 +104,31 @@ function CVPage() {
   }, []);
 
   const leaveShared = (next: CVData, openEditor: boolean) => {
-    setCV(structuredClone(next));
+    // Editing a copy or starting fresh adds a CV to the library; nothing the visitor had is overwritten.
+    create(structuredClone(next));
     setSharedCV(null);
     setBanner('shared');
     clearShareHash();
     if (openEditor) {
       setEditorTab('profile');
       setEditing(true);
+    }
+  };
+
+  const importPdfFile = async (file: File | undefined) => {
+    if (!file) return;
+    const id = toast.loading(m.library.pdfReading);
+    try {
+      const { importPdf } = await import('./cv/importPdf');
+      const { cv: imported, exact } = await importPdf(file);
+      create(imported);
+      setSharedCV(null);
+      clearShareHash();
+      setEditorTab('profile');
+      setEditing(true);
+      toast.success(exact ? m.library.pdfExact : m.library.pdfDone, { id });
+    } catch (err) {
+      toast.error((err as { code?: string })?.code === 'no-text' ? m.library.pdfNoText : m.library.pdfError, { id });
     }
   };
   // Entry points from the homepage: ?new=1 (start writing) and ?example=1 (read the sample).
@@ -131,7 +145,9 @@ function CVPage() {
       setBanner('directory');
     }
     if (params.has('new')) {
+      // First visit: the sample becomes a blank CV. Returning visitor: add a new blank CV unless the open one is empty.
       if (!hadSavedCV) setCV(structuredClone(blankCV));
+      else if (ownCV.profile.name || ownCV.experience.length) create(structuredClone(blankCV));
       setEditorTab('profile');
       setEditing(true);
     }
@@ -206,6 +222,21 @@ function CVPage() {
                 <ArrowLeft size={18} aria-hidden="true" />
               </a>
               <Wordmark href="../" compact />
+              {!sharedCV && (
+                <LibraryMenu
+                  items={items}
+                  activeId={activeId}
+                  compact={editing}
+                  onSelect={(id) => select(id)}
+                  onNew={() => {
+                    create();
+                    setEditorTab('profile');
+                    setEditing(true);
+                    toast.success(m.library.created);
+                  }}
+                  onImportPdf={() => pdfRef.current?.click()}
+                />
+              )}
             </div>
             <div className="order-3 -mx-1.5 flex w-full items-center justify-between gap-0.5 border-t border-rule pt-1 sm:order-2 sm:mx-0 sm:w-auto sm:justify-end sm:gap-1 sm:border-0 sm:pt-0">
               {!sharedCV && (
@@ -456,7 +487,30 @@ function CVPage() {
         isPublic={sharedCV ? true : Boolean(ownCV.isPublic)}
         onMakePublic={() => update((d) => ({ ...d, isPublic: true }))}
       />
-      <CVEditor open={editing && !sharedCV} onOpenChange={setEditing} cv={ownCV} setCV={setCV} update={update} tab={editorTab} onTabChange={setEditorTab} />
+      <CVEditor
+        open={editing && !sharedCV}
+        onOpenChange={setEditing}
+        cv={ownCV}
+        setCV={setCV}
+        update={update}
+        tab={editorTab}
+        onTabChange={setEditorTab}
+        onCreate={(next) => create(next)}
+        onImportPdf={() => pdfRef.current?.click()}
+        onDelete={() => remove(activeId)}
+      />
+      <input
+        ref={pdfRef}
+        type="file"
+        accept="application/pdf,.pdf"
+        className="hidden"
+        tabIndex={-1}
+        aria-hidden="true"
+        onChange={(ev) => {
+          importPdfFile(ev.target.files?.[0]);
+          ev.target.value = '';
+        }}
+      />
     </div>
   );
 }
