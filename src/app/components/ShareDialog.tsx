@@ -83,10 +83,10 @@ export function ShareDialog({ open, onOpenChange, cv, isPublic, onMakePublic }: 
 
         {!isPublic ? (
           <div className="space-y-4">
-            <p className="flex gap-2 text-sm"><Lock size={16} aria-hidden="true" className="mt-0.5 shrink-0" />{m.privacy.shareOff}</p>
+            <p className="flex gap-2 text-sm"><Lock size={20} aria-hidden="true" className="mt-0.5 shrink-0" />{m.privacy.shareOff}</p>
             {onMakePublic && (
               <Button type="button" onClick={onMakePublic} className="gap-2">
-                <Globe size={16} aria-hidden="true" /> {m.privacy.makePublic}
+                <Globe size={20} aria-hidden="true" /> {m.privacy.makePublic}
               </Button>
             )}
             <p className="text-xs text-ink-soft">{m.privacy.note}</p>
@@ -105,7 +105,7 @@ export function ShareDialog({ open, onOpenChange, cv, isPublic, onMakePublic }: 
               aria-describedby={manualHint ? `${inputId}-hint` : undefined}
             />
             <Button type="button" onClick={copy} disabled={busy || !link} className="shrink-0 gap-1.5">
-              {copied ? <Check size={16} aria-hidden="true" /> : <Copy size={16} aria-hidden="true" />}
+              {copied ? <Check size={20} aria-hidden="true" /> : <Copy size={20} aria-hidden="true" />}
               {copied ? s.copied : s.copy}
             </Button>
           </div>
@@ -117,16 +117,16 @@ export function ShareDialog({ open, onOpenChange, cv, isPublic, onMakePublic }: 
         <div className="flex flex-wrap gap-2">
           {canNativeShare && (
             <Button type="button" variant="outline" size="sm" className="gap-1.5" onClick={nativeShare} disabled={busy || !link}>
-              <Share2 size={14} aria-hidden="true" /> {s.nativeShare}
+              <Share2 size={20} aria-hidden="true" /> {s.nativeShare}
             </Button>
           )}
           <Button type="button" variant="outline" size="sm" className="gap-1.5" asChild disabled={busy || !link}>
             <a href={link?.url ?? '#'} target="_blank" rel="noopener noreferrer">
-              <ExternalLink size={14} aria-hidden="true" /> {s.open}
+              <ExternalLink size={20} aria-hidden="true" /> {s.open}
             </a>
           </Button>
           <Button type="button" variant="ghost" size="sm" className="gap-1.5" onClick={generate} disabled={busy}>
-            {busy ? <Loader2 size={14} className="animate-spin motion-reduce:animate-none" aria-hidden="true" /> : <RefreshCw size={14} aria-hidden="true" />}
+            {busy ? <Loader2 size={20} className="animate-spin motion-reduce:animate-none" aria-hidden="true" /> : <RefreshCw size={20} aria-hidden="true" />}
             {s.newLink}
           </Button>
         </div>
@@ -136,7 +136,7 @@ export function ShareDialog({ open, onOpenChange, cv, isPublic, onMakePublic }: 
 
         {isPublic && link?.droppedLogos && (
           <p className="flex gap-2 rounded-md bg-zinc-50 p-3 text-xs text-zinc-700">
-            <Info size={14} className="mt-0.5 shrink-0" aria-hidden="true" />{s.logosDropped}
+            <Info size={20} className="mt-0.5 shrink-0" aria-hidden="true" />{s.logosDropped}
           </p>
         )}
       </DialogContent>

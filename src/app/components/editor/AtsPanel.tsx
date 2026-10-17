@@ -90,7 +90,7 @@ export function AtsPanel({ cv, onJump, onAddSkill, onSetHeadline, focusJobAd = 0
         <div className="mt-3 flex items-center justify-between gap-3 border-t border-zinc-200 dark:border-zinc-800 pt-3">
           <p className="text-[11px] text-zinc-600 dark:text-zinc-400">{fmt(m.ats.lastChecked, { time: timeLabel })}</p>
           <Button type="button" variant="outline" size="sm" className="h-8 gap-1.5 text-xs" onClick={refresh} disabled={spinning}>
-            <RotateCw size={14} aria-hidden="true" className={spinning ? 'animate-spin motion-reduce:animate-none' : ''} />
+            <RotateCw size={20} aria-hidden="true" className={spinning ? 'animate-spin motion-reduce:animate-none' : ''} />
             {m.ats.refresh}
           </Button>
         </div>
@@ -122,9 +122,9 @@ export function AtsPanel({ cv, onJump, onAddSkill, onSetHeadline, focusJobAd = 0
               {fit && (
                 <p className="flex items-start gap-1.5 text-sm">
                   {fit === 'headline' ? (
-                    <CheckCircle2 size={16} className="mt-0.5 shrink-0 text-go" aria-hidden="true" />
+                    <CheckCircle2 size={20} className="mt-0.5 shrink-0 text-go" aria-hidden="true" />
                   ) : (
-                    <AlertCircle size={16} className={`mt-0.5 shrink-0 ${fit === 'none' ? 'text-signal' : 'text-ink'}`} aria-hidden="true" />
+                    <AlertCircle size={20} className={`mt-0.5 shrink-0 ${fit === 'none' ? 'text-signal' : 'text-ink'}`} aria-hidden="true" />
                   )}
                   {fit === 'headline' ? m.ats.titleIsHeadline : fit === 'past' ? m.ats.titleIsPast : m.ats.titleIsNone}
                 </p>
@@ -170,7 +170,7 @@ export function AtsPanel({ cv, onJump, onAddSkill, onSetHeadline, focusJobAd = 0
                         className="group inline-flex items-center gap-1 rounded-full border border-ink px-2.5 py-1 text-[13px] text-ink hover:bg-highlight hover:text-[#111]"
                       >
                         {k}
-                        <Plus size={13} aria-hidden="true" className="transition-transform group-hover:rotate-90 motion-reduce:transition-none" />
+                        <Plus size={20} aria-hidden="true" className="transition-transform group-hover:rotate-90 motion-reduce:transition-none" />
                       </button>
                     </li>
                   ))}
@@ -184,7 +184,7 @@ export function AtsPanel({ cv, onJump, onAddSkill, onSetHeadline, focusJobAd = 0
                   {match.matched.map((k) => (
                     <li key={k} className="inline-flex items-center gap-1 rounded-full border border-ink bg-highlight px-2.5 py-1 font-reading text-[13px] italic text-[#111]">
                       {k}
-                      <Check size={13} aria-hidden="true" />
+                      <Check size={20} aria-hidden="true" />
                     </li>
                   ))}
                 </ul>
@@ -207,7 +207,7 @@ export function AtsPanel({ cv, onJump, onAddSkill, onSetHeadline, focusJobAd = 0
                   onClick={() => onJump(f.section)}
                   className="flex w-full gap-2 rounded-md p-2 text-left text-sm hover:bg-zinc-100 focus-visible:outline-2 focus-visible:outline-[var(--focus)] dark:hover:bg-zinc-800/60"
                 >
-                  <s.icon size={16} className={`mt-0.5 shrink-0 ${s.className}`} aria-hidden="true" />
+                  <s.icon size={20} className={`mt-0.5 shrink-0 ${s.className}`} aria-hidden="true" />
                   <span className="flex-1">
                     <span className="sr-only">{m.ats.severity[f.severity]}: </span>
                     {message(f)}
@@ -232,7 +232,7 @@ export function AtsPanel({ cv, onJump, onAddSkill, onSetHeadline, focusJobAd = 0
           <ul className="space-y-1">
             {report.passed.map((p) => (
               <li key={p.key} className="flex gap-2 text-sm text-zinc-700 dark:text-zinc-300">
-                <CheckCircle2 size={16} className="mt-0.5 shrink-0 text-go" aria-hidden="true" />
+                <CheckCircle2 size={20} className="mt-0.5 shrink-0 text-go" aria-hidden="true" />
                 {fmt(m.ats.passed[p.key], p.params)}
               </li>
             ))}

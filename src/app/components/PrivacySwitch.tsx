@@ -35,7 +35,7 @@ export function PrivacySwitch({ isPublic, onChange, withHint = false }: PrivacyS
           />
         </span>
         <span className="inline-flex items-center gap-1 whitespace-nowrap font-medium">
-          {isPublic ? <Globe size={13} aria-hidden="true" /> : <Lock size={13} aria-hidden="true" />}
+          {isPublic ? <Globe size={20} aria-hidden="true" /> : <Lock size={20} aria-hidden="true" />}
           {isPublic ? p.public : p.private}
         </span>
       </button>

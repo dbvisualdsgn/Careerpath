@@ -82,13 +82,13 @@ function ItemControls({ onUp, onDown, onRemove, label }: { onUp?: () => void; on
   return (
     <div className="flex shrink-0 items-center">
       <Button type="button" variant="ghost" size="icon" className="h-8 w-8" disabled={!onUp} onClick={onUp} title={up} aria-label={up}>
-        <ArrowUp size={14} aria-hidden="true" />
+        <ArrowUp size={20} aria-hidden="true" />
       </Button>
       <Button type="button" variant="ghost" size="icon" className="h-8 w-8" disabled={!onDown} onClick={onDown} title={down} aria-label={down}>
-        <ArrowDown size={14} aria-hidden="true" />
+        <ArrowDown size={20} aria-hidden="true" />
       </Button>
       <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-zinc-600 hover:text-ink dark:text-zinc-400" onClick={onRemove} title={remove} aria-label={remove}>
-        <Trash2 size={14} aria-hidden="true" />
+        <Trash2 size={20} aria-hidden="true" />
       </Button>
     </div>
   );
@@ -100,7 +100,7 @@ function SectionHeading({ title, onAdd, addLabel }: { title: string; onAdd?: () 
       <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-600 dark:text-zinc-400">{title}</h3>
       {onAdd && (
         <Button type="button" variant="outline" size="sm" className="h-8 gap-1" onClick={onAdd}>
-          <Plus size={14} aria-hidden="true" /> {addLabel}
+          <Plus size={20} aria-hidden="true" /> {addLabel}
         </Button>
       )}
     </div>
@@ -201,7 +201,7 @@ export function CVEditor({
           }}
           className="nudge flex w-full items-center gap-2 border-b border-rule px-5 py-2.5 text-left text-sm hover:bg-zinc-100"
         >
-          <ClipboardPaste size={16} aria-hidden="true" className="shrink-0" />
+          <ClipboardPaste size={20} aria-hidden="true" className="shrink-0" />
           <span className="min-w-0 flex-1 truncate">
             {jobAd.hasAd && jobAd.title ? (
               <>
@@ -211,7 +211,7 @@ export function CVEditor({
               m.app.jobAd
             )}
           </span>
-          <ArrowRight size={15} aria-hidden="true" className="shrink-0" />
+          <ArrowRight size={20} aria-hidden="true" className="shrink-0" />
         </button>
 
         <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)} className="flex-1 min-h-0 gap-0">
@@ -239,7 +239,7 @@ export function CVEditor({
                   <p className="text-xs font-medium text-zinc-700 dark:text-zinc-300">{m.photo.label}</p>
                   <div className="flex flex-wrap gap-2">
                     <Button type="button" variant="outline" size="sm" className="h-8 gap-1.5 text-xs" onClick={() => photoRef.current?.click()}>
-                      <Camera size={14} aria-hidden="true" /> {cv.profile.photo ? m.photo.change : m.photo.add}
+                      <Camera size={20} aria-hidden="true" /> {cv.profile.photo ? m.photo.change : m.photo.add}
                     </Button>
                     {cv.profile.photo && (
                       <Button type="button" variant="ghost" size="sm" className="h-8 text-xs" onClick={() => setProfile('photo', '')}>
@@ -476,10 +476,10 @@ export function CVEditor({
             }}
           />
           <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={onImportPdf}>
-            <FileText size={14} aria-hidden="true" /> {m.library.importPdf}
+            <FileText size={20} aria-hidden="true" /> {m.library.importPdf}
           </Button>
           <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={() => importRef.current?.click()}>
-            <FileUp size={14} aria-hidden="true" /> {m.library.importJson}
+            <FileUp size={20} aria-hidden="true" /> {m.library.importJson}
           </Button>
           <Button
             variant="outline"
@@ -487,7 +487,7 @@ export function CVEditor({
             className="gap-1.5 text-xs"
             onClick={() => downloadFile(`${fileSlug(cv.profile.name)}_CV.json`, JSON.stringify(cv, null, 2), 'application/json')}
           >
-            <FileDown size={14} aria-hidden="true" /> {e.export}
+            <FileDown size={20} aria-hidden="true" /> {e.export}
           </Button>
           <Button
             variant="outline"
@@ -503,7 +503,7 @@ export function CVEditor({
               }
             }}
           >
-            <Copy size={14} aria-hidden="true" /> {e.copyText}
+            <Copy size={20} aria-hidden="true" /> {e.copyText}
           </Button>
           <Button
             variant="ghost"
@@ -515,15 +515,15 @@ export function CVEditor({
               toast.success(m.library.created);
             }}
           >
-            <FilePlus2 size={14} aria-hidden="true" /> {m.library.newCv}
+            <FilePlus2 size={20} aria-hidden="true" /> {m.library.newCv}
           </Button>
           <Button variant="ghost" size="sm" className="gap-1.5 text-xs" onClick={() => confirmReplace(sampleCV, e.confirmReset)}>
-            <RotateCcw size={14} aria-hidden="true" /> {e.resetSample}
+            <RotateCcw size={20} aria-hidden="true" /> {e.resetSample}
           </Button>
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <Button variant="ghost" size="sm" className="col-span-2 gap-1.5 border-t border-rule text-xs">
-                <Trash2 size={14} aria-hidden="true" className="text-signal" /> {m.library.delete}
+                <Trash2 size={20} aria-hidden="true" className="text-signal" /> {m.library.delete}
               </Button>
             </AlertDialogTrigger>
             <AlertDialogContent className="rounded-sm border-ink bg-paper text-ink">
@@ -543,7 +543,7 @@ export function CVEditor({
                     toast.success(m.library.deleted);
                   }}
                 >
-                  <Trash2 size={14} aria-hidden="true" /> {m.library.deleteConfirm}
+                  <Trash2 size={20} aria-hidden="true" /> {m.library.deleteConfirm}
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>

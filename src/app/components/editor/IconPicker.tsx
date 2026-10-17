@@ -72,7 +72,7 @@ export function IconPicker({ value, name, onChange, fill = false }: IconPickerPr
       </PopoverTrigger>
       <PopoverContent className="w-80 p-3" align="start">
         <div className="relative">
-          <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-zinc-400" />
+          <Search size={20} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-zinc-400" />
           <Input
             autoFocus
             value={query}
@@ -85,7 +85,7 @@ export function IconPicker({ value, name, onChange, fill = false }: IconPickerPr
         <div className="mt-3 grid grid-cols-6 gap-1.5 max-h-56 overflow-y-auto min-h-12" aria-live="polite">
           {loading && results.length === 0 && (
             <div className="col-span-6 flex items-center gap-2 text-xs text-zinc-600 dark:text-zinc-400 py-3">
-              <Loader2 size={14} className="animate-spin" aria-hidden="true" /> {m.picker.loading}
+              <Loader2 size={20} className="animate-spin" aria-hidden="true" /> {m.picker.loading}
             </div>
           )}
           {!loading && query && results.length === 0 && (
@@ -109,11 +109,11 @@ export function IconPicker({ value, name, onChange, fill = false }: IconPickerPr
         </div>
         <div className="mt-3 flex items-center gap-2 border-t border-zinc-200 dark:border-zinc-800 pt-3">
           <Button type="button" variant="outline" size="sm" className="gap-1.5" onClick={() => fileRef.current?.click()}>
-            <Upload size={14} aria-hidden="true" /> {m.picker.upload}
+            <Upload size={20} aria-hidden="true" /> {m.picker.upload}
           </Button>
           {value && (
             <Button type="button" variant="ghost" size="sm" className="gap-1.5" onClick={() => onChange(undefined)}>
-              <X size={14} aria-hidden="true" /> {m.picker.remove}
+              <X size={20} aria-hidden="true" /> {m.picker.remove}
             </Button>
           )}
           <input

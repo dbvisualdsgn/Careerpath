@@ -44,7 +44,7 @@ function TabsTrigger({
       data-slot="tabs-trigger"
       className={cn(
         // Inactive: soft text. Hover: tint + ink text. Selected: filled ink. Focus: inset ink outline.
-        "inline-flex flex-1 items-center justify-center gap-1.5 border-r border-ink px-2 py-2 text-sm font-medium whitespace-nowrap text-ink-soft transition-colors duration-150 motion-reduce:transition-none last:border-r-0 hover:bg-zinc-100 hover:text-ink data-[state=active]:bg-ink data-[state=active]:text-paper outline-none focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-[var(--focus)] data-[state=active]:focus-visible:outline-[var(--paper)] disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+        "inline-flex flex-1 items-center justify-center gap-1.5 border-r border-ink px-2 py-2 text-sm font-medium whitespace-nowrap text-ink-soft transition-colors duration-150 motion-reduce:transition-none last:border-r-0 hover:bg-zinc-100 hover:text-ink data-[state=active]:bg-ink data-[state=active]:text-paper outline-none focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-[var(--focus)] data-[state=active]:focus-visible:outline-[var(--paper)] disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-5",
         className,
       )}
       {...props}

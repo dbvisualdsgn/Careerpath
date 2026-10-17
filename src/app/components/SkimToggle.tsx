@@ -22,7 +22,7 @@ export function SkimToggle({ on, onChange }: { on: boolean; onChange: (on: boole
           on ? 'bg-ink text-paper' : 'hover:bg-ink hover:text-paper'
         }`}
       >
-        <ScanEye size={16} aria-hidden="true" />
+        <ScanEye size={20} aria-hidden="true" />
         {s.label}
       </button>
       <p id="skim-hint" className="font-sans text-[13px] leading-snug text-ink-soft">{s.hint}</p>

@@ -22,7 +22,7 @@ export function SaveVersionDialog({ onSave }: { onSave: (name: string) => void }
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="outline" size="sm" className="col-span-2 gap-1.5 text-xs">
-          <CopyPlus size={14} aria-hidden="true" /> {l.saveVersion}
+          <CopyPlus size={20} aria-hidden="true" /> {l.saveVersion}
         </Button>
       </DialogTrigger>
       <DialogContent className="rounded-sm border-ink bg-paper text-ink">
@@ -38,7 +38,7 @@ export function SaveVersionDialog({ onSave }: { onSave: (name: string) => void }
           </div>
           <DialogFooter>
             <Button type="submit" className="gap-1.5 rounded-sm">
-              <CopyPlus size={14} aria-hidden="true" /> {l.versionSave}
+              <CopyPlus size={20} aria-hidden="true" /> {l.versionSave}
             </Button>
           </DialogFooter>
         </form>

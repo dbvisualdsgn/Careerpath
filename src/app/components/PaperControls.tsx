@@ -51,7 +51,7 @@ export function PaperControls() {
           title={p.title}
           className="inline-flex h-9 w-9 items-center justify-center rounded-sm text-ink hover:bg-zinc-100"
         >
-          <SunDim size={18} aria-hidden="true" />
+          <SunDim size={20} aria-hidden="true" />
         </button>
       </PopoverTrigger>
       <PopoverContent align="end" aria-label={p.title} className="w-80 rounded-sm border-ink bg-paper p-0 text-ink">
@@ -60,10 +60,10 @@ export function PaperControls() {
           <span aria-hidden="true" className="h-4 w-8 rounded-sm border border-ink" style={{ background: paper }} />
         </div>
         {slider(bId, settings.brightness, (brightness) => setSettings((s) => ({ ...s, brightness })), p.brightness, p.soft, p.bright,
-          <Sun size={16} aria-hidden="true" />, 'linear-gradient(90deg, #bdbbb6, #f5f6f3)')}
+          <Sun size={20} aria-hidden="true" />, 'linear-gradient(90deg, #bdbbb6, #f5f6f3)')}
         <div className="border-t border-rule" />
         {slider(wId, settings.warmth, (warmth) => setSettings((s) => ({ ...s, warmth })), p.warmth, p.cool, p.warm,
-          <Thermometer size={16} aria-hidden="true" />, 'linear-gradient(90deg, #f5f6f3, #eceae5, #ecddbf)')}
+          <Thermometer size={20} aria-hidden="true" />, 'linear-gradient(90deg, #f5f6f3, #eceae5, #ecddbf)')}
         <div className="flex items-center justify-between gap-3 border-t border-rule px-4 py-3">
           <p className="text-[12px] text-ink-soft" aria-live="polite">
             {fmt(p.contrast, { ratio: minRatio.toFixed(1) })}

@@ -36,7 +36,7 @@ const hadSavedCV = hasSavedCV();
 
 const microLabel = 'font-mono text-[11px] uppercase tracking-[0.14em] text-ink-soft';
 const headerBtn =
-  'inline-flex h-9 items-center gap-2 rounded-sm px-2 text-[13px] text-ink hover:bg-zinc-100 disabled:opacity-60 dark:hover:bg-zinc-800 sm:px-3';
+  'inline-flex h-9 items-center gap-2 rounded-sm px-1.5 text-[13px] text-ink hover:bg-zinc-100 disabled:opacity-60 dark:hover:bg-zinc-800 lg:px-3';
 
 export default function App() {
   return (
@@ -230,10 +230,10 @@ function CVPage() {
 
       <div className={`print:hidden ${editing ? 'lg:pr-[480px]' : ''}`}>
         <header className="sticky top-0 z-40 w-full border-b border-rule bg-paper">
-          <nav aria-label={m.app.home} className="mx-auto flex max-w-4xl flex-wrap xl:max-w-6xl items-center justify-between gap-x-2 gap-y-1 px-4 py-2 sm:h-16 sm:flex-nowrap sm:py-0 sm:px-6">
+          <nav aria-label={m.app.home} className="mx-auto flex max-w-4xl flex-wrap xl:max-w-6xl 2xl:max-w-7xl items-center justify-between gap-x-2 gap-y-1 px-4 py-2 sm:h-16 sm:flex-nowrap sm:py-0 sm:px-6">
             <div className="flex items-center gap-1">
               <a href="../" aria-label={m.app.home} className="hidden h-9 w-9 items-center justify-center rounded-sm hover:bg-zinc-100 dark:hover:bg-zinc-800 md:inline-flex">
-                <ArrowLeft size={18} aria-hidden="true" />
+                <ArrowLeft size={20} aria-hidden="true" />
               </a>
               <Wordmark href="../" />
               {!sharedCV && (
@@ -257,8 +257,8 @@ function CVPage() {
                 <PrivacySwitch isPublic={Boolean(ownCV.isPublic)} onChange={(isPublic) => update((d) => ({ ...d, isPublic }))} />
               )}
               <button type="button" onClick={() => setShareOpen(true)} aria-label={m.app.share} className={headerBtn}>
-                <Share2 size={16} aria-hidden="true" />
-                <span className={editing ? 'hidden' : 'hidden xl:inline'}>{m.app.share}</span>
+                <Share2 size={20} aria-hidden="true" />
+                <span className={editing ? 'hidden' : 'hidden 2xl:inline'}>{m.app.share}</span>
               </button>
               {!sharedCV && (
                 <>
@@ -285,7 +285,7 @@ function CVPage() {
                     aria-label={m.app.edit}
                     className={`${headerBtn} ${editing && !atsOpen ? 'bg-zinc-100 dark:bg-zinc-800' : ''}`}
                   >
-                    <PencilLine size={16} aria-hidden="true" />
+                    <PencilLine size={20} aria-hidden="true" />
                     <span className={editing ? 'hidden' : 'hidden whitespace-nowrap xl:inline'}>{m.app.edit}</span>
                   </button>
                 </>
@@ -306,7 +306,7 @@ function CVPage() {
           <div role="region" aria-label={bannerText} className="bg-ink text-paper">
             <div className="mx-auto flex max-w-4xl flex-col justify-between gap-3 px-4 py-3 sm:flex-row sm:items-center sm:px-6">
               <p className="flex items-center gap-2 text-sm">
-                <Eye size={16} aria-hidden="true" className="shrink-0" />
+                <Eye size={20} aria-hidden="true" className="shrink-0" />
                 {bannerText}
               </p>
               <div className="flex gap-2">
@@ -362,7 +362,7 @@ function CVPage() {
                 {contacts.map(({ icon: Icon, kind, label, href }) => {
                   const content = (
                     <>
-                      <Icon size={15} aria-hidden="true" className="shrink-0" />
+                      <Icon size={20} aria-hidden="true" className="shrink-0" />
                       <span className="sr-only">{kind}: </span>
                       <span className="break-all">{label}</span>
                     </>

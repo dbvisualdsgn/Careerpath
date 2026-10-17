@@ -29,7 +29,7 @@ export function AtsSummary({ cv, targetTitle, onOpen, onJobAd }: AtsSummaryProps
   return (
     <section ref={ref} aria-labelledby="ats-summary" className="reveal border border-ink p-5 print:hidden md:p-7">
       <p className="-mt-1 mb-5 flex items-center gap-2 border-b border-dashed border-rule pb-3 font-mono text-[11px] uppercase tracking-[0.12em] text-ink-soft">
-        <EyeOff size={13} aria-hidden="true" className="shrink-0" />
+        <EyeOff size={20} aria-hidden="true" className="shrink-0" />
         {m.atsCard.onlyYou}
       </p>
       <div className="flex flex-wrap items-end justify-between gap-6">
@@ -66,7 +66,7 @@ export function AtsSummary({ cv, targetTitle, onOpen, onJobAd }: AtsSummaryProps
                   {f.severity === 'error' && <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-signal" aria-hidden="true" />}
                   <span className="sr-only">{m.ats.severity[f.severity]}: </span>
                   <span>{fmt(m.ats.findings[f.key], { ...f.params, label: (f.params?.label as string) || m.ats.untitledRole })}</span>
-                  <Plus size={14} aria-hidden="true" className="mt-0.5 shrink-0 transition-transform group-hover:rotate-90 motion-reduce:transition-none" />
+                  <Plus size={20} aria-hidden="true" className="mt-0.5 shrink-0 transition-transform group-hover:rotate-90 motion-reduce:transition-none" />
                 </button>
               </li>
             ))}
@@ -78,12 +78,12 @@ export function AtsSummary({ cv, targetTitle, onOpen, onJobAd }: AtsSummaryProps
 
       <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3">
         <button type="button" onClick={onJobAd} className="nudge inline-flex h-9 items-center gap-2 rounded-sm border border-ink px-3 font-sans text-[14px] font-medium hover:bg-ink hover:text-paper">
-          <ClipboardPaste size={15} aria-hidden="true" />
+          <ClipboardPaste size={20} aria-hidden="true" />
           {targetTitle ? <>{m.app.jobAdShort}: {targetTitle}</> : m.app.jobAd}
         </button>
         <button type="button" onClick={() => onOpen()} className="nudge inline-flex items-center gap-1.5 font-sans text-[14px] underline decoration-1 underline-offset-[6px]">
           {m.atsCard.open}
-          <ArrowRight size={15} aria-hidden="true" />
+          <ArrowRight size={20} aria-hidden="true" />
         </button>
       </div>
     </section>

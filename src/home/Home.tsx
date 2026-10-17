@@ -127,7 +127,7 @@ function AtsInfographic() {
             <li key={c} className="flex items-baseline gap-4 border-b border-rule py-3 font-reading text-lg">
               <span className="font-mono text-[11px] text-ink-soft" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
               <span className="flex-1">{c}</span>
-              <Check size={16} aria-hidden="true" className="text-go" />
+              <Check size={20} aria-hidden="true" className="text-go" />
             </li>
           ))}
         </ol>
@@ -156,7 +156,7 @@ function AtsInfographic() {
             <ul className="mt-3 flex flex-wrap gap-1.5">
               {match.matched.slice(0, 6).map((k) => (
                 <li key={k} className="inline-flex items-center gap-1 rounded-full border border-ink bg-highlight px-2.5 py-1 font-reading text-[13px] italic text-[#111]">
-                  {k} <Check size={12} />
+                  {k} <Check size={20} />
                 </li>
               ))}
               {match.missing.slice(0, 5).map((k) => (
@@ -189,7 +189,7 @@ function LinkDiagram() {
         {nodes.map(({ icon: Icon, text }, i) => (
           <div key={text} className="relative flex flex-col items-center text-center">
             <span className={`flex h-14 w-14 items-center justify-center rounded-sm border border-ink ${i === 1 ? 'bg-highlight text-[#111]' : 'bg-paper'}`}>
-              <Icon size={22} strokeWidth={1.5} />
+              <Icon size={20} />
             </span>
             <span className="mt-4 font-reading text-lg leading-tight md:text-xl">{text}</span>
             {i === 1 && <span className="mt-1 break-all font-mono text-[11px] text-ink-soft">…/app/#cv=eNqVk…</span>}
@@ -241,11 +241,11 @@ export function Home() {
             <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-4">
               <a href={`${APP}?new=1`} className={primaryBtn}>
                 {h.start}
-                <ArrowRight size={18} aria-hidden="true" />
+                <ArrowRight size={20} aria-hidden="true" />
               </a>
               <a href={`${APP}?example=1`} className={`nudge-up ${textLink}`}>
                 {h.example}
-                <ArrowUpRight size={16} aria-hidden="true" />
+                <ArrowUpRight size={20} aria-hidden="true" />
               </a>
             </div>
           </div>
@@ -262,7 +262,7 @@ export function Home() {
                   <span className="font-reading text-[72px] font-light leading-none tracking-[-0.04em]" aria-hidden="true">
                     {String(i + 1).padStart(2, '0')}
                   </span>
-                  <Icon size={20} strokeWidth={1.5} aria-hidden="true" className="mt-2 text-ink-soft" />
+                  <Icon size={20} aria-hidden="true" className="mt-2 text-ink-soft" />
                 </div>
                 <h3 className="mt-10 font-reading text-xl font-medium">{i === 1 ? <span className="hl">{title}</span> : title}</h3>
                 <p className="mt-2 font-reading text-[15px] leading-relaxed text-ink-soft">{body}</p>
@@ -282,7 +282,7 @@ export function Home() {
               { icon: Link2, title: h.publicT, body: h.publicB },
             ].map(({ icon: Icon, title, body }) => (
               <div key={title} className="bg-paper p-6 md:p-10">
-                <Icon size={22} strokeWidth={1.5} aria-hidden="true" />
+                <Icon size={20} aria-hidden="true" />
                 <h3 className="mt-8 font-reading text-4xl font-normal tracking-[-0.02em] md:text-6xl">{title}</h3>
                 <p className="mt-4 max-w-[36ch] font-reading text-lg leading-snug text-ink-soft">{body}</p>
               </div>
@@ -310,7 +310,7 @@ export function Home() {
           </ul>
           <a href="people/" className={`nudge mt-8 ${textLink}`}>
             {m.homeX.peopleMore}
-            <ArrowRight size={16} aria-hidden="true" />
+            <ArrowRight size={20} aria-hidden="true" />
           </a>
         </Chapter>
 
@@ -333,7 +333,7 @@ export function Home() {
             </p>
             <a href={`${APP}?new=1`} className={`${primaryBtn} mt-10`}>
               {h.closingCta}
-              <ArrowRight size={18} aria-hidden="true" />
+              <ArrowRight size={20} aria-hidden="true" />
             </a>
           </div>
         </section>
@@ -344,7 +344,7 @@ export function Home() {
           <Wordmark href="./" />
           <p className="font-reading text-[15px] text-ink-soft">{h.footer}</p>
           <a href="https://github.com/dbvisualdsgn/Careerpath" className={textLink} rel="noopener noreferrer" target="_blank">
-            <Github size={16} aria-hidden="true" />
+            <Github size={20} aria-hidden="true" />
             {h.source}
           </a>
         </div>

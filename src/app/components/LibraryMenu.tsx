@@ -43,12 +43,12 @@ export function LibraryMenu({ items, activeId, onSelect, onNew, onImportPdf, com
         <button
           type="button"
           aria-label={`${l.title} (${items.length})`}
-          className="inline-flex h-9 items-center gap-1.5 rounded-sm px-2 text-[13px] text-ink hover:bg-zinc-100 data-[state=open]:bg-zinc-200 sm:px-2.5"
+          className="inline-flex h-9 items-center gap-1.5 rounded-sm px-2 text-[13px] text-ink hover:bg-zinc-100 data-[state=open]:bg-zinc-200 lg:px-2.5"
         >
-          <Files size={16} aria-hidden="true" />
-          <span className={compact ? 'hidden' : 'hidden whitespace-nowrap xl:inline'}>{l.title}</span>
+          <Files size={20} aria-hidden="true" />
+          <span className={compact ? 'hidden' : 'hidden whitespace-nowrap 2xl:inline'}>{l.title}</span>
           <span className="font-mono text-[11px] tabular-nums text-ink-soft" aria-hidden="true">{items.length}</span>
-          <ChevronDown size={14} aria-hidden="true" />
+          <ChevronDown size={20} aria-hidden="true" />
         </button>
       </PopoverTrigger>
       <PopoverContent align="start" aria-label={l.title} className="w-[22rem] max-w-[calc(100vw-2rem)] rounded-sm border-ink bg-paper p-0 text-ink">
@@ -76,7 +76,7 @@ export function LibraryMenu({ items, activeId, onSelect, onNew, onImportPdf, com
                       {current ? l.current : fmt(l.edited, { time: relative(it.updatedAt, locale) })}
                     </span>
                   </span>
-                  {current && <Check size={16} aria-hidden="true" className="shrink-0" />}
+                  {current && <Check size={20} aria-hidden="true" className="shrink-0" />}
                 </button>
               </li>
             );
@@ -84,10 +84,10 @@ export function LibraryMenu({ items, activeId, onSelect, onNew, onImportPdf, com
         </ul>
         <div className="grid grid-cols-2 border-t border-ink">
           <button type="button" onClick={run(onNew)} className="flex items-center justify-center gap-2 border-r border-rule px-3 py-3 text-[13px] hover:bg-ink hover:text-paper">
-            <Plus size={15} aria-hidden="true" /> {l.newCv}
+            <Plus size={20} aria-hidden="true" /> {l.newCv}
           </button>
           <button type="button" onClick={run(onImportPdf)} className="flex items-center justify-center gap-2 px-3 py-3 text-[13px] hover:bg-ink hover:text-paper">
-            <FileUp size={15} aria-hidden="true" /> {l.importPdf}
+            <FileUp size={20} aria-hidden="true" /> {l.importPdf}
           </button>
         </div>
       </PopoverContent>

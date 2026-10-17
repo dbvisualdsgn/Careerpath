@@ -20,7 +20,7 @@ export function TypeSwitcher() {
           title={m.type.label}
           className="inline-flex h-9 w-9 items-center justify-center rounded-sm text-ink hover:bg-zinc-100 dark:hover:bg-zinc-800"
         >
-          <ALargeSmall size={18} aria-hidden="true" />
+          <ALargeSmall size={20} aria-hidden="true" />
         </button>
       </PopoverTrigger>
       <PopoverContent align="end" aria-label={m.type.label} className="w-64 rounded-sm border-rule bg-paper p-0 text-ink">

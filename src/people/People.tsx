@@ -24,7 +24,7 @@ function Card({ id, field, name, headline, location, skills }: { id: string; fie
         <p className="mt-4 text-[13px] leading-relaxed text-ink-soft">{skills.slice(0, 3).join(' · ')}</p>
         <span className="nudge-up mt-auto inline-flex items-center gap-1 pt-5 text-[14px] underline decoration-1 underline-offset-[6px]">
           {m.directory.open}
-          <ArrowUpRight size={15} aria-hidden="true" className="transition-transform duration-200 motion-reduce:transition-none" />
+          <ArrowUpRight size={20} aria-hidden="true" className="transition-transform duration-200 motion-reduce:transition-none" />
         </span>
       </a>
     </li>
@@ -72,19 +72,19 @@ export function People() {
           </div>
           <a href="../app/?new=1" className="nudge inline-flex h-12 items-center gap-3 rounded-sm bg-ink px-5 text-[15px] font-medium text-paper hover:opacity-90">
             {m.home.start}
-            <Plus size={18} aria-hidden="true" />
+            <Plus size={20} aria-hidden="true" />
           </a>
         </div>
 
         <p className="mt-8 flex items-start gap-2 border-y border-rule py-3 text-[13px] text-ink-soft">
-          <Info size={15} aria-hidden="true" className="mt-0.5 shrink-0" />
+          <Info size={20} aria-hidden="true" className="mt-0.5 shrink-0" />
           {d.examples}
         </p>
 
         {/* Search + field pills */}
         <div className="mt-8 space-y-4">
           <label className="flex h-12 items-center gap-3 border border-ink px-4 focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-[var(--focus)]">
-            <Search size={18} aria-hidden="true" />
+            <Search size={20} aria-hidden="true" />
             <span className="sr-only">{d.search}</span>
             <input
               type="search"
@@ -114,7 +114,7 @@ export function People() {
                   className={`group inline-flex items-center gap-1.5 rounded-full border border-ink px-3.5 py-1.5 text-[14px] ${on ? 'bg-highlight font-reading italic text-[#111]' : 'hover:bg-zinc-100 dark:hover:bg-zinc-800'}`}
                 >
                   {m.fields[f]}
-                  {on ? <X size={14} aria-hidden="true" /> : <Plus size={14} aria-hidden="true" className="transition-transform group-hover:rotate-90 motion-reduce:transition-none" />}
+                  {on ? <X size={20} aria-hidden="true" /> : <Plus size={20} aria-hidden="true" className="transition-transform group-hover:rotate-90 motion-reduce:transition-none" />}
                 </button>
               );
             })}
