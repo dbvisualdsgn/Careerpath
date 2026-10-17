@@ -1,5 +1,5 @@
 import { useId } from 'react';
-import { Sun, SunDim, Thermometer } from 'lucide-react';
+import { Sun, Thermometer } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { defaultPaper, paperColors, usePaper } from '../paper';
 import { fmt, useI18n } from '../i18n';
@@ -51,7 +51,7 @@ export function PaperControls() {
           title={p.title}
           className="inline-flex h-9 w-9 items-center justify-center rounded-sm text-ink hover:bg-zinc-100"
         >
-          <SunDim size={20} aria-hidden="true" />
+          <Sun size={20} aria-hidden="true" />
         </button>
       </PopoverTrigger>
       <PopoverContent align="end" aria-label={p.title} className="w-80 rounded-sm border-ink bg-paper p-0 text-ink">

@@ -1,5 +1,5 @@
 import { useEffect, useId, useRef, useState } from 'react';
-import { Check, Copy, ExternalLink, Globe, Info, Loader2, Lock, RefreshCw, Share2 } from 'lucide-react';
+import { Check, Copy, ExternalLink, Info, Link2, Loader2, Lock, RefreshCw, Share2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './ui/dialog';
 import { Button } from './ui/button';
@@ -86,7 +86,7 @@ export function ShareDialog({ open, onOpenChange, cv, isPublic, onMakePublic }: 
             <p className="flex gap-2 text-sm"><Lock size={20} aria-hidden="true" className="mt-0.5 shrink-0" />{m.privacy.shareOff}</p>
             {onMakePublic && (
               <Button type="button" onClick={onMakePublic} className="gap-2">
-                <Globe size={20} aria-hidden="true" /> {m.privacy.makePublic}
+                <Link2 size={20} aria-hidden="true" /> {m.privacy.makePublic}
               </Button>
             )}
             <p className="text-xs text-ink-soft">{m.privacy.note}</p>

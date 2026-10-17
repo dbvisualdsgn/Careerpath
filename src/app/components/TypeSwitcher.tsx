@@ -1,5 +1,5 @@
 import { useId } from 'react';
-import { ALargeSmall } from 'lucide-react';
+import { Type } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { faces, setFaces, useTypeFaces, type TypeFaces } from '../typography';
 import { useI18n } from '../i18n';
@@ -46,7 +46,7 @@ export function TypeSwitcher() {
           title={m.type.label}
           className="inline-flex h-9 w-9 items-center justify-center rounded-sm text-ink hover:bg-zinc-100"
         >
-          <ALargeSmall size={20} aria-hidden="true" />
+          <Type size={20} aria-hidden="true" />
         </button>
       </PopoverTrigger>
       <PopoverContent align="end" aria-label={m.type.label} className="w-72 rounded-sm border-ink bg-paper p-0 text-ink">

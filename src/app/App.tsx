@@ -1,3 +1,4 @@
+import { ReadingControls } from './components/ReadingControls';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Mail, Share2, Phone, MapPin, Linkedin, PencilLine, Eye, Globe, ArrowLeft } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
@@ -6,9 +7,6 @@ import { TooltipProvider } from './components/ui/tooltip';
 import { ToolBadge } from './components/ToolBadge';
 import { ExperienceCard } from './components/ExperienceCard';
 import { CertificationCard } from './components/CertificationCard';
-import { PaperControls } from './components/PaperControls';
-import { LanguageSwitcher } from './components/LanguageSwitcher';
-import { TypeSwitcher } from './components/TypeSwitcher';
 import { Wordmark } from './components/Wordmark';
 import { PrintCV } from './components/PrintCV';
 import { CVEditor, type EditorTab } from './components/editor/CVEditor';
@@ -292,10 +290,8 @@ function CVPage() {
               )}
               <DownloadMenu cv={cv} compact={editing} onDownloaded={() => beyondNoteWanted() && setBeyondOpen(true)} />
             </div>
-            <div className="order-2 flex items-center gap-0.5 sm:order-3">
-              <TypeSwitcher />
-              <LanguageSwitcher />
-              <PaperControls />
+            <div className="order-2 flex items-center sm:order-3">
+              <ReadingControls />
             </div>
           </nav>
           {/* A live region that is always there, so the note is announced when it appears. */}

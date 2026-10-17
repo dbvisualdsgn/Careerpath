@@ -1,5 +1,5 @@
 import { useId } from 'react';
-import { Globe, Lock } from 'lucide-react';
+import { Link2, Lock } from 'lucide-react';
 import { useI18n } from '../i18n';
 
 interface PrivacySwitchProps {
@@ -35,7 +35,7 @@ export function PrivacySwitch({ isPublic, onChange, withHint = false }: PrivacyS
           />
         </span>
         <span className="inline-flex items-center gap-1 whitespace-nowrap font-medium">
-          {isPublic ? <Globe size={20} aria-hidden="true" /> : <Lock size={20} aria-hidden="true" />}
+          {isPublic ? <Link2 size={20} aria-hidden="true" /> : <Lock size={20} aria-hidden="true" />}
           {isPublic ? p.public : p.private}
         </span>
       </button>
