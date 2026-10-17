@@ -1,4 +1,4 @@
-import { useId, useMemo, useState } from 'react';
+import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { AlertCircle, AlertTriangle, Check, CheckCircle2, Lightbulb, Plus, RotateCw } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '../ui/button';
@@ -23,14 +23,27 @@ interface AtsPanelProps {
   onJump: (section: Finding['section']) => void;
   onAddSkill: (skill: string) => void;
   onSetHeadline: (headline: string) => void;
+  /** Bumped when the person asks to paste a job ad: focus the box. */
+  focusJobAd?: number;
 }
 
-export function AtsPanel({ cv, onJump, onAddSkill, onSetHeadline }: AtsPanelProps) {
+// The last focus request handled, so switching back to this tab doesn't steal focus again.
+let handledFocus = 0;
+
+export function AtsPanel({ cv, onJump, onAddSkill, onSetHeadline, focusJobAd = 0 }: AtsPanelProps) {
   const { m, locale } = useI18n();
   const jdId = useId();
   const titleId = useId();
   const titleStatusId = useId();
   const { text: jd, title, hasAd } = useJobAd();
+  const jdRef = useRef<HTMLTextAreaElement>(null);
+  useEffect(() => {
+    if (focusJobAd > handledFocus) {
+      handledFocus = focusJobAd;
+      jdRef.current?.focus();
+      jdRef.current?.scrollIntoView({ block: 'center' });
+    }
+  }, [focusJobAd]);
   // Bumped by the refresh button to force a fresh run (the check also re-runs on every edit).
   const [runId, setRunId] = useState(0);
   const [spinning, setSpinning] = useState(false);
@@ -84,56 +97,11 @@ export function AtsPanel({ cv, onJump, onAddSkill, onSetHeadline }: AtsPanelProp
       </div>
 
       <section>
-        <h3 className={headingClass}>{m.ats.suggestions}</h3>
-        {findings.length === 0 && <p className="text-sm text-zinc-600 dark:text-zinc-400">{m.ats.noIssues}</p>}
-        <ul className="space-y-1.5">
-          {findings.map((f) => {
-            const s = severityStyle[f.severity];
-            return (
-              <li key={f.id}>
-                <button
-                  type="button"
-                  onClick={() => onJump(f.section)}
-                  className="flex w-full gap-2 rounded-md p-2 text-left text-sm hover:bg-zinc-100 focus-visible:outline-2 focus-visible:outline-[var(--focus)] dark:hover:bg-zinc-800/60"
-                >
-                  <s.icon size={16} className={`mt-0.5 shrink-0 ${s.className}`} aria-hidden="true" />
-                  <span className="flex-1">
-                    <span className="sr-only">{m.ats.severity[f.severity]}: </span>
-                    {message(f)}
-                  </span>
-                  {f.weight > 0 && (
-                    <span className="shrink-0 font-mono text-[11px] tabular-nums text-ink-soft">
-                      <span aria-hidden="true">−{f.weight}</span>
-                      <span className="sr-only">({fmt(m.ats.costSr, { n: f.weight })})</span>
-                    </span>
-                  )}
-                </button>
-              </li>
-            );
-          })}
-        </ul>
-        {locale !== 'en' && <p className="mt-2 text-xs text-zinc-600 dark:text-zinc-400">{m.ats.englishOnly}</p>}
-      </section>
-
-      {report.passed.length > 0 && (
-        <section>
-          <h3 className={headingClass}>{m.ats.passing}</h3>
-          <ul className="space-y-1">
-            {report.passed.map((p) => (
-              <li key={p.key} className="flex gap-2 text-sm text-zinc-700 dark:text-zinc-300">
-                <CheckCircle2 size={16} className="mt-0.5 shrink-0 text-go" aria-hidden="true" />
-                {fmt(m.ats.passed[p.key], p.params)}
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-
-      <section>
         <h3 className={headingClass}>
           <label htmlFor={jdId}>{m.ats.jdTitle}</label>
         </h3>
         <Textarea
+          ref={jdRef}
           id={jdId}
           value={jd}
           onChange={(e) => setJobAdText(e.target.value)}
@@ -225,6 +193,53 @@ export function AtsPanel({ cv, onJump, onAddSkill, onSetHeadline }: AtsPanelProp
           </div>
         )}
       </section>
+
+      <section>
+        <h3 className={headingClass}>{m.ats.suggestions}</h3>
+        {findings.length === 0 && <p className="text-sm text-zinc-600 dark:text-zinc-400">{m.ats.noIssues}</p>}
+        <ul className="space-y-1.5">
+          {findings.map((f) => {
+            const s = severityStyle[f.severity];
+            return (
+              <li key={f.id}>
+                <button
+                  type="button"
+                  onClick={() => onJump(f.section)}
+                  className="flex w-full gap-2 rounded-md p-2 text-left text-sm hover:bg-zinc-100 focus-visible:outline-2 focus-visible:outline-[var(--focus)] dark:hover:bg-zinc-800/60"
+                >
+                  <s.icon size={16} className={`mt-0.5 shrink-0 ${s.className}`} aria-hidden="true" />
+                  <span className="flex-1">
+                    <span className="sr-only">{m.ats.severity[f.severity]}: </span>
+                    {message(f)}
+                  </span>
+                  {f.weight > 0 && (
+                    <span className="shrink-0 font-mono text-[11px] tabular-nums text-ink-soft">
+                      <span aria-hidden="true">−{f.weight}</span>
+                      <span className="sr-only">({fmt(m.ats.costSr, { n: f.weight })})</span>
+                    </span>
+                  )}
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+        {locale !== 'en' && <p className="mt-2 text-xs text-zinc-600 dark:text-zinc-400">{m.ats.englishOnly}</p>}
+      </section>
+
+      {report.passed.length > 0 && (
+        <section>
+          <h3 className={headingClass}>{m.ats.passing}</h3>
+          <ul className="space-y-1">
+            {report.passed.map((p) => (
+              <li key={p.key} className="flex gap-2 text-sm text-zinc-700 dark:text-zinc-300">
+                <CheckCircle2 size={16} className="mt-0.5 shrink-0 text-go" aria-hidden="true" />
+                {fmt(m.ats.passed[p.key], p.params)}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
 
       <div className="rounded-lg bg-zinc-50 dark:bg-zinc-900 p-4 text-xs text-zinc-700 dark:text-zinc-300 space-y-1.5">
         <p className="font-semibold text-zinc-900 dark:text-zinc-100">{m.ats.builtInTitle}</p>

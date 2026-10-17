@@ -163,6 +163,12 @@ function CVPage() {
   const atsScore = useMemo(() => runAtsCheck(cv, locale, { targetTitle }).score, [cv, locale, targetTitle]);
   const atsOpen = editing && editorTab === 'ats';
   const [skim, setSkim] = useState(false);
+  const [jobAdRequest, setJobAdRequest] = useState(0);
+  const openJobAd = () => {
+    setEditorTab('ats');
+    setEditing(true);
+    setJobAdRequest((n) => n + 1);
+  };
   const toggleAts = () => {
     if (atsOpen) setEditing(false);
     else {
@@ -316,6 +322,7 @@ function CVPage() {
             <AtsSummary
               cv={cv}
               targetTitle={targetTitle}
+              onJobAd={openJobAd}
               onOpen={(section) => {
                 setEditorTab(section === 'profile' || section === 'summary' ? 'profile' : section === 'skills' ? 'skills' : section === 'experience' ? 'experience' : section ? 'more' : 'ats');
                 setEditing(true);
@@ -511,6 +518,7 @@ function CVPage() {
         versionName={versionName}
         onRenameVersion={rename}
         onSaveVersion={(name) => duplicate(name)}
+        jobAdRequest={jobAdRequest}
         tab={editorTab}
         onTabChange={setEditorTab}
         onCreate={(next) => create(next)}

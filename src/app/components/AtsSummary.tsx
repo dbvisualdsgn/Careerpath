@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { ArrowRight, EyeOff, Plus } from 'lucide-react';
+import { ArrowRight, ClipboardPaste, EyeOff, Plus } from 'lucide-react';
 import { runAtsCheck, type Finding } from '../cv/atsCheck';
 import { useCountUp, useReveal } from '../hooks/useReveal';
 import { fmt, useI18n } from '../i18n';
@@ -10,10 +10,12 @@ interface AtsSummaryProps {
   /** Job title from the pasted ad, if any. */
   targetTitle?: string;
   onOpen: (section?: Finding['section']) => void;
+  /** Open the check on the job-ad box. */
+  onJobAd: () => void;
 }
 
 /** The ATS check, up front on the CV page: big score, a 20-step meter and the first fixes as pills. */
-export function AtsSummary({ cv, targetTitle, onOpen }: AtsSummaryProps) {
+export function AtsSummary({ cv, targetTitle, onOpen, onJobAd }: AtsSummaryProps) {
   const { m, locale } = useI18n();
   const report = useMemo(() => runAtsCheck(cv, locale, { targetTitle }), [cv, locale, targetTitle]);
   const shown = useCountUp(report.score);
@@ -74,10 +76,16 @@ export function AtsSummary({ cv, targetTitle, onOpen }: AtsSummaryProps) {
         <p className="mt-6 font-sans text-[14px]"><span className="hl">{m.atsCard.allGood}</span></p>
       )}
 
-      <button type="button" onClick={() => onOpen()} className="nudge mt-6 inline-flex items-center gap-1.5 font-sans text-[14px] underline decoration-1 underline-offset-[6px]">
-        {m.atsCard.open}
-        <ArrowRight size={15} aria-hidden="true" />
-      </button>
+      <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3">
+        <button type="button" onClick={onJobAd} className="nudge inline-flex h-9 items-center gap-2 rounded-sm border border-ink px-3 font-sans text-[14px] font-medium hover:bg-ink hover:text-paper">
+          <ClipboardPaste size={15} aria-hidden="true" />
+          {targetTitle ? <>{m.app.jobAdShort}: {targetTitle}</> : m.app.jobAd}
+        </button>
+        <button type="button" onClick={() => onOpen()} className="nudge inline-flex items-center gap-1.5 font-sans text-[14px] underline decoration-1 underline-offset-[6px]">
+          {m.atsCard.open}
+          <ArrowRight size={15} aria-hidden="true" />
+        </button>
+      </div>
     </section>
   );
 }

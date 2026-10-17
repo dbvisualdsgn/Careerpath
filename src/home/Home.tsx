@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from 'react';
-import { ArrowRight, ArrowUpRight, Check, Download, Github, Link2, ListChecks, Lock, Monitor, PenLine, Share2, Users } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, Check, ClipboardPaste, Github, Link2, ListChecks, Lock, Monitor, PenLine, Share2, Users } from 'lucide-react';
 import { SiteHeader } from '../app/components/SiteHeader';
 import { Wordmark } from '../app/components/Wordmark';
 import { Portrait } from '../app/components/Portrait';
@@ -212,9 +212,9 @@ export function Home() {
 
   const steps = [
     { icon: PenLine, title: h.s1t, body: h.s1 },
-    { icon: ListChecks, title: h.s2t, body: h.s2 },
-    { icon: Share2, title: h.s3t, body: h.s3 },
-    { icon: Download, title: h.s4t, body: h.s4 },
+    { icon: ClipboardPaste, title: h.s2t, body: h.s2 },
+    { icon: ListChecks, title: h.s3t, body: h.s3 },
+    { icon: Share2, title: h.s4t, body: h.s4 },
   ];
   const faq = [
     [h.q1, h.a1],

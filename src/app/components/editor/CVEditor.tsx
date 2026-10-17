@@ -1,5 +1,5 @@
 import { cloneElement, isValidElement, useEffect, useId, useRef, useState } from 'react';
-import { ArrowDown, ArrowUp, Camera, Copy, FileDown, FileText, FileUp, Plus, RotateCcw, Trash2, FilePlus2 } from 'lucide-react';
+import { ArrowDown, ArrowRight, ArrowUp, Camera, ClipboardPaste, Copy, FileDown, FileText, FileUp, Plus, RotateCcw, Trash2, FilePlus2 } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,6 +23,7 @@ import { Label } from '../ui/label';
 import { Button } from '../ui/button';
 import { IconPicker } from './IconPicker';
 import { AtsPanel } from './AtsPanel';
+import { useJobAd } from '../../cv/jobAd';
 import { SaveVersionDialog } from './SaveVersionDialog';
 import { blankCV, emptyItems, sampleCV } from '../../cv/defaultCV';
 import { findIcon } from '../../cv/iconCatalog';
@@ -50,6 +51,8 @@ interface CVEditorProps {
   onRenameVersion: (name: string) => void;
   /** Copy the open CV as a new named version. */
   onSaveVersion: (name: string) => void;
+  /** Bumped by the page to open the check tab on the job-ad box. */
+  jobAdRequest?: number;
 }
 
 export type EditorTab = 'profile' | 'skills' | 'experience' | 'more' | 'ats';
@@ -109,8 +112,10 @@ const parseSkills = (text: string) => text.split(/[\n,]/).map((s) => s.trim()).f
 const cardClass = 'rounded-lg border border-zinc-200 dark:border-zinc-800 p-4 space-y-3';
 
 export function CVEditor({
-  open, onOpenChange, cv, setCV, update, tab, onTabChange: setTab, onCreate, onImportPdf, onDelete, versionName, onRenameVersion, onSaveVersion,
+  open, onOpenChange, cv, setCV, update, tab, onTabChange: setTab, onCreate, onImportPdf, onDelete, versionName, onRenameVersion, onSaveVersion, jobAdRequest = 0,
 }: CVEditorProps) {
+  const jobAd = useJobAd();
+  const [ownJobAdRequest, setOwnJobAdRequest] = useState(0);
   const { m } = useI18n();
   const e = m.editor;
   const importRef = useRef<HTMLInputElement>(null);
@@ -186,6 +191,28 @@ export function CVEditor({
           <SheetTitle className="font-reading text-2xl font-normal tracking-[-0.01em] text-paper">{e.title}</SheetTitle>
           <SheetDescription className="text-xs text-paper/80">{e.description}</SheetDescription>
         </SheetHeader>
+
+        {/* The job ad has its own entry point, always in view, not only inside the check tab. */}
+        <button
+          type="button"
+          onClick={() => {
+            setTab('ats');
+            setOwnJobAdRequest((n) => n + 1);
+          }}
+          className="nudge flex w-full items-center gap-2 border-b border-rule px-5 py-2.5 text-left text-sm hover:bg-zinc-100"
+        >
+          <ClipboardPaste size={16} aria-hidden="true" className="shrink-0" />
+          <span className="min-w-0 flex-1 truncate">
+            {jobAd.hasAd && jobAd.title ? (
+              <>
+                {m.app.jobAdShort}: <strong className="font-medium">{jobAd.title}</strong>
+              </>
+            ) : (
+              m.app.jobAd
+            )}
+          </span>
+          <ArrowRight size={15} aria-hidden="true" className="shrink-0" />
+        </button>
 
         <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)} className="flex-1 min-h-0 gap-0">
           <div className="px-5 pt-3">
@@ -429,6 +456,7 @@ export function CVEditor({
             <TabsContent value="ats" className="mt-0">
               <AtsPanel
                 cv={cv}
+                focusJobAd={jobAdRequest + ownJobAdRequest}
                 onJump={(section) => setTab(sectionTab[section])}
                 onSetHeadline={(headline) => update((d) => ({ ...d, profile: { ...d.profile, headline } }))}
                 onAddSkill={(skill) =>
