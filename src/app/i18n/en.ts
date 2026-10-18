@@ -36,6 +36,10 @@ export const en = {
     body: 'Applying early, and asking someone at the company to refer you, often matter more than polish.',
     close: 'Dismiss this note',
   },
+  gallery: {
+    pause: 'Pause',
+    play: 'Play',
+  },
   privacy: {
     label: 'Visibility',
     private: 'Private',
@@ -102,11 +106,6 @@ export const en = {
   homeX: {
     titleA: 'Your CV,',
     titleB: 'written like a page.',
-    numbersTitle: 'In numbers',
-    n1v: 'No',
-    n1: 'account needed',
-    n2: 'servers holding your CV',
-    n3: 'languages',
     atsTitle: 'What the recruiter check looks at',
     atsLead: 'Real checks, in plain words. The score updates as you type.',
     c1: 'Contact details',

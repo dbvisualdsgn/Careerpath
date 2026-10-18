@@ -37,6 +37,10 @@ export const es: Messages = {
     body: 'Postularte pronto y pedir a alguien de la empresa que te recomiende suele importar más que pulir cada detalle.',
     close: 'Cerrar esta nota',
   },
+  gallery: {
+    pause: 'Pausar',
+    play: 'Reanudar',
+  },
   privacy: {
     label: 'Visibilidad',
     private: 'Privado',
@@ -103,11 +107,6 @@ export const es: Messages = {
   homeX: {
     titleA: 'Tu CV,',
     titleB: 'escrito como una página.',
-    numbersTitle: 'En cifras',
-    n1v: 'Sin',
-    n1: 'cuenta que crear',
-    n2: 'servidores que guardan tu CV',
-    n3: 'idiomas',
     atsTitle: 'Qué mira la revisión de reclutador',
     atsLead: 'Comprobaciones reales, en palabras sencillas. La puntuación cambia mientras escribes.',
     c1: 'Datos de contacto',

@@ -37,6 +37,10 @@ export const nl: Messages = {
     body: 'Vroeg solliciteren en iemand bij het bedrijf vragen je aan te bevelen telt vaak meer dan de laatste afwerking.',
     close: 'Deze notitie sluiten',
   },
+  gallery: {
+    pause: 'Pauzeren',
+    play: 'Hervatten',
+  },
   privacy: {
     label: 'Zichtbaarheid',
     private: 'Privé',
@@ -103,11 +107,6 @@ export const nl: Messages = {
   homeX: {
     titleA: 'Je cv,',
     titleB: 'geschreven als een pagina.',
-    numbersTitle: 'In cijfers',
-    n1v: 'Geen',
-    n1: 'account nodig',
-    n2: 'servers die je cv bewaren',
-    n3: 'talen',
     atsTitle: 'Waar de recruitercheck op let',
     atsLead: 'Echte checks, in gewone woorden. De score verandert terwijl je typt.',
     c1: 'Contactgegevens',

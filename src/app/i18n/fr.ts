@@ -37,6 +37,10 @@ export const fr: Messages = {
     body: 'Postuler tôt et demander à quelqu’un de l’entreprise de vous recommander comptent souvent plus que la finition.',
     close: 'Fermer cette note',
   },
+  gallery: {
+    pause: 'Pause',
+    play: 'Reprendre',
+  },
   privacy: {
     label: 'Visibilité',
     private: 'Privé',
@@ -103,11 +107,6 @@ export const fr: Messages = {
   homeX: {
     titleA: 'Votre CV,',
     titleB: 'écrit comme une page.',
-    numbersTitle: 'En chiffres',
-    n1v: 'Aucun',
-    n1: 'compte à créer',
-    n2: 'serveurs qui gardent votre CV',
-    n3: 'langues',
     atsTitle: 'Ce que regarde l’analyse recruteur',
     atsLead: 'De vraies vérifications, en mots simples. Le score se met à jour pendant que vous écrivez.',
     c1: 'Coordonnées',

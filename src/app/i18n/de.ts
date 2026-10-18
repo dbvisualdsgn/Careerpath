@@ -37,6 +37,10 @@ export const de: Messages = {
     body: 'Früh bewerben und jemanden im Unternehmen um eine Empfehlung bitten zählt oft mehr als der letzte Feinschliff.',
     close: 'Hinweis schließen',
   },
+  gallery: {
+    pause: 'Anhalten',
+    play: 'Fortsetzen',
+  },
   privacy: {
     label: 'Sichtbarkeit',
     private: 'Privat',
@@ -103,11 +107,6 @@ export const de: Messages = {
   homeX: {
     titleA: 'Dein Lebenslauf,',
     titleB: 'geschrieben wie eine Seite.',
-    numbersTitle: 'In Zahlen',
-    n1v: 'Kein',
-    n1: 'Konto nötig',
-    n2: 'Server, die deinen Lebenslauf speichern',
-    n3: 'Sprachen',
     atsTitle: 'Worauf der Recruiter-Check achtet',
     atsLead: 'Echte Prüfungen, in klaren Worten. Der Wert ändert sich beim Tippen.',
     c1: 'Kontaktdaten',

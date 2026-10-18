@@ -75,8 +75,11 @@ Motion is allowed only where it helps reading, and it never hides content for lo
 - **Count-up on scores:** score numbers count up once (`useCountUp`), about 0.7–1.1s.
 - **Small details:** the highlighter stroke draws in, score bars grow, arrows nudge 2–3px on hover, the
   share-link dot travels, the hero caret blinks, switches slide.
+- **Example CV gallery (homepage):** two rows of example CVs drift slowly in opposite directions (90s per
+  loop). They stop on hover, on keyboard focus and with the Pause button (WCAG 2.2.2).
 - **Reduced motion:** with `prefers-reduced-motion: reduce`, all of it is off. Sections, highlights and bars
-  are shown at once, numbers show their final value, nothing loops.
+  are shown at once, numbers show their final value, nothing loops, and the gallery is a still row
+  you can scroll.
 
 No page transitions, parallax, scroll-jacking or motion that carries meaning on its own.
 

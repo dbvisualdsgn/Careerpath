@@ -335,7 +335,29 @@
   animation: link-travel 3.2s cubic-bezier(0.45, 0, 0.55, 1) infinite;
 }
 
+/* Example CV gallery: two rows drifting in opposite directions, each drawn twice for a seamless loop.
+   Stops on hover, keyboard focus or the Pause button; under reduced motion it is a still, scrollable row. */
+@keyframes gallery-drift {
+  from { transform: translateX(0); }
+  to { transform: translateX(calc(-50% - 0.5rem)); }
+}
+.gallery-track {
+  animation: gallery-drift 90s linear infinite;
+}
+.gallery-reverse {
+  animation-direction: reverse;
+}
+.gallery-row:hover .gallery-track,
+.gallery-row:focus-within .gallery-track,
+.gallery-row[data-paused] .gallery-track {
+  animation-play-state: paused;
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .gallery-track { animation: none !important; transform: none; }
+  .gallery-copy, .gallery-toggle { display: none !important; }
+  .gallery-row { overflow-x: auto; }
+
   /* Menus, sheets and dialogs open instantly too. */
   *, *::before, *::after {
     animation-duration: 0.01ms !important;

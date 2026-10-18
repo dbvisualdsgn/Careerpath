@@ -37,6 +37,10 @@ export const it: Messages = {
     body: 'Candidarti presto e chiedere a qualcuno in azienda di segnalarti spesso contano più della forma perfetta.',
     close: 'Chiudi questa nota',
   },
+  gallery: {
+    pause: 'Pausa',
+    play: 'Riprendi',
+  },
   privacy: {
     label: 'Visibilità',
     private: 'Privato',
@@ -103,11 +107,6 @@ export const it: Messages = {
   homeX: {
     titleA: 'Il tuo CV,',
     titleB: 'scritto come una pagina.',
-    numbersTitle: 'In numeri',
-    n1v: 'Nessun',
-    n1: 'account richiesto',
-    n2: 'server che conservano il tuo CV',
-    n3: 'lingue',
     atsTitle: 'Cosa guarda la verifica recruiter',
     atsLead: 'Controlli veri, in parole semplici. Il punteggio si aggiorna mentre scrivi.',
     c1: 'Dati di contatto',

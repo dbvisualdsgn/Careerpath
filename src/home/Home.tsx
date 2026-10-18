@@ -2,12 +2,11 @@ import { useEffect, useMemo } from 'react';
 import { ArrowRight, ArrowUpRight, Check, ClipboardPaste, Github, Link2, ListChecks, Lock, Monitor, PenLine, Share2, Users } from 'lucide-react';
 import { SiteHeader } from '../app/components/SiteHeader';
 import { Wordmark } from '../app/components/Wordmark';
-import { Portrait } from '../app/components/Portrait';
 import { matchKeywords, runAtsCheck } from '../app/cv/atsCheck';
 import { sampleCV } from '../app/cv/defaultCV';
-import { people } from '../app/cv/people';
-import { locales, useI18n } from '../app/i18n';
+import { useI18n } from '../app/i18n';
 import { useCountUp, useReveal } from '../app/hooks/useReveal';
+import { CVGallery } from './CVGallery';
 
 const APP = 'app/';
 const label = 'font-mono text-[11px] uppercase tracking-[0.14em] text-ink-soft';
@@ -20,18 +19,20 @@ const DEMO_AD =
   'Senior Product Designer. You will own our design systems and accessibility, run user research, prototyping in Figma, ' +
   'and work closely with engineering on data-driven product decisions. Design systems experience is a must; accessibility is key.';
 
-function Chapter({ id, title, n, children }: { id: string; title: string; n: number; children: React.ReactNode }) {
+function Chapter({ id, title, n, children, wide }: { id: string; title: string; n: number; children: React.ReactNode; wide?: React.ReactNode }) {
   const { m } = useI18n();
   const ref = useReveal<HTMLElement>(0.12);
   return (
     <section ref={ref} aria-labelledby={id} className="reveal border-t border-ink">
-      <div className="mx-auto max-w-6xl px-4 py-16 sm:px-8 md:py-24">
+      <div className={`mx-auto max-w-6xl px-4 sm:px-8 ${wide ? 'pt-16 pb-6 md:pt-24 md:pb-8' : 'py-16 md:py-24'}`}>
         <div className="flex items-baseline justify-between gap-4">
           <h2 id={id} className={h2}>{title}</h2>
           <p className={label} aria-hidden="true">{m.home.chapter} {n}</p>
         </div>
         {children}
       </div>
+      {/* Edge-to-edge content, e.g. the example CV gallery */}
+      {wide && <div className="pb-16 md:pb-24">{wide}</div>}
     </section>
   );
 }
@@ -75,35 +76,6 @@ function PageSpecimen() {
         <span className="font-mono text-[11px] text-ink-soft">100%</span>
       </div>
     </figure>
-  );
-}
-
-/** Three true facts about the tool, each a plain benefit. */
-function Numbers() {
-  const { m } = useI18n();
-  const h = m.homeX;
-  const ref = useReveal<HTMLElement>(0.2);
-  const items: [string, string][] = [
-    [h.n1v, h.n1],
-    ['0', h.n2],
-    [String(Object.keys(locales).length), h.n3],
-  ];
-  return (
-    <section ref={ref} aria-label={h.numbersTitle} className="reveal border-t border-ink">
-      <dl className="mx-auto grid max-w-6xl grid-cols-1 gap-px bg-rule sm:grid-cols-3">
-        {items.map(([value, text], i) => (
-          <div key={text} className="min-w-0 bg-paper px-4 py-10 sm:px-8">
-            <dt className="sr-only">{text}</dt>
-            <dd>
-              <span className="block whitespace-nowrap font-title text-[clamp(2.5rem,7vw,5.5rem)] font-light leading-none tracking-[-0.04em]">
-                {i === 0 ? <span className="hl">{value}</span> : value}
-              </span>
-              <span className="mt-3 block max-w-[18ch] font-mono text-[12px] uppercase tracking-[0.12em] text-ink-soft" aria-hidden="true">{text}</span>
-            </dd>
-          </div>
-        ))}
-      </dl>
-    </section>
   );
 }
 
@@ -252,9 +224,22 @@ export function Home() {
           <PageSpecimen />
         </section>
 
-        <Numbers />
+        <Chapter
+          id="people"
+          title={m.homeX.peopleTitle}
+          n={1}
+          wide={<CVGallery />}
+        >
+          <div className="mt-6 flex flex-wrap items-end justify-between gap-x-10 gap-y-4">
+            <p className="max-w-[52ch] font-body text-lg text-ink-soft">{m.directory.examples}</p>
+            <a href="people/" className={`nudge ${textLink}`}>
+              {m.homeX.peopleMore}
+              <ArrowRight size={20} aria-hidden="true" />
+            </a>
+          </div>
+        </Chapter>
 
-        <Chapter id="how" title={h.howTitle} n={1}>
+        <Chapter id="how" title={h.howTitle} n={2}>
           <ol className="mt-12 grid gap-px border border-rule bg-rule sm:grid-cols-2 lg:grid-cols-4">
             {steps.map(({ icon: Icon, title, body }, i) => (
               <li key={title} className="flex flex-col bg-paper p-6 md:p-8">
@@ -271,11 +256,11 @@ export function Home() {
           </ol>
         </Chapter>
 
-        <Chapter id="ats" title={m.homeX.atsTitle} n={2}>
+        <Chapter id="ats" title={m.homeX.atsTitle} n={3}>
           <AtsInfographic />
         </Chapter>
 
-        <Chapter id="privacy" title={h.privacyTitle} n={3}>
+        <Chapter id="privacy" title={h.privacyTitle} n={4}>
           <div className="mt-12 grid gap-px border border-rule bg-rule md:grid-cols-2">
             {[
               { icon: Lock, title: h.privateT, body: h.privateB },
@@ -292,26 +277,6 @@ export function Home() {
             <h3 className={label}>{m.homeX.linkTitle}</h3>
             <LinkDiagram />
           </div>
-        </Chapter>
-
-        <Chapter id="people" title={m.homeX.peopleTitle} n={4}>
-          <p className="mt-8 max-w-[52ch] font-body text-lg text-ink-soft">{m.directory.examples}</p>
-          <ul className="mt-8 grid gap-px border border-rule bg-rule sm:grid-cols-2 lg:grid-cols-4">
-            {people.slice(0, 4).map((p) => (
-              <li key={p.id} className="bg-paper">
-                <a href={`${APP}?person=${p.id}`} className="nudge-up flex h-full flex-col p-5 hover:bg-zinc-50 dark:hover:bg-zinc-900">
-                  <Portrait name={p.cv.profile.name} className="h-14 w-14 text-xl" />
-                  <span className="mt-6 font-title text-xl leading-tight">{p.cv.profile.name}</span>
-                  <span className="mt-1 font-body text-[14px] text-ink-soft">{p.cv.profile.headline}</span>
-                  <span className="mt-3 font-mono text-[11px] uppercase tracking-[0.12em] text-ink-soft">{m.fields[p.field]}</span>
-                </a>
-              </li>
-            ))}
-          </ul>
-          <a href="people/" className={`nudge mt-8 ${textLink}`}>
-            {m.homeX.peopleMore}
-            <ArrowRight size={20} aria-hidden="true" />
-          </a>
         </Chapter>
 
         <Chapter id="faq" title={h.faqTitle} n={5}>

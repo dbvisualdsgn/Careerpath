@@ -37,6 +37,10 @@ export const pt: Messages = {
     body: 'Candidatar-te cedo e pedir a alguém da empresa que te recomende muitas vezes conta mais do que o acabamento.',
     close: 'Fechar esta nota',
   },
+  gallery: {
+    pause: 'Pausar',
+    play: 'Retomar',
+  },
   privacy: {
     label: 'Visibilidade',
     private: 'Privado',
@@ -103,11 +107,6 @@ export const pt: Messages = {
   homeX: {
     titleA: 'O teu CV,',
     titleB: 'escrito como uma página.',
-    numbersTitle: 'Em números',
-    n1v: 'Sem',
-    n1: 'conta para criar',
-    n2: 'servidores a guardar o teu CV',
-    n3: 'línguas',
     atsTitle: 'O que a análise do recrutador vê',
     atsLead: 'Verificações reais, em palavras simples. A pontuação muda enquanto escreves.',
     c1: 'Dados de contacto',
