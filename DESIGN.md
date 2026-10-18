@@ -81,7 +81,7 @@ Motion is allowed only where it helps reading, and it never hides content for lo
 - **One reveal per section:** a section fades and rises 8px once, the first time it scrolls into view
   (`useReveal` + `.reveal`). A timer shows it anyway after 2.5s.
 - **Count-up on scores:** score numbers count up once (`useCountUp`), about 0.7–1.1s.
-- **Small details:** the highlighter stroke draws in, score bars grow, arrows nudge 2–3px on hover, the
+- **Small details:** the highlighter stroke draws in, score bars grow, arrows nudge 2–3px on hover,
   a black dot travels the privacy diagram (to "Saved here" for Private, along the whole link for
   Public), the hero caret blinks, switches slide.
 - **Example CV gallery (homepage):** two rows of example CVs drift slowly in opposite directions (90s per
