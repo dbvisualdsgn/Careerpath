@@ -46,18 +46,18 @@ function PageSpecimen() {
         <span>1 / 1</span>
       </div>
       <div className="mt-10 font-body">
-        <p className="text-[34px] leading-[0.95] tracking-[-0.02em]">Ada<br />Lovelace</p>
+        <p className="font-title text-[34px] leading-[0.95] tracking-[-0.02em]">Ada<br />Lovelace</p>
         <p className="mt-3 text-[15px] text-ink-soft">Analyst &amp; Programmer · London<span className="caret ml-0.5 inline-block h-[1em] w-px translate-y-[2px] bg-ink" /></p>
       </div>
       <div className="mt-8 border-t border-ink pt-3">
         <p className={label}>{m.sections.experience}</p>
         <dl className="mt-3 space-y-3 font-body text-[14px]">
           <div className="flex justify-between gap-4 border-b border-rule pb-3">
-            <dt>Analytical Engine</dt>
+            <dt className="font-title">Analytical Engine</dt>
             <dd className="font-mono text-[12px] text-ink-soft">1842 – 43</dd>
           </div>
           <div className="flex justify-between gap-4">
-            <dt>Notes on the Engine</dt>
+            <dt className="font-title">Notes on the Engine</dt>
             <dd className="font-mono text-[12px] text-ink-soft">1843</dd>
           </div>
         </dl>

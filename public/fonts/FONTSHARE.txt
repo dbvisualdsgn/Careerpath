@@ -1,0 +1,6 @@
+Switzer and Gambetta are typefaces by the Indian Type Foundry, distributed by Fontshare (https://www.fontshare.com) under the ITF Free Font
+License (https://fontshare.com/terms). Switzer and Gambetta are trademarks of the Indian Type Foundry.
+Copyright 2015-2021 Indian Type Foundry. All rights reserved.
+
+The .ttf files here are embedded in the "As on the page" PDF; the web pages use the .woff2 versions
+in src/assets/fonts.

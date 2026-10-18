@@ -14,8 +14,8 @@
   --highlight: #e6f05a;
   --signal: #e5482a;
   --go: #2f8f5b;
-  --font-sans: 'Inter Tight', ui-sans-serif, system-ui, sans-serif;
-  --font-serif: 'Literata', Georgia, serif;
+  --font-sans: 'Switzer', ui-sans-serif, system-ui, sans-serif;
+  --font-serif: 'Gambetta', Georgia, serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
   /* The "Aa" menu sets data-title / data-body on <html>: one face for titles, one for text. */
   --title-font: var(--font-sans);
@@ -129,8 +129,8 @@
   --shadow-lg: 0 0 #0000;
   --shadow-xl: 0 0 #0000;
   --shadow-2xl: 0 0 #0000;
-  --font-sans: 'Inter Tight', ui-sans-serif, system-ui, sans-serif;
-  --font-serif: 'Literata', Georgia, serif;
+  --font-sans: 'Switzer', ui-sans-serif, system-ui, sans-serif;
+  --font-serif: 'Gambetta', Georgia, serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
 }
 

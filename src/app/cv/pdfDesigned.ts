@@ -1,5 +1,6 @@
 // "As on the page" PDF: the same layout, typefaces, paper colour, rules, logos and photo as the
-// screen, with real selectable text. Fonts are the OFL files in /public/fonts, embedded on demand.
+// screen, with real selectable text. Fonts are the files in /public/fonts (Switzer, Gambetta, IBM Plex
+// Mono), embedded on demand.
 import { contactItems, dateRange } from './format';
 import type { CVData } from './types';
 import { packCV, PDF_DATA_NS } from './share';
@@ -15,8 +16,8 @@ const CW = W - M * 2;
 
 
 const families = {
-  sans: { name: 'InterTight', file: 'InterTight' },
-  serif: { name: 'Literata', file: 'Literata' },
+  sans: { name: 'Switzer', file: 'Switzer' },
+  serif: { name: 'Gambetta', file: 'Gambetta' },
 } as const;
 const MONO_FILE = 'IBMPlexMono';
 

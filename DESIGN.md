@@ -33,20 +33,24 @@ flat. Brand logos inside a CV are the only colour on screen (they belong to the 
 
 ## Typography
 
-Three reading styles, switched with the **Aa** menu (`TypeSwitcher`), stored per browser and applied
-before first paint via `data-type` on `<html>` → `--reading-font` → the `font-reading` utility.
+Two typefaces, both self-hosted from Fontshare (ITF Free Font License, credits in `public/fonts/FONTSHARE.txt`):
 
-| Style | Family | Character |
+| Role | Family | Character |
 |---|---|---|
-| Sans (default) | Inter Tight | Swiss, tight grotesk |
-| Serif | Literata | E-reader serif (Kindle feel) |
-| Mono | IBM Plex Mono | Typewriter |
+| Sans | Switzer | Neutral Swiss grotesk |
+| Serif | Gambetta | Calm text serif, made for long reading |
 
-- **Display:** `clamp()` sizes up to ~7rem, weight 400, tracking −0.035em, leading 0.92.
-- **Numerals:** 72px light, for chapter and step numbers (`01`–`04`).
-- **Micro labels:** IBM Plex Mono 11–12px, uppercase, tracking 0.14em, `ink-soft`.
-- **Body:** reading font, 16–20px, measure ≤60ch.
-- **UI controls and form fields:** Inter Tight. The PDF uses Helvetica (best for ATS parsing).
+The **Typefaces** menu (`TypeSwitcher`, the "T" button) picks one of the two for **titles** and one for
+**text**. Defaults: sans titles, serif text. The choice is stored per browser and applied before first paint
+as `data-title` / `data-body` on `<html>` → `--title-font` / `--body-font` → the `font-title` / `font-body`
+utilities. The designed PDF follows the same choice.
+
+- **Titles (`font-title`):** headings, names, job titles, big numbers. Display sizes use `clamp()` up to
+  ~7rem, weight 400, tracking −0.035em, leading 0.92.
+- **Text (`font-body`):** summaries, bullets, descriptions, 16–20px, measure ≤60ch.
+- **Micro labels and dates:** IBM Plex Mono 11–12px, uppercase, tracking 0.14em, `ink-soft`. Not a choice in
+  the menu.
+- **UI controls and form fields:** always Switzer. The "ATS plain" PDF uses Helvetica (best for parsing).
 
 ## Patterns
 

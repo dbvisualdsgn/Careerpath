@@ -22,7 +22,7 @@ result in the editor; scanned PDFs without text can't be read.
 **Private / Public:** a CV is private by default (it stays in the browser and sharing is off). Switching to public turns on
 share links. A link carries its own copy of the CV, so links already sent cannot be revoked.
 
-**Downloads:** "As on the page" builds a PDF with the same layout, embedded fonts (`public/fonts`, SIL OFL), logos and
+**Downloads:** "As on the page" builds a PDF with the same layout, embedded fonts (`public/fonts`: Switzer and Gambetta by the Indian Type Foundry via Fontshare, IBM Plex Mono under the SIL OFL), logos and
 photo. "ATS plain" builds the one-column, text-only version for job portals.
 
 The brand and tokens are documented in [DESIGN.md](DESIGN.md).
@@ -90,3 +90,9 @@ selector, and animations that respect "reduce motion".
   The weights are documented at the top of `src/app/cv/atsCheck.ts`. Paste a job ad to see its job title (and
   whether your headline matches it) and which keywords are missing, matched as whole words in 7 languages.
 - **Copy as text** gives a clean plain-text CV for application forms.
+
+## Credits
+
+Typefaces: **Switzer** and **Gambetta** by the [Indian Type Foundry](https://www.indiantypefoundry.com), from
+[Fontshare](https://www.fontshare.com) (ITF Free Font License); **IBM Plex Mono** (SIL Open Font License).
+Logos: Iconify "logos" set and Simple Icons (CC0).

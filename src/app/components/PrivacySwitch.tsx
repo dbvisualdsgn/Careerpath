@@ -36,7 +36,8 @@ export function PrivacySwitch({ isPublic, onChange, withHint = false }: PrivacyS
         </span>
         <span className="inline-flex items-center gap-1 whitespace-nowrap font-medium">
           {isPublic ? <Link2 size={20} aria-hidden="true" /> : <Lock size={20} aria-hidden="true" />}
-          {isPublic ? p.public : p.private}
+          {/* In the header the word gives way between lg and xl, where the bar is tightest. */}
+          <span className={withHint ? '' : 'lg:max-xl:hidden'}>{isPublic ? p.public : p.private}</span>
         </span>
       </button>
       {withHint ? (
