@@ -105,8 +105,6 @@ export const de: Messages = {
     support: 'Support',
   },
   homeX: {
-    titleA: 'Dein Lebenslauf,',
-    titleB: 'geschrieben wie eine Seite.',
     atsTitle: 'Worauf der Recruiter-Check achtet',
     atsLead: 'Echte Prüfungen, in klaren Worten. Der Wert ändert sich beim Tippen.',
     c1: 'Kontaktdaten',
@@ -135,6 +133,10 @@ export const de: Messages = {
     privNote: 'Dein Lebenslauf ist in diesem Browser gespeichert und geht nirgendwohin. Nichts wird gesendet, bis du einen Link erstellst.',
     shownBelow: 'Unten gezeigt',
     showMe: 'So funktioniert es',
+    heroA: 'Ein Lebenslauf wie auf Papier.',
+    heroShared: 'Geteilt',
+    heroOr: 'oder',
+    heroPrivate: 'privat.',
   },
   library: {
     title: 'Meine Lebensläufe',
@@ -195,8 +197,7 @@ export const de: Messages = {
   home: {
     openCV: 'Meinen Lebenslauf öffnen',
     kicker: 'Ein Werkzeug für den Lebenslauf. Mehr nicht.',
-    title: 'Dein Lebenslauf, geschrieben wie eine Seite.',
-    sub: 'Schreiben, prüfen, teilen. Kostenlos und ohne Konto.',
+    sub: 'Geprüft für Recruiter, die ihn überfliegen, und für die Software, die ihn liest. Kostenlos, ohne Konto.',
     start: 'Losschreiben',
     example: 'Beispiel ansehen',
     howTitle: 'So funktioniert’s',

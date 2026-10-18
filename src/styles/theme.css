@@ -409,6 +409,21 @@
   word-spacing: 0.06em;
 }
 
+/* Hero: an icon before "shared" and "private", drawn in the title's weight. Hovering a word tilts its icon. */
+.hero-word {
+  white-space: nowrap;
+}
+.hero-icon {
+  display: inline-block;
+  margin-right: 0.12em;
+  vertical-align: -0.04em;
+  transform-origin: 50% 70%;
+  transition: transform 250ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.hero-word:hover .hero-icon {
+  transform: rotate(-12deg) translateY(-0.04em) scale(1.06);
+}
+
 /* Skim view: what a recruiter sees on a first pass. Everything not marked data-skim-keep steps back to
    --ink-faint (still ≥ 4.6:1). No animation. */
 main[data-skim] *,

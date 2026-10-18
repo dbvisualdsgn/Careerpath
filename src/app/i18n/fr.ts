@@ -105,8 +105,6 @@ export const fr: Messages = {
     support: 'Support',
   },
   homeX: {
-    titleA: 'Votre CV,',
-    titleB: 'écrit comme une page.',
     atsTitle: 'Ce que regarde l’analyse recruteur',
     atsLead: 'De vraies vérifications, en mots simples. Le score se met à jour pendant que vous écrivez.',
     c1: 'Coordonnées',
@@ -135,6 +133,10 @@ export const fr: Messages = {
     privNote: 'Votre CV est enregistré dans ce navigateur et ne va nulle part ailleurs. Rien n’est envoyé tant que vous ne créez pas de lien.',
     shownBelow: 'Affiché ci-dessous',
     showMe: 'Voir comment ça marche',
+    heroA: 'Un CV papier.',
+    heroShared: 'Partagé',
+    heroOr: 'ou',
+    heroPrivate: 'privé.',
   },
   library: {
     title: 'Mes CV',
@@ -195,8 +197,7 @@ export const fr: Messages = {
   home: {
     openCV: 'Ouvrir mon CV',
     kicker: 'Un outil pour le CV. Rien de plus.',
-    title: 'Votre CV, écrit comme une page.',
-    sub: 'Écrivez-le, vérifiez-le, partagez-le. Gratuit et sans compte.',
+    sub: 'Vérifié pour le recruteur qui le survole et le logiciel qui le lit. Gratuit, sans compte.',
     start: 'Commencer à écrire',
     example: 'Voir un exemple',
     howTitle: 'Comment ça marche',

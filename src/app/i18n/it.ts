@@ -105,8 +105,6 @@ export const it: Messages = {
     support: 'Assistenza',
   },
   homeX: {
-    titleA: 'Il tuo CV,',
-    titleB: 'scritto come una pagina.',
     atsTitle: 'Cosa guarda la verifica recruiter',
     atsLead: 'Controlli veri, in parole semplici. Il punteggio si aggiorna mentre scrivi.',
     c1: 'Dati di contatto',
@@ -135,6 +133,10 @@ export const it: Messages = {
     privNote: 'Il tuo CV resta salvato in questo browser e non va da nessun’altra parte. Non viene inviato nulla finché non crei un link.',
     shownBelow: 'Mostrato sotto',
     showMe: 'Guarda come funziona',
+    heroA: 'Un CV di carta.',
+    heroShared: 'Condiviso',
+    heroOr: 'o',
+    heroPrivate: 'privato.',
   },
   library: {
     title: 'I miei CV',
@@ -195,8 +197,7 @@ export const it: Messages = {
   home: {
     openCV: 'Apri il mio CV',
     kicker: 'Uno strumento per il CV. Niente di più.',
-    title: 'Il tuo CV, scritto come una pagina.',
-    sub: 'Scrivilo, controllalo, condividilo. Gratis e senza account.',
+    sub: 'Pensato per il recruiter che lo scorre e per il software che lo legge. Gratis, senza account.',
     start: 'Inizia a scrivere',
     example: 'Guarda un esempio',
     howTitle: 'Come funziona',

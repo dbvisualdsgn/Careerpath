@@ -61,7 +61,7 @@ export function People() {
       </a>
       <SiteHeader root="../" current="people" />
 
-      <main id="main" tabIndex={-1} className="mx-auto max-w-6xl px-4 pb-24 pt-14 focus:outline-none sm:px-8 md:pt-20">
+      <main id="main" tabIndex={-1} className="mx-auto max-w-6xl xl:max-w-none xl:px-12 px-4 pb-24 pt-14 focus:outline-none sm:px-8 md:pt-20">
         <div ref={titleRef} className="reveal flex flex-wrap items-end justify-between gap-6">
           <div>
             <p className={label}>{fmt(d.count, { count: people.length })}</p>
@@ -134,7 +134,7 @@ export function People() {
       </main>
 
       <footer className="border-t border-ink">
-        <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-10 sm:flex-row sm:items-center sm:justify-between sm:px-8">
+        <div className="mx-auto flex max-w-6xl xl:max-w-none xl:px-12 flex-col gap-6 px-4 py-10 sm:flex-row sm:items-center sm:justify-between sm:px-8">
           <Wordmark href="../" />
           <p className="font-body text-[15px] text-ink-soft">{m.home.footer}</p>
         </div>

@@ -84,7 +84,7 @@ export function CVGallery() {
   const half = Math.ceil(people.length / 2);
   return (
     <div className="space-y-4">
-      <div className="mx-auto flex max-w-6xl justify-end px-4 sm:px-8">
+      <div className="mx-auto flex max-w-6xl xl:max-w-none xl:px-12 justify-end px-4 sm:px-8">
         <button
           type="button"
           onClick={() => setPaused((p) => !p)}

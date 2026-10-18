@@ -105,8 +105,6 @@ export const pt: Messages = {
     support: 'Apoio',
   },
   homeX: {
-    titleA: 'O teu CV,',
-    titleB: 'escrito como uma página.',
     atsTitle: 'O que a análise do recrutador vê',
     atsLead: 'Verificações reais, em palavras simples. A pontuação muda enquanto escreves.',
     c1: 'Dados de contacto',
@@ -135,6 +133,10 @@ export const pt: Messages = {
     privNote: 'O teu CV fica guardado neste navegador e não vai para mais lado nenhum. Nada é enviado até criares um link.',
     shownBelow: 'Mostrado abaixo',
     showMe: 'Ver como funciona',
+    heroA: 'Um CV em papel.',
+    heroShared: 'Partilhado',
+    heroOr: 'ou',
+    heroPrivate: 'privado.',
   },
   library: {
     title: 'Os meus CV',
@@ -195,8 +197,7 @@ export const pt: Messages = {
   home: {
     openCV: 'Abrir o meu CV',
     kicker: 'Uma ferramenta para o CV. Nada mais.',
-    title: 'O teu CV, escrito como uma página.',
-    sub: 'Escreve, verifica, partilha. Grátis e sem conta.',
+    sub: 'Verificado para o recrutador que o lê na diagonal e para o software que o lê. Grátis, sem conta.',
     start: 'Começar a escrever',
     example: 'Ver um exemplo',
     howTitle: 'Como funciona',

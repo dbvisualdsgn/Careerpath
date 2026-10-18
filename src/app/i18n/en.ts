@@ -104,8 +104,6 @@ export const en = {
     support: 'Support',
   },
   homeX: {
-    titleA: 'Your CV,',
-    titleB: 'written like a page.',
     atsTitle: 'What the recruiter check looks at',
     atsLead: 'Real checks, in plain words. The score updates as you type.',
     c1: 'Contact details',
@@ -134,6 +132,10 @@ export const en = {
     privNote: 'Your CV is saved in this browser and goes nowhere else. Nothing is sent until you make a link.',
     shownBelow: 'Shown below',
     showMe: 'See how it works',
+    heroA: 'A paper CV.',
+    heroShared: 'Shared',
+    heroOr: 'or',
+    heroPrivate: 'private.',
   },
   library: {
     title: 'My CVs',
@@ -194,8 +196,7 @@ export const en = {
   home: {
     openCV: 'Open my CV',
     kicker: 'A CV tool. Nothing more.',
-    title: 'Your CV, written like a page.',
-    sub: 'Write it, check it, share it. Free, and no account needed.',
+    sub: 'Checked for the recruiter who skims it and the software that reads it. Free, no account.',
     start: 'Start writing',
     example: 'See an example',
     howTitle: 'How it works',

@@ -105,8 +105,6 @@ export const nl: Messages = {
     support: 'Support',
   },
   homeX: {
-    titleA: 'Je cv,',
-    titleB: 'geschreven als een pagina.',
     atsTitle: 'Waar de recruitercheck op let',
     atsLead: 'Echte checks, in gewone woorden. De score verandert terwijl je typt.',
     c1: 'Contactgegevens',
@@ -135,6 +133,10 @@ export const nl: Messages = {
     privNote: 'Je cv wordt in deze browser bewaard en gaat nergens anders heen. Er wordt niets verstuurd tot je een link maakt.',
     shownBelow: 'Hieronder getoond',
     showMe: 'Bekijk hoe het werkt',
+    heroA: 'Een cv op papier.',
+    heroShared: 'Gedeeld',
+    heroOr: 'of',
+    heroPrivate: 'privé.',
   },
   library: {
     title: 'Mijn cv’s',
@@ -195,8 +197,7 @@ export const nl: Messages = {
   home: {
     openCV: 'Mijn cv openen',
     kicker: 'Een cv-tool. Meer niet.',
-    title: 'Je cv, geschreven als een pagina.',
-    sub: 'Schrijf het, check het, deel het. Gratis en zonder account.',
+    sub: 'Gecontroleerd voor de recruiter die het doorbladert en de software die het leest. Gratis, zonder account.',
     start: 'Begin met schrijven',
     example: 'Bekijk een voorbeeld',
     howTitle: 'Zo werkt het',

@@ -7,7 +7,7 @@ export function SiteHeader({ root, current }: { root: string; current?: 'home' |
   const { m } = useI18n();
   return (
     <header className="sticky top-0 z-40 border-b border-rule bg-paper">
-      <nav aria-label={m.app.home} className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-2 px-4 sm:px-8 md:grid md:grid-cols-[1fr_auto_1fr]">
+      <nav aria-label={m.app.home} className="mx-auto flex h-16 max-w-6xl xl:max-w-none xl:px-12 items-center justify-between gap-2 px-4 sm:px-8 md:grid md:grid-cols-[1fr_auto_1fr]">
         <Wordmark href={root} />
         <ReadingControls />
         <div className="flex items-center gap-1 md:justify-self-end">

@@ -105,8 +105,6 @@ export const es: Messages = {
     support: 'Atención',
   },
   homeX: {
-    titleA: 'Tu CV,',
-    titleB: 'escrito como una página.',
     atsTitle: 'Qué mira la revisión de reclutador',
     atsLead: 'Comprobaciones reales, en palabras sencillas. La puntuación cambia mientras escribes.',
     c1: 'Datos de contacto',
@@ -135,6 +133,10 @@ export const es: Messages = {
     privNote: 'Tu CV se guarda en este navegador y no va a ningún otro sitio. No se envía nada hasta que creas un enlace.',
     shownBelow: 'Se muestra abajo',
     showMe: 'Ver cómo funciona',
+    heroA: 'Un CV de papel.',
+    heroShared: 'Compartido',
+    heroOr: 'o',
+    heroPrivate: 'privado.',
   },
   library: {
     title: 'Mis CV',
@@ -195,8 +197,7 @@ export const es: Messages = {
   home: {
     openCV: 'Abrir mi CV',
     kicker: 'Una herramienta para tu CV. Nada más.',
-    title: 'Tu CV, escrito como una página.',
-    sub: 'Escríbelo, revísalo, compártelo. Gratis y sin cuenta.',
+    sub: 'Revisado para el reclutador que lo ojea y el software que lo lee. Gratis, sin cuenta.',
     start: 'Empezar a escribir',
     example: 'Ver un ejemplo',
     howTitle: 'Cómo funciona',

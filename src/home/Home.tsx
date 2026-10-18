@@ -24,7 +24,7 @@ function Chapter({ id, title, n, children, wide }: { id: string; title: string; 
   const ref = useReveal<HTMLElement>(0.12);
   return (
     <section ref={ref} aria-labelledby={id} className="reveal border-t border-ink">
-      <div className={`mx-auto max-w-6xl px-4 sm:px-8 ${wide ? 'pt-16 pb-6 md:pt-24 md:pb-8' : 'py-16 md:py-24'}`}>
+      <div className={`mx-auto max-w-6xl xl:max-w-none xl:px-12 px-4 sm:px-8 ${wide ? 'pt-16 pb-6 md:pt-24 md:pb-8' : 'py-16 md:py-24'}`}>
         <div className="flex items-baseline justify-between gap-4">
           <h2 id={id} className={h2}>{title}</h2>
           <p className={label} aria-hidden="true">{m.home.chapter} {n}</p>
@@ -287,11 +287,23 @@ export function Home() {
 
       <main id="main" tabIndex={-1} className="focus:outline-none">
         {/* Opening */}
-        <section className="mx-auto grid max-w-6xl gap-14 px-4 pb-20 pt-14 sm:px-8 md:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] md:items-end md:pb-28 md:pt-24">
+        <section className="mx-auto grid max-w-6xl xl:max-w-none xl:px-12 gap-14 px-4 pb-20 pt-14 sm:px-8 md:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] md:items-end md:pb-28 md:pt-24">
           <div ref={heroRef} className="reveal">
             <p className={label}>{h.kicker}</p>
-            <h1 className="mt-6 font-title text-[clamp(2.25rem,9vw,7.25rem)] hyphens-auto [overflow-wrap:anywhere] font-normal leading-[0.92] tracking-[-0.035em]">
-              {m.homeX.titleA} <span className="hl">{m.homeX.titleB}</span>
+            <h1 className="mt-6 font-title text-[clamp(2.5rem,11vw,4rem)] md:text-[clamp(3rem,7.5vw,8rem)] hyphens-auto [overflow-wrap:anywhere] font-normal leading-[0.95]">
+              {m.homeX.heroA}{' '}
+              <span className="hl">
+                {/* Each choice carries its icon; hovering a word tilts it. */}
+                <span className="hero-word group">
+                  <Link2 size="0.72em" aria-hidden="true" className="hero-icon" />
+                  {m.homeX.heroShared}
+                </span>{' '}
+                {m.homeX.heroOr}{' '}
+                <span className="hero-word group">
+                  <Lock size="0.72em" aria-hidden="true" className="hero-icon" />
+                  {m.homeX.heroPrivate}
+                </span>
+              </span>
             </h1>
             <p className="mt-8 max-w-[34ch] font-body text-xl leading-snug text-ink-soft md:text-2xl">{h.sub}</p>
             <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-4">
@@ -361,7 +373,7 @@ export function Home() {
 
         {/* Closing */}
         <section className="border-t border-ink">
-          <div className="mx-auto max-w-6xl px-4 py-20 sm:px-8 md:py-32">
+          <div className="mx-auto max-w-6xl xl:max-w-none xl:px-12 px-4 py-20 sm:px-8 md:py-32">
             <p className="font-title text-[clamp(2.75rem,8vw,6.5rem)] leading-[0.95] tracking-[-0.035em]">
               <span className="hl">{h.closing}</span>
             </p>
@@ -374,7 +386,7 @@ export function Home() {
       </main>
 
       <footer className="border-t border-ink">
-        <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-10 sm:flex-row sm:items-center sm:justify-between sm:px-8">
+        <div className="mx-auto flex max-w-6xl xl:max-w-none xl:px-12 flex-col gap-6 px-4 py-10 sm:flex-row sm:items-center sm:justify-between sm:px-8">
           <Wordmark href="./" />
           <p className="font-body text-[15px] text-ink-soft">{h.footer}</p>
           <a href="https://github.com/dbvisualdsgn/Careerpath" className={textLink} rel="noopener noreferrer" target="_blank">
