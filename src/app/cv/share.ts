@@ -1,6 +1,7 @@
-// Share links carry the whole CV in the URL fragment (#cv=…), deflate-compressed and base64url-encoded.
-// The fragment is never sent to a server, so any static host works and nothing is stored anywhere.
-import { LOGO_TOKEN, mapLogos, tokenizeLogos } from './logos';
+// The compact CV payload (deflate + base64url, built-in logos as tokens). It is embedded in our PDFs, and
+// older share links carried it in the URL fragment (#cv=…): those links are still read, but no longer made.
+// New links point to the public CV server instead (see backend.ts).
+import { tokenizeLogos } from './logos';
 import { normalize } from './useCV';
 import type { CVData } from './types';
 
@@ -9,8 +10,6 @@ const PARAM = 'cv';
 export const PDF_DATA_NS = 'urn:curriculi-curricula:cv:1.0';
 /** Namespace written by earlier versions; still read so older PDFs import exactly. */
 export const LEGACY_PDF_DATA_NS = 'https://dbvisualdsgn.github.io/Careerpath/ns/cv/1.0/';
-/** Above this length, custom uploaded logos are left out so the link stays usable in chat apps. */
-const MAX_LINK_CHARS = 24000;
 
 function toBase64Url(bytes: Uint8Array) {
   let bin = '';
@@ -31,29 +30,6 @@ async function encode(cv: CVData) {
   return toBase64Url(await pipe(new TextEncoder().encode(json), new CompressionStream('deflate-raw')));
 }
 
-export interface ShareLink {
-  url: string;
-  /** True when custom uploaded logos were left out to keep the link short. */
-  droppedLogos: boolean;
-}
-
-export async function createShareLink(cv: CVData, baseUrl: string): Promise<ShareLink> {
-  // Built-in logos travel as short tokens instead of full SVG/PNG data.
-  const tokenized = await tokenizeLogos(cv);
-  let payload = await encode(tokenized);
-  let droppedLogos = false;
-  if (payload.length > MAX_LINK_CHARS) {
-    // Drop uploaded logos first, then the photo, so the link stays usable in chat apps.
-    const noCustomLogos = mapLogos(tokenized, (logo) => (logo?.startsWith(LOGO_TOKEN) ? logo : undefined));
-    payload = await encode(noCustomLogos);
-    droppedLogos = true;
-    if (payload.length > MAX_LINK_CHARS) {
-      payload = await encode({ ...noCustomLogos, profile: { ...noCustomLogos.profile, photo: undefined } });
-    }
-  }
-  return { url: `${baseUrl}#${PARAM}=${payload}`, droppedLogos };
-}
-
 /** Compact, lossless CV payload (built-in logos as tokens, deflate + base64url). Used inside our PDFs. */
 export async function packCV(cv: CVData) {
   return encode(await tokenizeLogos(cv));
@@ -71,12 +47,6 @@ export async function readSharedCV(hash: string): Promise<CVData | null> {
   const payload = params.get(PARAM);
   if (!payload) return null;
   return unpackCV(payload);
-}
-
-/** Where share links point: a configured public URL (VITE_PUBLIC_URL) or the current page. */
-export function shareBaseUrl() {
-  const configured = import.meta.env.VITE_PUBLIC_URL as string | undefined;
-  return configured || `${window.location.origin}${window.location.pathname}`;
 }
 
 export function clearShareHash() {

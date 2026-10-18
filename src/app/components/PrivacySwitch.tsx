@@ -7,10 +7,12 @@ interface PrivacySwitchProps {
   onChange: (isPublic: boolean) => void;
   /** Show the explanation under the switch (editor) or keep it compact (header). */
   withHint?: boolean;
+  /** Publishing or taking down: the switch waits. */
+  busy?: boolean;
 }
 
 /** Private / Public toggle. A real switch (role="switch") with its current state in words. */
-export function PrivacySwitch({ isPublic, onChange, withHint = false }: PrivacySwitchProps) {
+export function PrivacySwitch({ isPublic, onChange, withHint = false, busy = false }: PrivacySwitchProps) {
   const { m } = useI18n();
   const p = m.privacy;
   const hintId = useId();
@@ -24,7 +26,9 @@ export function PrivacySwitch({ isPublic, onChange, withHint = false }: PrivacyS
         aria-describedby={hintId}
         title={p.listedHint}
         onClick={() => onChange(!isPublic)}
-        className="group inline-flex h-9 items-center gap-2 rounded-sm px-1.5 text-[13px] text-ink hover:bg-zinc-100 dark:hover:bg-zinc-800"
+        disabled={busy}
+        aria-busy={busy}
+        className="group inline-flex h-9 items-center gap-2 rounded-sm px-1.5 text-[13px] text-ink hover:bg-zinc-100 disabled:cursor-wait disabled:opacity-60"
       >
         <span
           aria-hidden="true"
@@ -42,7 +46,7 @@ export function PrivacySwitch({ isPublic, onChange, withHint = false }: PrivacyS
       </button>
       {withHint ? (
         <p id={hintId} className="text-[12px] leading-snug text-ink-soft" aria-live="polite">
-          {isPublic ? `${p.publicHint} ${p.note}` : `${p.privateHint} ${p.listedHint}`}
+          {isPublic ? p.publicHint : p.privateHint}
         </p>
       ) : (
         <span id={hintId} className="sr-only">{p.listedHint}</span>

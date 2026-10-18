@@ -45,16 +45,38 @@ Type a tool or company name and its official logo is added automatically. Click 
 4,400 brands or upload your own. Logos come from the Iconify "logos" set and Simple Icons (both CC0).
 `npm run icons` regenerates `src/app/cv/brandIcons.ts` and `src/app/cv/icon-catalog/` after updating either package.
 
-## Share links
+## Private and public
 
-**Share** creates a personal link that contains the whole CV, compressed into the URL fragment (`#cv=…`).
-Nothing is stored on a server and fragments are never sent to one, so any static host works.
-Anyone who opens the link sees that CV read-only and can **Edit a copy** or **Create your own CV**, then share their
-own link. Links are snapshots: after editing, create a new link. Built-in logos travel as short tokens. Very large
-uploaded logos are left out to keep links short.
+Every CV starts **private**: it lives only in your browser's storage, has no link, and nobody else can open it.
+You can still download it as a PDF.
 
-For other people to open links, the app must be hosted publicly (for example GitHub Pages, Vercel or Netlify).
-Set `VITE_PUBLIC_URL` at build time if share links should point to a different address than the current page.
+Switching it to **public** (after a short confirmation) stores a copy on a small Supabase database so it can be
+reached from anywhere:
+
+- **One link** (`…/app/?id=ab12cd34ef`) that always shows the latest version: edits are re-published about two
+  seconds after you stop typing.
+- **Embed code**: an `<iframe>` with a compact, read-only view (`&embed=1`) for a personal site or portfolio.
+- **Public CVs page** (opt-in): tick "Show it on the Public CVs page" to be listed on `/people/`. Listed CVs can be
+  reported (spam, someone else's data, offensive); reports land in the `cv_reports` table.
+- Switching back to **private** deletes the public copy, so the link, embeds and listing stop working at once.
+  Deleting a public CV takes it down first.
+
+There are no accounts. Making a CV public creates a random id and a secret owner token in your browser; only the
+token's SHA-256 is stored, and only that browser can update or withdraw the copy. Everything that comes from the
+server is sanitised before it is shown (images must be our own data URLs or built-in logo tokens).
+
+Links made by earlier versions carried the whole CV in the URL fragment (`#cv=…`). They still open, but they are no
+longer created, and they cannot be withdrawn.
+
+### Setting up the public CV server
+
+1. Create a free project at [supabase.com](https://supabase.com).
+2. In **SQL Editor**, run [`supabase/schema.sql`](supabase/schema.sql). It creates the tables, row-level security
+   (anyone can read public CVs; writes only through the token-checked functions) and the functions.
+3. In **Project Settings → API**, copy the Project URL and the `anon` public key into `.env` (see `.env.example`).
+   Both are meant to be public. Without them the site still works, but CVs can't be made public.
+
+Set `VITE_PUBLIC_URL` at build time if public links should point to a different address than the current site.
 
 ### Renaming the GitHub repository
 

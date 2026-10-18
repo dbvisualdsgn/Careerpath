@@ -115,7 +115,7 @@ function FlowDiagram({ mode }: { mode: Mode }) {
   const nodes = isPublic
     ? [
         { icon: Monitor, text: h.linkA },
-        { icon: Link2, text: h.linkB, note: '…/app/#cv=eNqVk…', mark: true },
+        { icon: Link2, text: h.linkB, note: '…/app/?id=ab12cd34ef', mark: true },
         { icon: Users, text: h.linkC },
       ]
     : [

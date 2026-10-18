@@ -45,7 +45,11 @@ interface CVEditorProps {
   /** Add a CV to the library and open it (new CV, JSON import). */
   onCreate: (cv: CVData) => void;
   onImportPdf: () => void;
-  onDelete: () => void;
+  /** Resolves to false when the CV could not be deleted (a public copy that could not be taken down). */
+  onDelete: () => Promise<boolean>;
+  isPublic: boolean;
+  publishBusy: boolean;
+  onTogglePublic: (next: boolean) => void;
   /** Name of the open version (only the person sees it). */
   versionName: string;
   onRenameVersion: (name: string) => void;
@@ -112,7 +116,7 @@ const parseSkills = (text: string) => text.split(/[\n,]/).map((s) => s.trim()).f
 const cardClass = 'rounded-lg border border-zinc-200 dark:border-zinc-800 p-4 space-y-3';
 
 export function CVEditor({
-  open, onOpenChange, cv, setCV, update, tab, onTabChange: setTab, onCreate, onImportPdf, onDelete, versionName, onRenameVersion, onSaveVersion, jobAdRequest = 0,
+  open, onOpenChange, cv, setCV, update, tab, onTabChange: setTab, onCreate, onImportPdf, onDelete, isPublic, publishBusy, onTogglePublic, versionName, onRenameVersion, onSaveVersion, jobAdRequest = 0,
 }: CVEditorProps) {
   const jobAd = useJobAd();
   const [ownJobAdRequest, setOwnJobAdRequest] = useState(0);
@@ -228,7 +232,7 @@ export function CVEditor({
           <div className="flex-1 overflow-y-auto px-5 py-5">
             <TabsContent value="profile" className="space-y-4 mt-0">
               <div className="space-y-4 border-b border-rule pb-4">
-                <PrivacySwitch isPublic={Boolean(cv.isPublic)} onChange={(isPublic) => update((d) => ({ ...d, isPublic }))} withHint />
+                <PrivacySwitch isPublic={isPublic} busy={publishBusy} onChange={onTogglePublic} withHint />
                 <Field label={m.library.versionName} hint={m.library.versionHint}>
                   <Input value={versionName} placeholder={m.library.versionPlaceholder} onChange={(ev) => onRenameVersion(ev.target.value)} />
                 </Field>
@@ -537,8 +541,8 @@ export function CVEditor({
                 <AlertDialogCancel className="rounded-sm">{m.library.cancel}</AlertDialogCancel>
                 <AlertDialogAction
                   className="gap-1.5 rounded-sm"
-                  onClick={() => {
-                    onDelete();
+                  onClick={async () => {
+                    if (!(await onDelete())) return;
                     setTab('profile');
                     toast.success(m.library.deleted);
                   }}

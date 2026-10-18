@@ -5,6 +5,7 @@ import { Portrait } from '../app/components/Portrait';
 import { Wordmark } from '../app/components/Wordmark';
 import { fields, people, type Field } from '../app/cv/people';
 import { useReveal } from '../app/hooks/useReveal';
+import { PublicCVs } from './PublicCVs';
 import { fmt, useI18n } from '../app/i18n';
 
 const label = 'whitespace-nowrap font-mono text-[11px] uppercase tracking-[0.14em] text-ink-soft';
@@ -18,7 +19,7 @@ function Card({ id, field, name, headline, location, skills }: { id: string; fie
           <Portrait name={name} className="h-16 w-16 text-2xl" />
           <span className={label}>{m.fields[field]}</span>
         </div>
-        <h2 className="mt-6 font-title text-2xl leading-tight tracking-[-0.01em]">{name}</h2>
+        <h3 className="mt-6 font-title text-2xl leading-tight tracking-[-0.01em]">{name}</h3>
         <p className="mt-1 font-body text-[15px] text-ink-soft">{headline}</p>
         <p className="mt-3 font-mono text-[12px] text-ink-soft">{location}</p>
         <p className="mt-4 text-[13px] leading-relaxed text-ink-soft">{skills.slice(0, 3).join(' · ')}</p>
@@ -121,7 +122,12 @@ export function People() {
           </div>
         </div>
 
-        <p className="mt-8 font-mono text-[12px] text-ink-soft" aria-live="polite">{fmt(d.count, { count: list.length })}</p>
+        {active === null && <PublicCVs query={query} />}
+
+        <div className="mt-14 flex items-baseline justify-between gap-4 border-t border-ink pt-4">
+          <h2 className="font-title text-3xl md:text-4xl">{d.examplesTitle}</h2>
+          <p className="font-mono text-[12px] text-ink-soft" aria-live="polite">{fmt(d.count, { count: list.length })}</p>
+        </div>
         {list.length ? (
           <ul className="mt-3 grid border-l border-t border-rule sm:grid-cols-2 lg:grid-cols-3">
             {list.map((p) => (
