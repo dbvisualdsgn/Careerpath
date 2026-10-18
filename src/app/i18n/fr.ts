@@ -177,6 +177,12 @@ export const fr: Messages = {
     serif: 'Serif',
     titles: 'Titres',
     body: 'Texte',
+    search: 'Chercher une police',
+    results: '{count} polices',
+    none: 'Aucune police ne correspond.',
+    display: 'Display',
+    slab: 'Slab',
+    result: '1 police',
   },
   home: {
     openCV: 'Ouvrir mon CV',

@@ -12,7 +12,16 @@
       try {
         var d = document.documentElement.dataset, old = localStorage.getItem('curricula.type');
         var face = function (k, fallback) { var v = localStorage.getItem(k); return v === 'sans' || v === 'serif' ? v : old === 'serif' ? 'serif' : old ? 'sans' : fallback; };
-        d.title = face('curricula.title', 'sans');
+        // Title font: a saved Fontshare family (the default, Clash Display, ships with the CSS).
+        var t = localStorage.getItem('curricula.title');
+        t = t === 'sans' ? 'switzer' : t === 'serif' ? 'gambetta' : t || (old === 'serif' ? 'gambetta' : old ? 'switzer' : '');
+        if (/^[a-z0-9-]+$/.test(t) && t !== 'clash-display') {
+          var st = document.createElement('style');
+          st.id = 'title-font-face';
+          st.dataset.slug = t;
+          st.textContent = "@font-face{font-family:'Title Active';src:url('fonts/titles/" + t + ".woff2') format('woff2');font-weight:100 900;font-display:swap}";
+          document.head.appendChild(st);
+        }
         d.body = face('curricula.body', 'serif');
         var v = JSON.parse(localStorage.getItem('curricula.paper.vars') || 'null');
         if (v) for (var k in v) if (/^--[\w-]+$/.test(k) && /^#[0-9a-f]{6}$/i.test(v[k])) document.documentElement.style.setProperty(k, v[k]);

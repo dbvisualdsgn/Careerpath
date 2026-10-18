@@ -177,6 +177,12 @@ export const es: Messages = {
     serif: 'Serif',
     titles: 'Títulos',
     body: 'Texto',
+    search: 'Buscar tipografías',
+    results: '{count} tipografías',
+    none: 'Ninguna tipografía coincide.',
+    display: 'Display',
+    slab: 'Slab',
+    result: '1 tipografía',
   },
   home: {
     openCV: 'Abrir mi CV',

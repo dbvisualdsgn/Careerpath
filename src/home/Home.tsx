@@ -206,7 +206,7 @@ export function Home() {
         <section className="mx-auto grid max-w-6xl gap-14 px-4 pb-20 pt-14 sm:px-8 md:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] md:items-end md:pb-28 md:pt-24">
           <div ref={heroRef} className="reveal">
             <p className={label}>{h.kicker}</p>
-            <h1 className="mt-6 font-title text-[clamp(3rem,9vw,7.25rem)] font-normal leading-[0.92] tracking-[-0.035em]">
+            <h1 className="mt-6 font-title text-[clamp(2.25rem,9vw,7.25rem)] hyphens-auto [overflow-wrap:anywhere] font-normal leading-[0.92] tracking-[-0.035em]">
               {m.homeX.titleA} <span className="hl">{m.homeX.titleB}</span>
             </h1>
             <p className="mt-8 max-w-[34ch] font-body text-xl leading-snug text-ink-soft md:text-2xl">{h.sub}</p>

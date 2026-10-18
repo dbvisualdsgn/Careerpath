@@ -177,6 +177,12 @@ export const pt: Messages = {
     serif: 'Serif',
     titles: 'Títulos',
     body: 'Texto',
+    search: 'Procurar tipos de letra',
+    results: '{count} tipos de letra',
+    none: 'Nenhum tipo de letra corresponde.',
+    display: 'Display',
+    slab: 'Slab',
+    result: '1 tipo de letra',
   },
   home: {
     openCV: 'Abrir o meu CV',

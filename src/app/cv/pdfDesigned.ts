@@ -73,8 +73,8 @@ export async function buildDesignedPdf(input: CVData, m: Messages, faces: TypeFa
   // The PDF uses the paper the reader picked in the Light panel.
   const C = { ink: '#111111', ...currentPaper() };
 
-  // Fonts: the title and text families the reader picked, the sans for meta lines, mono for labels.
-  const needed = new Set([families[faces.title].file, families[faces.body].file, families.sans.file, MONO_FILE]);
+  // Fonts: the text family the reader picked, the sans for meta lines, mono for labels.
+  const needed = new Set([families[faces.body].file, families.sans.file, MONO_FILE]);
   for (const file of needed) {
     for (const [suffix, style] of [['Regular', 'normal'], ['Medium', 'bold'], ['Italic', 'italic']] as const) {
       const data = await fontBase64(`${file}-${suffix}`);
@@ -82,7 +82,11 @@ export async function buildDesignedPdf(input: CVData, m: Messages, faces: TypeFa
       doc.addFont(`${file}-${suffix}.ttf`, file, style);
     }
   }
-  const TITLE = families[faces.title].name;
+  // Titles: the chosen title font's single bold file, used for every style.
+  const TITLE = `T-${faces.title}`;
+  const titleData = await fontBase64(`titles/${faces.title}`);
+  doc.addFileToVFS(`${TITLE}.ttf`, titleData);
+  for (const style of ['normal', 'bold', 'italic'] as const) doc.addFont(`${TITLE}.ttf`, TITLE, style);
   const BODY = families[faces.body].name;
   const SANS = families.sans.name;
   const MONO = MONO_FILE;

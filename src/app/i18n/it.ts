@@ -177,6 +177,12 @@ export const it: Messages = {
     serif: 'Serif',
     titles: 'Titoli',
     body: 'Testo',
+    search: 'Cerca un carattere',
+    results: '{count} caratteri',
+    none: 'Nessun carattere corrisponde.',
+    display: 'Display',
+    slab: 'Slab',
+    result: '1 carattere',
   },
   home: {
     openCV: 'Apri il mio CV',

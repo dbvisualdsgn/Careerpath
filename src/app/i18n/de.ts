@@ -177,6 +177,12 @@ export const de: Messages = {
     serif: 'Serif',
     titles: 'Überschriften',
     body: 'Text',
+    search: 'Schriften suchen',
+    results: '{count} Schriften',
+    none: 'Keine Schrift passt dazu.',
+    display: 'Display',
+    slab: 'Slab',
+    result: '1 Schrift',
   },
   home: {
     openCV: 'Meinen Lebenslauf öffnen',

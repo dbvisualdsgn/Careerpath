@@ -1,0 +1,83 @@
+Title fonts, downloaded from Fontshare (https://www.fontshare.com) by
+scripts/fontshare/fetch_title_fonts.py. Each family keeps its own license:
+the ITF Free Font License (https://fontshare.com/terms) or the SIL Open Font License 1.1
+(https://openfontlicense.org). Each line: family (weight used), designers, license.
+
+Alpino (700): Alisa Nowak, Jérémie Hornus. ITF Free Font License.
+Amulya (700): Joana Correia. ITF Free Font License.
+Archivo (700): Omnibus-Type. SIL Open Font License 1.1.
+Array (700): Frode Helland. ITF Free Font License.
+Asap (700): Omnibus-Type. SIL Open Font License 1.1.
+Author (700): Satya Rajpurohit. ITF Free Font License.
+Azeret Mono (700): Displaay, Martin Vácha, Daniel Quisek. SIL Open Font License 1.1.
+Be Vietnam Pro (700): Lam Bao, Tony Le, Vietanh Nguyen. SIL Open Font License 1.1.
+Bespoke Sans (700): Jérémie Hornus, Théo Guillard, Morgane Pambrun, Alisa Nowak, Joachim Vu. ITF Free Font License.
+Bespoke Serif (700): Jeremie Hornus, Theo Guillard, Morgane Pambrun, Alisa Nowak, Joachim Vu. ITF Free Font License.
+Bespoke Slab (700): Jérémie Hornus, Théo Guillard, Morgane Pambrun, Alisa Nowak, Joachim Vu. ITF Free Font License.
+Bespoke Stencil (700): Jérémie Hornus, Théo Guillard, Morgane Pambrun, Alisa Nowak, Joachim Vu. ITF Free Font License.
+Bevellier (700): Arya Purohit, Barbara Bigosinska. ITF Free Font License.
+Bonny (700): Barbara Bigosinska. ITF Free Font License.
+Boska (700): Barbara Bigosinska. ITF Free Font License.
+Cabinet Grotesk (700): ITF. ITF Free Font License.
+Chillax (700): Manushi Parikh. ITF Free Font License.
+Chubbo (700): Rafał Buchner. ITF Free Font License.
+Clash Display (700): Indian Type Foundry. ITF Free Font License.
+Clash Grotesk (700): Indian Type Foundry. ITF Free Font License.
+Crimson Pro (700): Jacques Le Bailly. SIL Open Font License 1.1.
+Epilogue (700): Tyler Finck, Etcetera Type Co. SIL Open Font License 1.1.
+Erode (700): Nikhil Ranganathan. ITF Free Font License.
+Excon (700): Alisa Nowak. ITF Free Font License.
+Expose (700): Lukas Schneider. ITF Free Font License.
+Familjen Grotesk (700): Familjen STHLM AB. SIL Open Font License 1.1.
+Fira Sans (700): Carrois Apostrophe. SIL Open Font License 1.1.
+Gambetta (700): Paul Troppmar. ITF Free Font License.
+General Sans (700): Frode Helland. ITF Free Font License.
+Hind (700): Manushi Parikh. SIL Open Font License 1.1.
+Hoover (700): Gaetan Baehr. ITF Free Font License.
+JetBrains Mono (700): JetBrains, Philipp Nurullin, Konstantin Bulenkov. SIL Open Font License 1.1.
+Karma (700): Joana Correia. SIL Open Font License 1.1.
+Khand (700): Satya Rajpurohit. SIL Open Font License 1.1.
+Literata (700): TypeTogether. SIL Open Font License 1.1.
+Lora (700): Cyreal, Olga Karpushina, Alexei Vanyashin. SIL Open Font License 1.1.
+Manrope (700): Mikhail Sharanda. SIL Open Font License 1.1.
+Melodrama (700): Shaily Patel. ITF Free Font License.
+Merriweather Sans (700): Eben Sorkin, Sorkin Type. SIL Open Font License 1.1.
+Montserrat (700): Julieta Ulanovsky, Sol Matas, Juan Pablo del Peral, Jacques Le Bailly. SIL Open Font License 1.1.
+Neco (700): Jitka Janečková. ITF Free Font License.
+New Title (700): Julie Soudanne, Jérémie Hornus. ITF Free Font License.
+Nippo (700): Manushi Parikh. ITF Free Font License.
+Nunito (700): Vernon Adams, Cyreal, Jacques Le Bailly. SIL Open Font License 1.1.
+Oswald (700): Vernon Adams, Kalapi Gajjar, Cyreal. SIL Open Font License 1.1.
+Pally (700): Indian Type Foundry. ITF Free Font License.
+Panchang (700): Barbara Bigosinska, Hitesh Malaviya. ITF Free Font License.
+Paquito (700): Juanjo Lopez. ITF Free Font License.
+Pilcrow Rounded (700): Satya Rajpurohit. ITF Free Font License.
+Plein (700): Inga Plönnigs. ITF Free Font License.
+Plus Jakarta Sans (700): Tokotype. SIL Open Font License 1.1.
+Poppins (700): Jonny Pinhorn, Indian Type Foundry. SIL Open Font License 1.1.
+Pramukh Rounded (700): Aarya Purohit, Indian Type Foundry. ITF Free Font License.
+Public Sans (700): Pablo Impallari, Rodrigo Fuenzalida, Dan Williams, USWDS. SIL Open Font License 1.1.
+Quicksand (700): Andrew Paglinawan. SIL Open Font License 1.1.
+Quilon (700): Jonny Pinhorn. ITF Free Font License.
+Rajdhani (700): Shiva Nallaperumal, Indian Type Foundry. SIL Open Font License 1.1.
+Ranade (700): Easha Ranade, Indian Type Foundry. ITF Free Font License.
+Recia (700): Carlos de Toro. ITF Free Font License.
+Red Hat Display (700): MCKL, Jeremy Mickel. SIL Open Font License 1.1.
+Roundo (700): Indian Type Foundry. SIL Open Font License 1.1.
+Rowan (700): Inga Plönnigs. ITF Free Font License.
+Satoshi (700): Deni Anggara. ITF Free Font License.
+Sentient (700): Noopur Choksi. ITF Free Font License.
+Sharpie (700): Théo Guillard. ITF Free Font License.
+Sora (700): Jonathan Barnbrook, Julián Moncada. SIL Open Font License 1.1.
+Space Grotesk (700): Florian Karsten. SIL Open Font License 1.1.
+Spline Sans (700): Eben Sorkin, Mirko Velimirović. SIL Open Font License 1.1.
+Styro (700): Aarya Purohit, Indian Type Foundry. ITF Free Font License.
+Supreme (700): Jérémie Hornus, Ilya Naumoff. ITF Free Font License.
+Switzer (700): Jérémie Hornus. ITF Free Font License.
+Synonym (700): Hugo Dumont. ITF Free Font License.
+Tabular (700): Jérémie Hornus, Julie Soudanne. ITF Free Font License.
+Technor (700): Jean-Baptiste Morizot. ITF Free Font License.
+Teko (700): Manushi Parikh. SIL Open Font License 1.1.
+Trench Slab (700): Shiva Nallaperumal. ITF Free Font License.
+Work Sans (700): Wei Huang. SIL Open Font License 1.1.
+Zodiak (700): Jérémie Hornus, Gaetan Baehr, Jean-Baptiste Morizot, Alisa Nowak, Theo Guillard. ITF Free Font License.

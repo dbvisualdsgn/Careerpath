@@ -1,14 +1,19 @@
 import { useEffect, useSyncExternalStore } from 'react';
+import { applyTitleFont, DEFAULT_TITLE, isTitleSlug } from './titleFontLoader';
 
-// Two typefaces only: one sans, one reading serif. The "Aa" menu picks one for titles and one for text,
-// set as data-title / data-body on <html> (the inline script in each page applies them before first paint).
+// The Typefaces menu picks a title font (any vetted Fontshare family, always bold) and a text face
+// (Switzer or Gambetta). The inline script in each page applies both before first paint.
 export type Face = 'sans' | 'serif';
 export const faces: Face[] = ['sans', 'serif'];
 export interface TypeFaces {
-  title: Face;
+  /** Slug of a font in titleFonts.ts. */
+  title: string;
   body: Face;
 }
-export const defaultFaces: TypeFaces = { title: 'sans', body: 'serif' };
+export const defaultFaces: TypeFaces = { title: DEFAULT_TITLE, body: 'serif' };
+
+/** Earlier title choices were just "sans" or "serif". */
+const titleFrom = (v: string | null) => (v === 'sans' ? 'switzer' : v === 'serif' ? 'gambetta' : isTitleSlug(v) ? v : DEFAULT_TITLE);
 
 const TITLE_KEY = 'curricula.title';
 const BODY_KEY = 'curricula.body';
@@ -22,13 +27,12 @@ function load(): TypeFaces {
     const legacy = localStorage.getItem(LEGACY_KEY);
     if (legacy !== null) {
       const face = legacy === 'serif' ? 'serif' : 'sans';
-      if (localStorage.getItem(TITLE_KEY) === null) localStorage.setItem(TITLE_KEY, face);
+      if (localStorage.getItem(TITLE_KEY) === null) localStorage.setItem(TITLE_KEY, titleFrom(face));
       if (localStorage.getItem(BODY_KEY) === null) localStorage.setItem(BODY_KEY, face);
       localStorage.removeItem(LEGACY_KEY);
     }
-    const title = localStorage.getItem(TITLE_KEY);
     const body = localStorage.getItem(BODY_KEY);
-    return { title: isFace(title) ? title : defaultFaces.title, body: isFace(body) ? body : defaultFaces.body };
+    return { title: titleFrom(localStorage.getItem(TITLE_KEY)), body: isFace(body) ? body : defaultFaces.body };
   } catch {
     return defaultFaces;
   }
@@ -41,9 +45,13 @@ const subscribe = (l: () => void) => {
   return () => listeners.delete(l);
 };
 
+let appliedTitle: string | null = null;
 function apply({ title, body }: TypeFaces) {
-  document.documentElement.dataset.title = title;
   document.documentElement.dataset.body = body;
+  if (title !== appliedTitle) {
+    appliedTitle = title;
+    applyTitleFont(title);
+  }
 }
 
 export function setFaces(next: Partial<TypeFaces>) {

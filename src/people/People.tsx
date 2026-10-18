@@ -65,7 +65,7 @@ export function People() {
         <div ref={titleRef} className="reveal flex flex-wrap items-end justify-between gap-6">
           <div>
             <p className={label}>{fmt(d.count, { count: people.length })}</p>
-            <h1 className="mt-4 font-title text-[clamp(2.75rem,8vw,6rem)] font-normal leading-[0.92] tracking-[-0.035em]">
+            <h1 className="mt-4 font-title text-[clamp(2.25rem,8vw,6rem)] hyphens-auto [overflow-wrap:anywhere] font-normal leading-[0.92] tracking-[-0.035em]">
               <span className="hl">{d.title}</span>
             </h1>
             <p className="mt-6 max-w-[40ch] font-body text-xl text-ink-soft">{d.intro}</p>

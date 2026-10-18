@@ -1,3 +1,13 @@
+/* Title font: Clash Display (default), one bold file used for every weight so titles are always bold.
+   Other title fonts load on demand as 'Title Active' (src/app/titleFontLoader.ts). */
+@font-face {
+  font-family: 'Title Clash Display';
+  src: url('../assets/fonts/ClashDisplay-Bold.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* Switzer (sans) and Gambetta (reading serif) by the Indian Type Foundry, from Fontshare (ITF Free Font
    License, see public/fonts/FONTSHARE.txt). Self-hosted so no third party sees who reads a CV.
    IBM Plex Mono (OFL) stays for small labels. */

@@ -95,4 +95,6 @@ selector, and animations that respect "reduce motion".
 
 Typefaces: **Switzer** and **Gambetta** by the [Indian Type Foundry](https://www.indiantypefoundry.com), from
 [Fontshare](https://www.fontshare.com) (ITF Free Font License); **IBM Plex Mono** (SIL Open Font License).
+Title fonts: 78 families from Fontshare, each under its own license (ITF Free Font License or SIL OFL), with
+designers listed in `public/fonts/titles/CREDITS.txt`.
 Logos: Iconify "logos" set and Simple Icons (CC0).

@@ -350,7 +350,7 @@ function CVPage() {
             <div className="flex items-start justify-between gap-6">
               <div className="min-w-0">
                 <p className={microLabel}>{m.app.cvTitle}</p>
-                <h1 data-skim-keep className="mt-4 font-title text-[clamp(2.75rem,8vw,5.5rem)] font-normal leading-[0.92] tracking-[-0.035em]">{name}</h1>
+                <h1 data-skim-keep className="mt-4 font-title text-[clamp(2.25rem,8vw,5.5rem)] hyphens-auto [overflow-wrap:anywhere] font-normal leading-[0.92] tracking-[-0.035em]">{name}</h1>
                 <p data-skim-keep className="mt-4 font-title text-xl text-ink-soft md:text-2xl">{headline}</p>
               </div>
               {profile.photo && (

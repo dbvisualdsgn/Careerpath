@@ -177,6 +177,12 @@ export const nl: Messages = {
     serif: 'Serif',
     titles: 'Titels',
     body: 'Tekst',
+    search: 'Lettertypen zoeken',
+    results: '{count} lettertypen',
+    none: 'Geen lettertype past daarbij.',
+    display: 'Display',
+    slab: 'Slab',
+    result: '1 lettertype',
   },
   home: {
     openCV: 'Mijn cv openen',

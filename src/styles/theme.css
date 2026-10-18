@@ -17,8 +17,8 @@
   --font-sans: 'Switzer', ui-sans-serif, system-ui, sans-serif;
   --font-serif: 'Gambetta', Georgia, serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
-  /* The "Aa" menu sets data-title / data-body on <html>: one face for titles, one for text. */
-  --title-font: var(--font-sans);
+  /* Titles use the font picked in the Typefaces menu (always its bold file); text is sans or serif via data-body. */
+  --title-font: 'Title Active', 'Title Clash Display', var(--font-sans);
   --body-font: var(--font-serif);
   --font-size: 16px;
   --background: var(--paper);
@@ -102,8 +102,6 @@
   --sidebar-ring: oklch(0.439 0 0);
 }
 
-[data-title='serif'] { --title-font: var(--font-serif); }
-[data-title='sans'] { --title-font: var(--font-sans); }
 [data-body='serif'] { --body-font: var(--font-serif); }
 [data-body='sans'] { --body-font: var(--font-sans); }
 
@@ -379,6 +377,13 @@
   .reveal .hl, .hl-draw { background-size: 100% 100%; }
   .bar-grow { transform: none; }
   .caret { animation: none; }
+}
+
+/* Titles are always a bold face, so the tight tracking meant for light display sizes would make letters
+   touch. Unlayered on purpose: it overrides the tracking-* utilities on every title. */
+.font-title {
+  letter-spacing: -0.005em;
+  word-spacing: 0.06em;
 }
 
 /* Skim view: what a recruiter sees on a first pass. Everything not marked data-skim-keep steps back to

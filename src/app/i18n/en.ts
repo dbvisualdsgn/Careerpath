@@ -176,6 +176,12 @@ export const en = {
     serif: 'Serif',
     titles: 'Titles',
     body: 'Text',
+    search: 'Search fonts',
+    results: '{count} fonts',
+    none: 'No font matches that.',
+    display: 'Display',
+    slab: 'Slab',
+    result: '1 font',
   },
   home: {
     openCV: 'Open my CV',
