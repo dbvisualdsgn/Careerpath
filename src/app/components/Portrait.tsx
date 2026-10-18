@@ -12,11 +12,11 @@ interface PortraitProps {
 export function Portrait({ photo, name, alt, className = '' }: PortraitProps) {
   if (photo) {
     return (
-      <span className={`block overflow-hidden rounded-sm bg-paper ring-1 ring-inset ring-rule ${className}`}>
+      <span className={`block overflow-hidden bg-paper ring-1 ring-inset ring-rule ${className}`}>
         <img
           src={photo}
           alt={alt ?? ''}
-          className="h-full w-full object-cover grayscale contrast-[1.05] mix-blend-multiply dark:mix-blend-normal dark:brightness-90"
+          className="h-full w-full object-cover grayscale contrast-[1.1] mix-blend-multiply dark:mix-blend-normal dark:brightness-90"
         />
       </span>
     );

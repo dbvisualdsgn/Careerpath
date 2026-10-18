@@ -1,6 +1,6 @@
 // Turns an uploaded image into a small, square, grayscale JPEG so it fits the monochrome UI
-// and stays light enough to travel inside a share link.
-const SIZE = 192;
+// and stays light enough to publish (480px, about 40 KB).
+const SIZE = 480;
 
 export async function processPhoto(file: File): Promise<string> {
   if (!file.type.startsWith('image/')) throw new Error('not-an-image');
@@ -22,7 +22,7 @@ export async function processPhoto(file: File): Promise<string> {
     const ctx = canvas.getContext('2d')!;
     ctx.filter = 'grayscale(1) contrast(1.06)';
     ctx.drawImage(img, sx, sy, side, side, 0, 0, SIZE, SIZE);
-    return canvas.toDataURL('image/jpeg', 0.72);
+    return canvas.toDataURL('image/jpeg', 0.8);
   } finally {
     URL.revokeObjectURL(url);
   }

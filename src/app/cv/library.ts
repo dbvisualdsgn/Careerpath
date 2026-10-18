@@ -1,7 +1,7 @@
 // Several CVs per browser. The library keeps every CV and which one is open; the old single-CV
 // storage is migrated into it on first load, so nobody loses their work.
 import { useCallback, useEffect, useState } from 'react';
-import { blankCV, sampleCV, newId } from './defaultCV';
+import { blankCV, newId } from './defaultCV';
 import { normalize } from './useCV';
 import type { CVData } from './types';
 
@@ -70,9 +70,9 @@ function load(): Library {
       return { activeId: first.id, items: [first] };
     }
   } catch {
-    // Corrupted storage: start again from the sample.
+    // Corrupted storage: start again from a blank CV.
   }
-  const first = entry(structuredClone(sampleCV));
+  const first = entry(structuredClone(blankCV));
   return { activeId: first.id, items: [first] };
 }
 

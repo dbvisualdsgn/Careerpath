@@ -1,117 +1,225 @@
-import { useEffect, useState } from 'react';
-import { Plus } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { ChevronLeft, ChevronRight, Pause, Play, Plus } from 'lucide-react';
 import { useCountUp } from '../app/hooks/useReveal';
+import { loadPreview, previewFamily } from '../app/titleFontLoader';
 import { useI18n } from '../app/i18n';
 
-const label = 'font-mono text-[11px] uppercase tracking-[0.14em] text-ink-soft';
-
-// The lines that get "typed", in order. The specimen is a made-up CV for Ada Lovelace.
-const SCRIPT = ['Ada Lovelace', 'Analyst & Programmer · London', 'Analytical Engine', 'Notes on the Engine'] as const;
-const TOTAL = SCRIPT.reduce((n, s) => n + s.length, 0);
-const CHAR_MS = 38;
-
-const reducedMotion = () => Boolean(window.matchMedia?.('(prefers-reduced-motion: reduce)').matches);
-
-/** Types the script once, then reports it is done. Under reduced motion everything is shown at once. */
-function useTyping(delay = 700) {
-  const [typed, setTyped] = useState(() => (reducedMotion() ? TOTAL : 0));
-  useEffect(() => {
-    if (typed >= TOTAL) return;
-    const t = window.setTimeout(() => setTyped((n) => n + 1), typed === 0 ? delay : CHAR_MS);
-    return () => window.clearTimeout(t);
-  }, [typed, delay]);
-  return typed;
+/** A CV for someone who appeared on a banknote of a eurozone country before the euro. Short and factual. */
+interface Specimen {
+  name: string;
+  headline: string;
+  note: string;
+  roles: [string, string][];
+  skills: string[];
+  /** Title font (a slug from titleFonts.ts), chosen to suit the person. */
+  font: string;
+  colors: { paper: string; ink: string; soft: string; accent: string };
+  score: number;
 }
 
+const SPECIMENS: Specimen[] = [
+  {
+    name: 'Marie Curie',
+    headline: 'Physicist & Chemist · Paris',
+    note: '500 francs · France',
+    roles: [['Professor of Physics, Sorbonne', '1906 – 34'], ['Discovered polonium and radium', '1898']],
+    skills: ['Radioactivity', 'Chemistry', 'Teaching'],
+    font: 'zodiak',
+    colors: { paper: '#E4EFE7', ink: '#0E2A1B', soft: '#2F4A3B', accent: '#BFE3C9' },
+    score: 94,
+  },
+  {
+    name: 'Carl Friedrich Gauss',
+    headline: 'Mathematician & Astronomer · Göttingen',
+    note: '10 Deutsche Mark · Germany',
+    roles: [['Director, Göttingen Observatory', '1807 – 55'], ['Disquisitiones Arithmeticae', '1801']],
+    skills: ['Number theory', 'Astronomy', 'Geodesy'],
+    font: 'jet-brains-mono',
+    colors: { paper: '#E3E9F2', ink: '#0E1B30', soft: '#2E3D57', accent: '#C4D6F2' },
+    score: 91,
+  },
+  {
+    name: 'Alessandro Volta',
+    headline: 'Physicist · Pavia',
+    note: '10 000 lire · Italy',
+    roles: [['Professor of Experimental Physics, Pavia', '1779 – 1819'], ['Invented the voltaic pile, the first battery', '1800']],
+    skills: ['Electricity', 'Chemistry', 'Instruments'],
+    font: 'bespoke-serif',
+    colors: { paper: '#F3E7D3', ink: '#2A1A0D', soft: '#5A4330', accent: '#F2CF8F' },
+    score: 89,
+  },
+  {
+    name: 'Adolphe Sax',
+    headline: 'Instrument Maker · Paris',
+    note: '200 francs · Belgium',
+    roles: [['Founder, instrument workshop, Paris', '1842'], ['Patented the saxophone', '1846']],
+    skills: ['Acoustics', 'Brass making', 'Teaching'],
+    font: 'melodrama',
+    colors: { paper: '#EEE5C8', ink: '#1E1A08', soft: '#4A4120', accent: '#E3C455' },
+    score: 87,
+  },
+  {
+    name: 'Gustave Eiffel',
+    headline: 'Engineer · Paris',
+    note: '200 francs · France',
+    roles: [['Eiffel Tower, Paris', '1887 – 89'], ['Garabit Viaduct', '1880 – 84']],
+    skills: ['Iron structures', 'Bridges', 'Aerodynamics'],
+    font: 'bespoke-stencil',
+    colors: { paper: '#F1DFD6', ink: '#2B100A', soft: '#5C3427', accent: '#E9A88F' },
+    score: 93,
+  },
+];
+
+const CHAR_MS = 34;
+const HOLD_MS = 3200;
+const reducedMotion = () => Boolean(window.matchMedia?.('(prefers-reduced-motion: reduce)').matches);
+const linesOf = (s: Specimen) => [s.name, s.headline, s.roles[0][0], s.roles[1][0]];
+
 /** One typed line: the full text holds the space (so nothing jumps), the typed part sits on top. */
-function Typed({ index, typed, className = '' }: { index: number; typed: number; className?: string }) {
-  const start = SCRIPT.slice(0, index).reduce((n, s) => n + s.length, 0);
-  const text = SCRIPT[index];
-  const shown = Math.max(0, Math.min(text.length, typed - start));
-  const typing = shown > 0 && shown < text.length;
-  const waiting = shown === 0 && typed === start;
+function Typed({ text, shown, caret, className = '', style }: { text: string; shown: number; caret: boolean; className?: string; style?: React.CSSProperties }) {
   return (
-    <span className={`grid ${className}`}>
+    <span className={`grid ${className}`} style={style}>
       <span className="invisible [grid-area:1/1]">{text}</span>
       <span className="[grid-area:1/1]">
         {text.slice(0, shown)}
-        {(typing || waiting) && <span className="caret ml-0.5 inline-block h-[1em] w-[2px] translate-y-[2px] bg-ink" />}
+        {caret && <span className="caret ml-0.5 inline-block h-[1em] w-[2px] translate-y-[2px]" style={{ background: 'currentColor' }} />}
       </span>
     </span>
   );
 }
 
-/** A small finished CV page: it writes itself, then the recruiter check pops over it with a score and a tip. */
+/** Five CVs, one at a time: each writes itself in its own typeface and paper, then the recruiter check pops over it. */
 export function PageSpecimen() {
   const { m } = useI18n();
-  const typed = useTyping();
-  const done = typed >= TOTAL;
-  const lineDone = (i: number) => typed >= SCRIPT.slice(0, i + 1).reduce((n, s) => n + s.length, 0);
-  const [popped, setPopped] = useState(() => reducedMotion());
+  const h = m.homeX;
+  const still = useMemo(reducedMotion, []);
+  const [index, setIndex] = useState(0);
+  const [typed, setTyped] = useState(0);
+  const [paused, setPaused] = useState(still);
+  const [ready, setReady] = useState(false);
+  const s = SPECIMENS[index];
+  const lines = linesOf(s);
+  const total = lines.reduce((n, l) => n + l.length, 0);
+  const done = still || typed >= total;
+  const [popped, setPopped] = useState(still);
+
+  // Each CV loads its own font first, then types; the next one's font loads in the background.
+  useEffect(() => {
+    setReady(false);
+    setTyped(still ? total : 0);
+    setPopped(still);
+    loadPreview(s.font).finally(() => setReady(true));
+    loadPreview(SPECIMENS[(index + 1) % SPECIMENS.length].font);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [index]);
+
+  useEffect(() => {
+    if (!ready || still || typed >= total) return;
+    const t = window.setTimeout(() => setTyped((n) => n + 1), typed === 0 ? 500 : CHAR_MS);
+    return () => window.clearTimeout(t);
+  }, [ready, typed, total, still]);
+
   useEffect(() => {
     if (!done || popped) return;
-    const t = window.setTimeout(() => setPopped(true), 450);
+    const t = window.setTimeout(() => setPopped(true), 400);
     return () => window.clearTimeout(t);
   }, [done, popped]);
-  const score = useCountUp(popped ? 92 : 0, 900);
+
+  // After the check has popped, hold, then move to the next person (unless paused).
+  useEffect(() => {
+    if (!popped || paused) return;
+    const t = window.setTimeout(() => setIndex((i) => (i + 1) % SPECIMENS.length), HOLD_MS);
+    return () => window.clearTimeout(t);
+  }, [popped, paused]);
+
+  const go = (step: number) => setIndex((i) => (i + step + SPECIMENS.length) % SPECIMENS.length);
+  const score = useCountUp(popped ? s.score : 0, 800);
+  const shownOf = (i: number) => {
+    const start = lines.slice(0, i).reduce((n, l) => n + l.length, 0);
+    return done ? lines[i].length : Math.max(0, Math.min(lines[i].length, typed - start));
+  };
+  const caretAt = (i: number) => {
+    if (done) return false;
+    const start = lines.slice(0, i).reduce((n, l) => n + l.length, 0);
+    return typed >= start && typed < start + lines[i].length;
+  };
+  const lineDone = (i: number) => shownOf(i) >= lines[i].length;
   const fade = (on: boolean) => `transition-opacity duration-300 ${on ? 'opacity-100' : 'opacity-0'}`;
+  const titleFont = { fontFamily: `'${previewFamily(s.font)}', var(--font-sans)`, fontWeight: 700 };
+  const label = 'font-mono text-[11px] uppercase tracking-[0.14em]';
+  const progress = Math.round(((done ? total : typed) / total) * 100);
 
   return (
-    <figure aria-hidden="true" className="relative mx-auto mb-16 w-full max-w-sm md:mb-0">
-      <div className="border border-ink bg-paper p-6 sm:p-8">
-        <div className={`flex justify-between ${label}`}>
-          <span>curriculi curricula</span>
-          <span>1 / 1</span>
+    <div className="relative mx-auto mb-16 w-full max-w-sm md:mb-0">
+      <figure aria-hidden="true" className="relative">
+        <div key={index} className="diagram-in flex min-h-[33rem] flex-col border p-6 sm:p-8" style={{ background: s.colors.paper, color: s.colors.ink, borderColor: s.colors.ink }}>
+          <div className={`flex justify-between ${label}`} style={{ color: s.colors.soft }}>
+            <span>{s.note}</span>
+            <span>{index + 1} / {SPECIMENS.length}</span>
+          </div>
+          <div className="mt-10">
+            <Typed text={s.name} shown={shownOf(0)} caret={caretAt(0)} className="text-[30px] leading-[1.02]" style={titleFont} />
+            <Typed text={s.headline} shown={shownOf(1)} caret={caretAt(1)} className="mt-3 font-body text-[15px]" style={{ color: s.colors.soft }} />
+          </div>
+          <div className="mt-8 border-t pt-3" style={{ borderColor: s.colors.ink }}>
+            <p className={label} style={{ color: s.colors.soft }}>{m.sections.experience}</p>
+            <dl className="mt-3 space-y-3 text-[14px]">
+              {s.roles.map(([title, dates], i) => (
+                <div key={title} className="flex justify-between gap-4 border-b pb-3 last:border-b-0 last:pb-0" style={{ borderColor: `${s.colors.ink}33` }}>
+                  <dt><Typed text={title} shown={shownOf(2 + i)} caret={caretAt(2 + i)} style={titleFont} /></dt>
+                  <dd className={`shrink-0 font-mono text-[12px] ${fade(lineDone(2 + i))}`} style={{ color: s.colors.soft }}>{dates}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+          <div className={`mt-8 border-t pt-3 ${fade(done)}`} style={{ borderColor: s.colors.ink }}>
+            <p className={label} style={{ color: s.colors.soft }}>{m.sections.skills}</p>
+            <p className="mt-2 flex flex-wrap gap-1.5 font-body text-[13px]">
+              {s.skills.map((k, i) => (
+                <span key={k} className={`rounded-full border px-2 py-0.5 ${i === 0 ? 'italic' : ''}`} style={{ borderColor: s.colors.ink, background: i === 0 ? s.colors.accent : 'transparent' }}>
+                  {k}
+                </span>
+              ))}
+            </p>
+          </div>
+          <div className="mt-auto flex items-center gap-3 pt-10">
+            <span className="h-px flex-1" style={{ background: `${s.colors.ink}33` }}>
+              <span className="block h-px transition-[width] duration-100 ease-linear" style={{ width: `${progress}%`, background: s.colors.ink }} />
+            </span>
+            <span className="w-9 text-right font-mono text-[11px] tabular-nums" style={{ color: s.colors.soft }}>{progress}%</span>
+          </div>
         </div>
-        <div className="mt-10 font-body">
-          <Typed index={0} typed={typed} className="font-title text-[34px] leading-[0.95]" />
-          <Typed index={1} typed={typed} className="mt-3 text-[15px] text-ink-soft" />
-        </div>
-        <div className="mt-8 border-t border-ink pt-3">
-          <p className={label}>{m.sections.experience}</p>
-          <dl className="mt-3 space-y-3 font-body text-[14px]">
-            <div className="flex justify-between gap-4 border-b border-rule pb-3">
-              <dt><Typed index={2} typed={typed} className="font-title" /></dt>
-              <dd className={`font-mono text-[12px] text-ink-soft ${fade(lineDone(2))}`}>1842 – 43</dd>
-            </div>
-            <div className="flex justify-between gap-4">
-              <dt><Typed index={3} typed={typed} className="font-title" /></dt>
-              <dd className={`font-mono text-[12px] text-ink-soft ${fade(lineDone(3))}`}>1843</dd>
-            </div>
-          </dl>
-        </div>
-        <div className={`mt-8 border-t border-ink pt-3 ${fade(done)}`}>
-          <p className={label}>{m.sections.skills}</p>
-          <p className="mt-2 flex flex-wrap gap-1.5 font-body text-[13px]">
-            <span className="rounded-full border border-ink bg-highlight px-2 py-0.5 italic text-[#111]">Mathematics</span>
-            <span className="rounded-full border border-ink px-2 py-0.5">Algorithms</span>
-            <span className="rounded-full border border-ink px-2 py-0.5">Writing</span>
+
+        {/* The recruiter check pops over the finished page: score, then one tip. */}
+        <div className={`on-ink absolute -bottom-16 right-3 w-[17.5rem] p-4 sm:-right-8 md:-left-16 md:right-auto ${popped ? 'specimen-pop' : 'invisible opacity-0'}`}>
+          <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-ink-soft"><span className="hl">{m.atsCard.title}</span></p>
+          <p className="mt-2 font-title leading-none">
+            <span className="text-[44px] tabular-nums">{score}</span>
+            <span className="font-mono text-[12px] text-ink-soft">/100</span>
+          </p>
+          <p className="specimen-tip mt-3 inline-flex items-start gap-1.5 rounded-full border border-ink px-3 py-1 text-[12px] leading-snug">
+            {h.specimenTip}
+            <Plus size={20} aria-hidden="true" className="-my-0.5 shrink-0" />
           </p>
         </div>
-        <div className="mt-10 flex items-center gap-3">
-          <span className="h-px flex-1 bg-rule">
-            <span className="block h-px bg-ink transition-[width] duration-100 ease-linear" style={{ width: `${Math.round((typed / TOTAL) * 100)}%` }} />
-          </span>
-          <span className="w-9 text-right font-mono text-[11px] tabular-nums text-ink-soft">{Math.round((typed / TOTAL) * 100)}%</span>
-        </div>
-      </div>
+      </figure>
 
-      {/* The recruiter check pops over the finished page: score, then one tip. */}
-      <div
-        className={`on-ink absolute -bottom-20 right-3 w-[17.5rem] p-4 sm:-right-8 md:-left-16 md:right-auto ${popped ? 'specimen-pop' : 'invisible opacity-0'}`}
-      >
-        <p className="flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.14em] text-ink-soft">
-          <span><span className="hl">{m.atsCard.title}</span></span>
-        </p>
-        <p className="mt-2 font-title leading-none">
-          <span className="text-[44px] tabular-nums">{score}</span>
-          <span className="font-mono text-[12px] text-ink-soft">/100</span>
-        </p>
-        <p className="specimen-tip mt-3 inline-flex items-start gap-1.5 rounded-full border border-ink px-3 py-1 text-[12px] leading-snug">
-          {m.homeX.specimenTip}
-          <Plus size={20} aria-hidden="true" className="-my-0.5 shrink-0" />
+      {/* Moving content needs a way to stop it (WCAG 2.2.2): pause, and step through by hand. */}
+      <div className="mt-24 flex items-center gap-1 md:mt-24">
+        <button type="button" onClick={() => go(-1)} aria-label={h.heroPrev} className="inline-flex h-9 w-9 items-center justify-center rounded-sm hover:bg-zinc-100">
+          <ChevronLeft size={20} aria-hidden="true" />
+        </button>
+        <button type="button" onClick={() => setPaused((p) => !p)} aria-pressed={paused} aria-label={paused ? h.heroPlay : h.heroPause} className="inline-flex h-9 w-9 items-center justify-center rounded-sm hover:bg-zinc-100">
+          {paused ? <Play size={20} aria-hidden="true" /> : <Pause size={20} aria-hidden="true" />}
+        </button>
+        <button type="button" onClick={() => go(1)} aria-label={h.heroNext} className="inline-flex h-9 w-9 items-center justify-center rounded-sm hover:bg-zinc-100">
+          <ChevronRight size={20} aria-hidden="true" />
+        </button>
+        <p className="ml-2 font-mono text-[11px] uppercase tracking-[0.12em] text-ink-soft">
+          {h.heroCaption}
+          <span className="sr-only">: {s.name}</span>
         </p>
       </div>
-    </figure>
+    </div>
   );
 }

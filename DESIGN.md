@@ -62,7 +62,12 @@ PDF embeds the same title and text fonts.
 
 ## Patterns
 
-- **Section opener:** 1px ink rule, mono title on the left, running number on the right (`SectionHead`).
+- **Section opener:** 1px ink rule and a mono title (`SectionHead`). No running numbers on the CV.
+- **CV sheet:** the CV sits on one sheet (`panel`, a shade lighter than the `paper` desk) with a hairline
+  edge and a soft shadow. Print drops the sheet. The photo sits on the left of the name: square, no
+  rounding, grayscale (480px). Your own CV without a photo shows a dashed "Add photo" square that opens the editor.
+- **Summary panel:** the summary sits in a hairline box on `paper`, the only tinted block on the sheet.
+- **Skills:** core skills and tools side by side in 2 columns from `md`, stacked on phones.
 - **Ruled lists:** entries separated by `rule` hairlines (experience, education, FAQ).
 - **Hairline grids:** `gap-px` on a `rule` background (steps, tools, languages).
 - **Buttons:** primary = ink fill / paper text; secondary = 1px ink outline; tertiary = underlined text link.
@@ -75,7 +80,7 @@ PDF embeds the same title and text fonts.
 - **Recruiter-check frames:** every recruiter-check surface (the card above the CV, the score card in the
   editor, the homepage infographic, the hero pop-over) sits on black via `.on-ink`, which flips the colour
   tokens inside the frame. Text stays AAA (light ink 16:1, soft 9:1) and the yellow highlight keeps ink text.
-- **Hero chips:** "Shared" and "private" are pill links smaller than the title (0.42em), outlined in ink;
+- **Hero chips:** "Shared" and "private" are pill links on their own line under the claim, outlined in ink;
   hover or focus fills them yellow. Each opens the matching diagram in the privacy chapter.
 - **ATS score mark:** dashed outline (<65), outline (65–84), filled (≥85), always with the number.
 - **Icons:** Lucide only, 16–22px, stroke 1.5–2, always `aria-hidden` next to a text label.
@@ -91,8 +96,12 @@ Motion is allowed only where it helps reading, and it never hides content for lo
   Public), the hero caret blinks, switches slide.
 - **Example CV gallery (homepage):** two rows of example CVs drift slowly in opposite directions (90s per
   loop). They stop on hover, on keyboard focus and with the Pause button (WCAG 2.2.2).
-- **Hero card:** the sample CV types itself once (about 3s), then the recruiter check pops over it with a
-  score and one tip. Under reduced motion it shows the finished state.
+- **Hero cards:** 5 short CVs of people from pre-euro banknotes (Marie Curie, Carl Friedrich Gauss,
+  Alessandro Volta, Adolphe Sax, Gustave Eiffel), one at a time (`src/home/PageSpecimen.tsx`). Each has its
+  own paper colour and a title font chosen for the person, types itself, then the recruiter check pops over
+  it; after a hold the next one comes. Previous, Pause and Next buttons sit under the card (WCAG 2.2.2). Under
+  reduced motion each card shows finished and nothing rotates. Each palette keeps ink at 13:1 or more and
+  soft text at 7:1 or more.
 - **Accents in motion:** only ink (black) and the highlight yellow move or animate; signal orange is kept
   for static error marks.
 - **Reduced motion:** with `prefers-reduced-motion: reduce`, all of it is off. Sections, highlights and bars

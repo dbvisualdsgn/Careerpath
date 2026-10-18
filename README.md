@@ -6,9 +6,10 @@ The original design is available at https://www.figma.com/design/68PhbcZDT2IDB8n
 
 ## Pages
 
-- `/` is the homepage (`index.html` → `src/home/`).
-- `/app/` is the CV tool (`app/index.html` → `src/app/`). `app/?new=1` starts writing, `app/?example=1` opens the sample read-only,
-  and `app/?person=<id>` opens a public CV from the directory.
+- `/` is the homepage (`index.html` → `src/home/`): claim and hero CVs, example CVs, why, how it works, recruiter
+  check, private or public, quick answers.
+- `/app/` is the CV tool (`app/index.html` → `src/app/`). `app/?new=1` starts writing and `app/?person=<id>` opens an example CV.
+  Old `app/?example=1` links go to `/people/`. `app/?id=<id>` opens a public CV.
 - `/people/` lists public CVs (`people/index.html` → `src/people/`). The 17 profiles in `src/app/cv/people.ts` are fictional examples.
 
 **My CVs:** keep several CVs in the same browser (`src/app/cv/library.ts`). Switch, create and delete them from the
@@ -19,8 +20,9 @@ importing one restores it exactly, photo and logos included. Any other PDF with 
 split into sections using multilingual headings, month names and date ranges (`src/app/cv/importPdf.ts`). Check the
 result in the editor; scanned PDFs without text can't be read.
 
-**Private / Public:** a CV is private by default (it stays in the browser and sharing is off). Switching to public turns on
-share links. A link carries its own copy of the CV, so links already sent cannot be revoked.
+**Private / Public:** a CV is private by default: it stays in the browser and sharing is off. Making it public saves a
+copy online (Supabase, see `supabase/schema.sql`) so its link works; making it private again deletes that copy.
+Showing it on the Public CVs page is a separate choice.
 
 **Downloads:** "As on the page" builds a PDF with the same layout, embedded fonts (`public/fonts`: Switzer and Gambetta by the Indian Type Foundry via Fontshare, IBM Plex Mono under the SIL OFL), logos and
 photo. "ATS plain" builds the one-column, text-only version for job portals.
@@ -34,10 +36,8 @@ Run `npm i` to install the dependencies, then `npm run dev` to start the develop
 ## Make it your own
 
 1. Click **Edit CV**. Every section is editable, and changes save automatically in your browser.
-2. Use **Start blank** for an empty CV, or **Reset to sample** to see the example again.
+2. Use **New CV** for another empty CV. The example CVs live on `/people/`.
 3. **Export** saves your CV as JSON, and **Import** loads it back on any device.
-4. To make your version the default for everyone who visits, replace `sampleCV` in `src/app/cv/defaultCV.ts`
-   with your data (an exported JSON has the same shape).
 
 ### Tool and company logos
 

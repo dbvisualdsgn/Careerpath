@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { extractKeywords, matchKeywords, tokenize } from './atsCheck';
-import { blankCV, sampleCV } from './defaultCV';
+import { blankCV } from './defaultCV';
+import { findPerson } from './people';
 import type { CVData } from './types';
 
 const cvWith = (text: string): CVData => ({ ...structuredClone(blankCV), summary: text });
@@ -35,9 +36,9 @@ describe('whole-word matching', () => {
 describe('stopwords', () => {
   it('leaves no filler in the homepage demo ad', () => {
     const ad =
-      'Senior Product Designer. You will own our design systems and accessibility, run user research, prototyping in Figma, ' +
-      'and work closely with engineering on data-driven product decisions. Design systems experience is a must; accessibility is key.';
-    const { keywords } = matchKeywords(sampleCV, ad, 'en');
+      'UX Researcher. You will run user interviews, usability testing and survey design, and work closely with product teams. ' +
+      'Accessibility experience is a must; journey mapping and research ops are key.';
+    const { keywords } = matchKeywords(findPerson('sofia-andersson')!.cv, ad, 'en');
     for (const filler of ['own', 'run', 'closely', 'will', 'must', 'key', 'experience', 'work']) {
       expect(keywords).not.toContain(filler);
     }

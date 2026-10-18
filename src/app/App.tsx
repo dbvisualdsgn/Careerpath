@@ -1,6 +1,6 @@
 import { ReadingControls } from './components/ReadingControls';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Mail, Share2, Phone, MapPin, Linkedin, PencilLine, Eye, Globe, ArrowLeft, Loader2, Lock } from 'lucide-react';
+import { Mail, Share2, Phone, MapPin, Linkedin, PencilLine, Eye, Globe, ArrowLeft, Loader2, Lock, Camera } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { Toaster, toast } from 'sonner';
 import { TooltipProvider } from './components/ui/tooltip';
@@ -24,7 +24,7 @@ import { Portrait } from './components/Portrait';
 import { findPerson } from './cv/people';
 import { useReveal } from './hooks/useReveal';
 import { clearShareHash, readSharedCV } from './cv/share';
-import { blankCV, sampleCV } from './cv/defaultCV';
+import { blankCV } from './cv/defaultCV';
 import { ShareDialog } from './components/ShareDialog';
 import { PublishDialog } from './components/PublishDialog';
 import { usePublishing } from './cv/usePublishing';
@@ -59,12 +59,11 @@ function RevealSection({ children, className = '', ...rest }: React.ComponentPro
   );
 }
 
-/** Swiss-style section opener: hairline rule, small mono title, running number. */
-function SectionHead({ id, title, n }: { id: string; title: string; n: number }) {
+/** Swiss-style section opener: hairline rule and a small mono title. */
+function SectionHead({ id, title }: { id: string; title: string }) {
   return (
-    <div className="mb-6 flex items-baseline justify-between border-t border-ink pt-3">
+    <div className="mb-5 border-t border-ink pt-3">
       <h2 id={id} className="font-mono text-[12px] font-medium uppercase tracking-[0.14em] text-ink">{title}</h2>
-      <span className="font-mono text-[11px] text-ink-soft" aria-hidden="true">{String(n).padStart(2, '0')}</span>
     </div>
   );
 }
@@ -88,7 +87,7 @@ function CVPage() {
   const { m, locale } = useI18n();
   // A CV opened from a share link (#cv=…) is shown read-only and never overwrites the visitor's own CV.
   const [sharedCV, setSharedCV] = useState<CVData | null>(null);
-  const [banner, setBanner] = useState<'shared' | 'example' | 'directory' | 'public'>('shared');
+  const [banner, setBanner] = useState<'shared' | 'directory' | 'public'>('shared');
   // A public CV opened by its link (?id=…); ?embed=1 shows it compact, for iframes on other sites.
   const [publicId] = useState(() => new URLSearchParams(window.location.search).get('id'));
   const [embed] = useState(() => Boolean(publicId) && new URLSearchParams(window.location.search).has('embed'));
@@ -171,21 +170,17 @@ function CVPage() {
       toast.error((err as { code?: string })?.code === 'no-text' ? m.library.pdfNoText : m.library.pdfError, { id });
     }
   };
-  // Entry points from the homepage: ?new=1 (start writing) and ?example=1 (read the sample).
+  // Entry points: ?new=1 (start writing) and ?person= (an example CV). Old ?example=1 links go to people/ (see app/index.html).
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    if (!params.has('new') && !params.has('example') && !params.has('person')) return;
-    if (params.has('example')) {
-      setSharedCV(structuredClone(sampleCV));
-      setBanner('example');
-    }
+    if (!params.has('new') && !params.has('person')) return;
     const person = params.get('person') && findPerson(params.get('person')!);
     if (person) {
       setSharedCV(structuredClone(person.cv));
       setBanner('directory');
     }
     if (params.has('new')) {
-      // First visit: the sample becomes a blank CV. Returning visitor: add a new blank CV unless the open one is empty.
+      // First visit: the starting CV is replaced by a blank one. Returning visitor: add a new blank CV unless the open one is empty.
       if (!hadSavedCV) setCV(structuredClone(blankCV));
       else if (ownCV.profile.name || ownCV.experience.length) create(structuredClone(blankCV));
       setEditorTab('profile');
@@ -217,7 +212,7 @@ function CVPage() {
   };
   const { profile } = cv;
   const bannerText =
-    banner === 'example' ? m.shared.example : banner === 'directory' ? m.directory.banner : banner === 'public' ? m.shared.publicBanner : m.shared.banner;
+    banner === 'directory' ? m.directory.banner : banner === 'public' ? m.shared.publicBanner : m.shared.banner;
   const name = profile.name || m.app.namePlaceholder;
   const headline = profile.headline || m.app.headlinePlaceholder;
 
@@ -364,7 +359,7 @@ function CVPage() {
         )}
 
         {!sharedCV && !publicId && (
-          <aside aria-label={m.atsCard.title} className="mx-auto max-w-4xl px-4 pt-8 sm:px-6 md:pt-10">
+          <aside aria-label={m.atsCard.title} className="mx-auto max-w-5xl px-3 pt-8 sm:px-6 md:pt-10">
             <AtsSummary
               cv={cv}
               targetTitle={targetTitle}
@@ -379,7 +374,7 @@ function CVPage() {
 
         {/* One column in standard ATS order: contact, summary, skills, experience, education, certifications, languages */}
         {!embed && remote === 'idle' && (
-          <div className="mx-auto max-w-4xl px-4 pt-8 print:hidden sm:px-6">
+          <div className="mx-auto max-w-5xl px-3 pt-8 print:hidden sm:px-6">
             <SkimToggle on={skim} onChange={setSkim} />
           </div>
         )}
@@ -409,20 +404,31 @@ function CVPage() {
           id="main"
           tabIndex={-1}
           data-skim={skim ? '' : undefined}
-          className="mx-auto max-w-4xl space-y-16 px-4 py-14 font-body focus:outline-none sm:px-6 md:py-20"
+          className="mx-auto max-w-5xl px-3 py-6 font-body focus:outline-none sm:px-6 md:py-12 print:p-0"
         >
-          <div>
-            <div className="flex items-start justify-between gap-6">
-              <div className="min-w-0">
+          {/* The sheet: one page of paper on the desk. */}
+          <div className="space-y-10 border border-rule bg-panel px-5 py-8 shadow-[0_1px_0_var(--rule),0_12px_32px_-18px_rgb(0_0_0/0.25)] sm:px-10 md:space-y-12 md:px-14 md:py-14 print:space-y-8 print:border-0 print:bg-transparent print:p-0 print:shadow-none">
+          <div className="grid items-start gap-6 sm:grid-cols-[minmax(0,10rem)_minmax(0,1fr)] sm:gap-8 md:grid-cols-[minmax(0,13rem)_minmax(0,1fr)] md:gap-10">
+            {profile.photo ? (
+              <Portrait photo={profile.photo} name={name} alt={fmt(m.photo.alt, { name })} className="aspect-square w-32 sm:w-full" />
+            ) : !sharedCV ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setEditorTab('profile');
+                  setEditing(true);
+                }}
+                className="flex aspect-square w-32 flex-col items-center justify-center gap-2 border border-dashed border-ink-soft bg-paper font-sans text-[13px] text-ink-soft hover:border-ink hover:text-ink sm:w-full print:hidden"
+              >
+                <Camera size={20} aria-hidden="true" />
+                {m.photo.add}
+              </button>
+            ) : null}
+            <div className={`min-w-0 ${!profile.photo && sharedCV ? 'sm:col-span-2' : ''}`}>
                 <p className={microLabel}>{m.app.cvTitle}</p>
-                <h1 data-skim-keep className="mt-4 font-title text-[clamp(2.25rem,8vw,5.5rem)] hyphens-auto [overflow-wrap:anywhere] font-normal leading-[0.92] tracking-[-0.035em]">{name}</h1>
-                <p data-skim-keep className="mt-4 font-title text-xl text-ink-soft md:text-2xl">{headline}</p>
-              </div>
-              {profile.photo && (
-                <Portrait photo={profile.photo} name={name} alt={fmt(m.photo.alt, { name })} className="h-24 w-24 shrink-0 md:h-36 md:w-36" />
-              )}
-            </div>
-            <address className="mt-8 not-italic">
+                <h1 data-skim-keep className="mt-3 font-title text-[clamp(2.25rem,7vw,4.75rem)] hyphens-auto [overflow-wrap:anywhere] font-normal leading-[0.92] tracking-[-0.035em]">{name}</h1>
+                <p data-skim-keep className="mt-3 font-title text-xl text-ink-soft md:text-2xl">{headline}</p>
+            <address className="mt-6 not-italic">
               <ul className="flex flex-wrap gap-x-6 gap-y-2 font-sans text-[14px] text-ink-soft">
                 {contacts.map(({ icon: Icon, kind, label, href }) => {
                   const content = (
@@ -451,19 +457,23 @@ function CVPage() {
                 })}
               </ul>
             </address>
+            </div>
           </div>
 
 
           {cv.summary.trim() && (
             <RevealSection aria-labelledby="summary-heading">
-              <SectionHead id="summary-heading" title={m.sections.summary} n={1} />
-              <p className="max-w-[60ch] whitespace-pre-line text-lg leading-relaxed md:text-xl">{cv.summary}</p>
+              <SectionHead id="summary-heading" title={m.sections.summary} />
+              <div className="border border-rule bg-paper px-5 py-5 md:px-7 md:py-6 print:border-0 print:p-0">
+                <p className="max-w-[64ch] whitespace-pre-line text-lg leading-relaxed">{cv.summary}</p>
+              </div>
             </RevealSection>
           )}
 
           {(cv.skills.length > 0 || cv.tools.length > 0) && (
-            <RevealSection aria-labelledby="skills-heading" className="space-y-8">
-              <SectionHead id="skills-heading" title={m.sections.skills} n={2} />
+            <RevealSection aria-labelledby="skills-heading">
+              <SectionHead id="skills-heading" title={m.sections.skills} />
+              <div className="grid gap-8 md:grid-cols-2 md:gap-10">
               {cv.skills.length > 0 && (
                 <div>
                   <h3 className={`${microLabel} mb-3`}>{m.sections.coreSkills}</h3>
@@ -484,11 +494,12 @@ function CVPage() {
                   </ul>
                 </div>
               )}
+              </div>
             </RevealSection>
           )}
 
           <RevealSection aria-labelledby="experience-heading">
-            <SectionHead id="experience-heading" title={m.sections.experience} n={3} />
+            <SectionHead id="experience-heading" title={m.sections.experience} />
             <div className="border-b border-rule">
               {cv.experience.map((exp, index) => (
                 <ExperienceCard key={exp.id} {...exp} index={index} />
@@ -510,7 +521,7 @@ function CVPage() {
 
           {cv.education.length > 0 && (
             <RevealSection aria-labelledby="education-heading">
-              <SectionHead id="education-heading" title={m.sections.education} n={4} />
+              <SectionHead id="education-heading" title={m.sections.education} />
               <ul className="border-b border-rule">
                 {cv.education.map((e, index) => (
                   <CertificationCard
@@ -529,7 +540,7 @@ function CVPage() {
 
           {cv.certifications.length > 0 && (
             <RevealSection aria-labelledby="certifications-heading">
-              <SectionHead id="certifications-heading" title={m.sections.certifications} n={5} />
+              <SectionHead id="certifications-heading" title={m.sections.certifications} />
               <ul className="border-b border-rule">
                 {cv.certifications.map((cert, index) => (
                   <CertificationCard
@@ -547,10 +558,10 @@ function CVPage() {
 
           {cv.languages.length > 0 && (
             <RevealSection aria-labelledby="languages-heading">
-              <SectionHead id="languages-heading" title={m.sections.languages} n={6} />
+              <SectionHead id="languages-heading" title={m.sections.languages} />
               <dl className="grid grid-cols-1 border-l border-t border-rule sm:grid-cols-3">
                 {cv.languages.map((l) => (
-                  <div key={l.id} className="border-b border-r border-rule bg-paper px-4 py-4">
+                  <div key={l.id} className="border-b border-r border-rule px-4 py-4">
                     <dt className="font-title text-xl">{l.name}</dt>
                     <dd className="mt-1 font-mono text-[12px] uppercase tracking-[0.1em] text-ink-soft">{l.level}</dd>
                   </div>
@@ -558,6 +569,7 @@ function CVPage() {
               </dl>
             </RevealSection>
           )}
+          </div>
         </main>
         )}
 

@@ -1,5 +1,5 @@
 import { cloneElement, isValidElement, useEffect, useId, useRef, useState } from 'react';
-import { ArrowDown, ArrowRight, ArrowUp, Camera, ClipboardPaste, Copy, FileDown, FileText, FileUp, Plus, RotateCcw, Trash2, FilePlus2 } from 'lucide-react';
+import { ArrowDown, ArrowRight, ArrowUp, Camera, ClipboardPaste, Copy, FileDown, FileText, FileUp, Plus, Trash2, FilePlus2 } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,7 +25,7 @@ import { IconPicker } from './IconPicker';
 import { AtsPanel } from './AtsPanel';
 import { useJobAd } from '../../cv/jobAd';
 import { SaveVersionDialog } from './SaveVersionDialog';
-import { blankCV, emptyItems, sampleCV } from '../../cv/defaultCV';
+import { blankCV, emptyItems } from '../../cv/defaultCV';
 import { findIcon } from '../../cv/iconCatalog';
 import { normalize } from '../../cv/useCV';
 import { downloadFile, fileSlug, toPlainText } from '../../cv/format';
@@ -172,13 +172,6 @@ export function CVEditor({
       toast.success(e.imported);
     } catch {
       toast.error(e.importError);
-    }
-  };
-
-  const confirmReplace = (next: CVData, message: string) => {
-    if (window.confirm(message)) {
-      setCV(structuredClone(next));
-      setTab('profile');
     }
   };
 
@@ -521,12 +514,9 @@ export function CVEditor({
           >
             <FilePlus2 size={20} aria-hidden="true" /> {m.library.newCv}
           </Button>
-          <Button variant="ghost" size="sm" className="gap-1.5 text-xs" onClick={() => confirmReplace(sampleCV, e.confirmReset)}>
-            <RotateCcw size={20} aria-hidden="true" /> {e.resetSample}
-          </Button>
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button variant="ghost" size="sm" className="col-span-2 gap-1.5 border-t border-rule text-xs">
+              <Button variant="ghost" size="sm" className="gap-1.5 text-xs">
                 <Trash2 size={20} aria-hidden="true" className="text-signal" /> {m.library.delete}
               </Button>
             </AlertDialogTrigger>

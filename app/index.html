@@ -8,6 +8,8 @@
     <meta name="description" content="Write, check and share your CV. Free, no account." />
     <meta name="theme-color" content="#eceae5" />
     <script>
+      // The old "See an example" link now goes to the example CVs page.
+      if (/[?&]example=/.test(location.search)) location.replace('../people/');
       // Apply the saved "Aa" typefaces and paper light before first paint.
       try {
         var d = document.documentElement.dataset, old = localStorage.getItem('curricula.type');

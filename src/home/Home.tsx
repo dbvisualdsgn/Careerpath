@@ -3,7 +3,7 @@ import { ArrowRight, ArrowUpRight, Check, ClipboardPaste, EyeOff, Github, Link2,
 import { SiteHeader } from '../app/components/SiteHeader';
 import { Wordmark } from '../app/components/Wordmark';
 import { matchKeywords, runAtsCheck } from '../app/cv/atsCheck';
-import { sampleCV } from '../app/cv/defaultCV';
+import { findPerson } from '../app/cv/people';
 import { useI18n } from '../app/i18n';
 import { useCountUp, useReveal } from '../app/hooks/useReveal';
 import { CVGallery } from './CVGallery';
@@ -15,10 +15,12 @@ const primaryBtn = 'nudge inline-flex h-12 items-center gap-3 rounded-sm bg-ink 
 const textLink = 'inline-flex items-center gap-1.5 text-[15px] text-ink underline decoration-1 underline-offset-[6px] hover:decoration-2';
 const h2 = 'font-title text-3xl font-normal tracking-[-0.02em] md:text-5xl';
 
-// A short job ad for the live keyword demo. The match below is computed by the real ATS check.
+// The live demo runs on one of the example CVs, against a short job ad that fits it.
+// The score and the keyword match below are computed by the real recruiter check.
+const DEMO_CV = findPerson('sofia-andersson')!.cv;
 const DEMO_AD =
-  'Senior Product Designer. You will own our design systems and accessibility, run user research, prototyping in Figma, ' +
-  'and work closely with engineering on data-driven product decisions. Design systems experience is a must; accessibility is key.';
+  'UX Researcher. You will run user interviews, usability testing and survey design, and work with product teams on accessibility. ' +
+  'Experience with journey mapping, quantitative analysis and service design is key.';
 
 function Chapter({ id, title, n, children, wide }: { id: string; title: string; n: number; children: React.ReactNode; wide?: React.ReactNode }) {
   const { m } = useI18n();
@@ -27,8 +29,8 @@ function Chapter({ id, title, n, children, wide }: { id: string; title: string; 
     <section ref={ref} aria-labelledby={id} className="reveal border-t border-ink">
       <div className={`mx-auto max-w-6xl xl:max-w-none xl:px-12 px-4 sm:px-8 ${wide ? 'pt-16 pb-6 md:pt-24 md:pb-8' : 'py-16 md:py-24'}`}>
         <div className="flex items-baseline justify-between gap-4">
-          <h2 id={id} className={h2}>{title}</h2>
-          <p className={label} aria-hidden="true">{m.home.chapter} {n}</p>
+          <h2 id={id} className={`${h2} min-w-0 hyphens-auto [overflow-wrap:anywhere]`}>{title}</h2>
+          <p className={`${label} shrink-0`} aria-hidden="true">{m.home.chapter} {n}</p>
         </div>
         {children}
       </div>
@@ -42,8 +44,8 @@ function Chapter({ id, title, n, children, wide }: { id: string; title: string; 
 function AtsInfographic() {
   const { m, locale } = useI18n();
   const h = m.homeX;
-  const report = useMemo(() => runAtsCheck(sampleCV, locale), [locale]);
-  const match = useMemo(() => matchKeywords(sampleCV, DEMO_AD, 'en'), []);
+  const report = useMemo(() => runAtsCheck(DEMO_CV, locale), [locale]);
+  const match = useMemo(() => matchKeywords(DEMO_CV, DEMO_AD, 'en'), []);
   const ref = useReveal<HTMLDivElement>(0.25);
   const shown = useCountUp(report.score, 1100);
   const checks = [h.c1, h.c2, h.c3, h.c4, h.c5, h.c6];
@@ -65,7 +67,7 @@ function AtsInfographic() {
       </div>
       <div className="flex flex-col gap-8 bg-paper p-6 md:p-10">
         <div>
-          <p className={label}>{m.atsCard.title} · {sampleCV.profile.name}</p>
+          <p className={label}>{m.atsCard.title} · {DEMO_CV.profile.name}</p>
           <p className="mt-3 font-title leading-none">
             <span className="text-[88px] tracking-[-0.04em] tabular-nums" aria-hidden="true">{shown}</span>
             <span className="sr-only">{report.score}</span>
@@ -96,6 +98,68 @@ function AtsInfographic() {
             </ul>
           </div>
         </div>
+      </div>
+    </div>
+  );
+}
+
+/** Three documents side by side: each designed once, the same for everyone. The CV is the one this site designs. */
+function DocumentTrio() {
+  const { m } = useI18n();
+  const h = m.homeX;
+  // Real proportions: passport booklet (88 × 125 mm), ID-1 card (85.6 × 54 mm), A4 page.
+  const docs = [
+    { name: h.docPassport, w: 'w-[22%]', ratio: '88 / 125', lines: 2 },
+    { name: h.docLicence, w: 'w-[22%]', ratio: '85.6 / 54', lines: 2 },
+    { name: h.docCv, w: 'w-[38%]', ratio: '210 / 297', lines: 6, ours: true },
+  ];
+  return (
+    <figure className="mt-12">
+      <ul className="flex items-end gap-[4%]">
+        {docs.map((d) => (
+          <li key={d.name} className={d.w}>
+            <div
+              aria-hidden="true"
+              className={`flex flex-col gap-[7%] border border-ink p-[9%] ${d.ours ? 'bg-highlight text-[#111]' : 'bg-paper'}`}
+              style={{ aspectRatio: d.ratio }}
+            >
+              <span className="block h-[3px] w-3/5 bg-current" />
+              {Array.from({ length: d.lines }, (_, i) => (
+                <span key={i} className={`block h-px bg-current ${i % 3 === 2 ? 'w-2/3' : 'w-full'}`} />
+              ))}
+            </div>
+            <p className="mt-3 font-mono text-[11px] uppercase tracking-[0.14em]">{d.name}</p>
+          </li>
+        ))}
+      </ul>
+      <figcaption className="mt-6 font-body text-[15px] text-ink-soft">{h.docNote}</figcaption>
+    </figure>
+  );
+}
+
+/** Why it exists: the CV as a document, designed once and well, for everyone. */
+function WhyChapter() {
+  const { m } = useI18n();
+  const h = m.homeX;
+  const [before, after] = h.why4.split('{name}');
+  return (
+    <div className="mt-12 grid gap-14 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-20">
+      <div>
+        <p className="max-w-[30ch] font-body text-2xl leading-snug md:text-3xl">{h.why1}</p>
+        <p className="mt-6 max-w-[44ch] font-body text-lg leading-relaxed text-ink-soft">{h.why2}</p>
+        <DocumentTrio />
+      </div>
+      <div>
+        <blockquote className="border-l-2 border-ink pl-6">
+          <p className="font-title text-3xl leading-[1.05] tracking-[-0.02em] md:text-5xl">{h.whyQuote}</p>
+          <footer className="mt-4 font-mono text-[11px] uppercase tracking-[0.14em] text-ink-soft">Daniele Brusca</footer>
+        </blockquote>
+        <p className="mt-10 max-w-[44ch] font-body text-lg leading-relaxed text-ink-soft">{h.why3}</p>
+        <p className="mt-4 max-w-[44ch] font-body text-lg leading-relaxed text-ink">
+          {before}
+          <span className="whitespace-nowrap">curriculi <em>curricula</em></span>
+          {after}
+        </p>
       </div>
     </div>
   );
@@ -244,6 +308,7 @@ export function Home() {
     [h.q1, h.a1],
     [h.q2, h.a2],
     [h.q3, h.a3],
+    [h.q4, h.a4],
   ];
 
   return (
@@ -258,28 +323,28 @@ export function Home() {
         <section className="mx-auto grid max-w-6xl xl:max-w-none xl:px-12 gap-14 px-4 pb-20 pt-14 sm:px-8 md:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] md:items-end md:pb-28 md:pt-24">
           <div ref={heroRef} className="reveal">
             <p className={label}>{h.kicker}</p>
-            <h1 className="mt-6 font-title text-[clamp(2.5rem,11vw,4rem)] md:text-[clamp(3rem,7.5vw,8rem)] hyphens-auto [overflow-wrap:anywhere] font-normal leading-[0.95]">
-              {m.homeX.heroA}{' '}
-              {/* The two choices as chips; each opens its diagram in the privacy chapter. */}
-              <span className="mt-[0.25em] flex flex-wrap items-center gap-x-[0.3em] gap-y-[0.2em] text-[0.55em] md:text-[0.42em]">
-                <a href="#privacy" onClick={() => showPrivacy('public')} className="hero-chip">
-                  <Link2 size="0.85em" aria-hidden="true" className="hero-icon" />
-                  {m.homeX.heroShared}
-                </a>{' '}
-                <span>{m.homeX.heroOr}</span>{' '}
-                <a href="#privacy" onClick={() => showPrivacy('private')} className="hero-chip">
-                  <Lock size="0.85em" aria-hidden="true" className="hero-icon" />
-                  {m.homeX.heroPrivate}
-                </a>
-              </span>
+            <h1 className="mt-6 font-title text-[clamp(2.5rem,10vw,3.75rem)] md:text-[clamp(3rem,6vw,6.75rem)] hyphens-auto [overflow-wrap:anywhere] font-normal leading-[0.95]">
+              {m.homeX.claimA} <span className="hl">{m.homeX.claimB}</span>
             </h1>
+            {/* The two choices as chips; each opens its diagram in the privacy chapter. */}
+            <p className="mt-6 flex flex-wrap items-center gap-x-[0.3em] gap-y-[0.2em] font-title text-[clamp(1.5rem,6vw,2rem)] leading-none md:text-[clamp(1.75rem,2.6vw,2.75rem)]">
+              <a href="#privacy" onClick={() => showPrivacy('public')} className="hero-chip">
+                <Link2 size="0.85em" aria-hidden="true" className="hero-icon" />
+                {m.homeX.heroShared}
+              </a>{' '}
+              <span>{m.homeX.heroOr}</span>{' '}
+              <a href="#privacy" onClick={() => showPrivacy('private')} className="hero-chip">
+                <Lock size="0.85em" aria-hidden="true" className="hero-icon" />
+                {m.homeX.heroPrivate}
+              </a>
+            </p>
             <p className="mt-8 max-w-[34ch] font-body text-xl leading-snug text-ink-soft md:text-2xl">{h.sub}</p>
             <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-4">
               <a href={`${APP}?new=1`} className={primaryBtn}>
                 {h.start}
                 <ArrowRight size={20} aria-hidden="true" />
               </a>
-              <a href={`${APP}?example=1`} className={`nudge-up ${textLink}`}>
+              <a href="people/" className={`nudge-up ${textLink}`}>
                 {h.example}
                 <ArrowUpRight size={20} aria-hidden="true" />
               </a>
@@ -303,7 +368,11 @@ export function Home() {
           </div>
         </Chapter>
 
-        <Chapter id="how" title={h.howTitle} n={2}>
+        <Chapter id="why" title={m.homeX.whyTitle} n={2}>
+          <WhyChapter />
+        </Chapter>
+
+        <Chapter id="how" title={h.howTitle} n={3}>
           <ol className="mt-12 grid gap-px border border-rule bg-rule sm:grid-cols-2 lg:grid-cols-4">
             {steps.map(({ icon: Icon, title, body }, i) => (
               <li key={title} className="flex flex-col bg-paper p-6 md:p-8">
@@ -320,15 +389,15 @@ export function Home() {
           </ol>
         </Chapter>
 
-        <Chapter id="ats" title={m.homeX.atsTitle} n={3}>
+        <Chapter id="ats" title={m.homeX.atsTitle} n={4}>
           <AtsInfographic />
         </Chapter>
 
-        <Chapter id="privacy" title={h.privacyTitle} n={4}>
+        <Chapter id="privacy" title={h.privacyTitle} n={5}>
           <PrivacyTabs />
         </Chapter>
 
-        <Chapter id="faq" title={h.faqTitle} n={5}>
+        <Chapter id="faq" title={h.faqTitle} n={6}>
           <dl className="mt-12 border-t border-ink">
             {faq.map(([q, a]) => (
               <div key={q} className="grid gap-1 border-b border-rule py-5 sm:grid-cols-2 sm:gap-6">
