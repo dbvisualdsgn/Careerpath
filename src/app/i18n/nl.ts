@@ -136,7 +136,8 @@ export const nl: Messages = {
     heroA: 'Een cv op papier.',
     heroShared: 'Gedeeld',
     heroOr: 'of',
-    heroPrivate: 'privé.',
+    heroPrivate: 'privé',
+    specimenTip: 'Zet een getal bij je laatste resultaat',
   },
   library: {
     title: 'Mijn cv’s',

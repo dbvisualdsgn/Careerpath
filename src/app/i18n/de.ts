@@ -136,7 +136,8 @@ export const de: Messages = {
     heroA: 'Ein Lebenslauf wie auf Papier.',
     heroShared: 'Geteilt',
     heroOr: 'oder',
-    heroPrivate: 'privat.',
+    heroPrivate: 'privat',
+    specimenTip: 'Gib deinem letzten Ergebnis eine Zahl',
   },
   library: {
     title: 'Meine Lebensläufe',

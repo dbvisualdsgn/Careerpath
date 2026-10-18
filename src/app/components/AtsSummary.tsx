@@ -27,7 +27,7 @@ export function AtsSummary({ cv, targetTitle, onOpen, onJobAd }: AtsSummaryProps
   const filled = Math.round((report.score / 100) * steps);
 
   return (
-    <section ref={ref} aria-labelledby="ats-summary" className="reveal border border-ink p-5 print:hidden md:p-7">
+    <section ref={ref} aria-labelledby="ats-summary" className="on-ink reveal p-5 print:hidden md:p-7">
       <p className="-mt-1 mb-5 flex items-center gap-2 border-b border-dashed border-rule pb-3 font-mono text-[11px] uppercase tracking-[0.12em] text-ink-soft">
         <EyeOff size={20} aria-hidden="true" className="shrink-0" />
         {m.atsCard.onlyYou}

@@ -136,7 +136,8 @@ export const es: Messages = {
     heroA: 'Un CV de papel.',
     heroShared: 'Compartido',
     heroOr: 'o',
-    heroPrivate: 'privado.',
+    heroPrivate: 'privado',
+    specimenTip: 'Añade una cifra a tu último resultado',
   },
   library: {
     title: 'Mis CV',

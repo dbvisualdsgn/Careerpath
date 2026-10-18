@@ -135,7 +135,8 @@ export const en = {
     heroA: 'A paper CV.',
     heroShared: 'Shared',
     heroOr: 'or',
-    heroPrivate: 'private.',
+    heroPrivate: 'private',
+    specimenTip: 'Add a number to your latest result',
   },
   library: {
     title: 'My CVs',

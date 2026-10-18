@@ -75,7 +75,7 @@ export function AtsPanel({ cv, onJump, onAddSkill, onSetHeadline, focusJobAd = 0
 
   return (
     <div className="space-y-6">
-      <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 p-4">
+      <div className="on-ink p-4">
         <div className="flex items-baseline justify-between">
           <h3 className="text-sm font-medium"><span className="hl">{m.ats.readiness}</span></h3>
           <p className="font-title text-5xl tabular-nums tracking-[-0.03em]">

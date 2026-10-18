@@ -409,18 +409,87 @@
   word-spacing: 0.06em;
 }
 
-/* Hero: an icon before "shared" and "private", drawn in the title's weight. Hovering a word tilts its icon. */
-.hero-word {
-  white-space: nowrap;
+/* Recruiter-check frames sit on black so they stand apart from the CV and the page. The tokens flip inside
+   the frame, so text, rules, bars, hovers and focus all follow; every text colour stays at AAA (≥ 9:1). */
+.on-ink {
+  --ink: #f2f0eb;
+  --paper: #111111;
+  --ink-soft: #b9b6ae;
+  --ink-faint: #b9b6ae;
+  --rule: #3d3b37;
+  --panel: #1c1b19;
+  --focus: #f2f0eb;
+  --color-zinc-50: #1c1b19;
+  --color-zinc-100: #262522;
+  --color-zinc-200: #3d3b37;
+  --color-zinc-600: #b9b6ae;
+  --color-zinc-700: #d6d3cc;
+  /* Theme colours are resolved where they are declared (:root), so they are set again here. */
+  --color-ink: #f2f0eb;
+  --color-paper: #111111;
+  --color-white: #111111;
+  --color-ink-soft: #b9b6ae;
+  --color-rule: #3d3b37;
+  --color-panel: #1c1b19;
+  --foreground: #f2f0eb;
+  --muted-foreground: #b9b6ae;
+  --primary: #f2f0eb;
+  --primary-foreground: #111111;
+  --border: #3d3b37;
+  --input: #3d3b37;
+  --color-foreground: #f2f0eb;
+  --color-muted-foreground: #b9b6ae;
+  --color-primary: #f2f0eb;
+  --color-primary-foreground: #111111;
+  --color-border: #3d3b37;
+  --color-input: #3d3b37;
+  background-color: #111111;
+  color: #f2f0eb;
 }
+
+/* Hero chips: "Shared" and "private" as pills, smaller than the title; yellow on hover. */
+.hero-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+  padding: 0.12em 0.5em 0.16em 0.4em;
+  border: max(2px, 0.06em) solid var(--ink);
+  border-radius: 999px;
+  color: var(--ink);
+  line-height: 1;
+  vertical-align: middle;
+  transition: background-color 150ms ease, color 150ms ease;
+}
+.hero-chip:hover,
+.hero-chip:focus-visible {
+  background-color: var(--highlight);
+  color: #111111;
+  border-color: #111111;
+}
+
+/* Hero specimen: the recruiter check pops over the page once the CV has "typed" itself; the tip follows. */
+@keyframes specimen-pop {
+  0% { opacity: 0; transform: translateY(10px) scale(0.92); }
+  70% { opacity: 1; transform: translateY(-2px) scale(1.02); }
+  100% { opacity: 1; transform: none; }
+}
+.specimen-pop {
+  animation: specimen-pop 450ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.specimen-pop .specimen-tip {
+  animation: specimen-pop 400ms cubic-bezier(0.2, 0.7, 0.2, 1) 700ms both;
+}
+
+/* Hero chip icons: drawn in the title's weight; they tilt when the chip is hovered or focused. */
 .hero-icon {
   display: inline-block;
-  margin-right: 0.12em;
+  flex-shrink: 0;
   vertical-align: -0.04em;
   transform-origin: 50% 70%;
   transition: transform 250ms cubic-bezier(0.2, 0.7, 0.2, 1);
 }
-.hero-word:hover .hero-icon {
+.hero-chip:hover .hero-icon,
+.hero-chip:focus-visible .hero-icon {
   transform: rotate(-12deg) translateY(-0.04em) scale(1.06);
 }
 

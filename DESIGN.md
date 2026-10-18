@@ -72,6 +72,11 @@ PDF embeds the same title and text fonts.
   selected = ink fill with paper text, focus = inset outline.
 - **Editor sheet:** same paper as the page with a hairline edge; an ink header band is what marks it as the tool,
   not part of the CV.
+- **Recruiter-check frames:** every recruiter-check surface (the card above the CV, the score card in the
+  editor, the homepage infographic, the hero pop-over) sits on black via `.on-ink`, which flips the colour
+  tokens inside the frame. Text stays AAA (light ink 16:1, soft 9:1) and the yellow highlight keeps ink text.
+- **Hero chips:** "Shared" and "private" are pill links smaller than the title (0.42em), outlined in ink;
+  hover or focus fills them yellow. Each opens the matching diagram in the privacy chapter.
 - **ATS score mark:** dashed outline (<65), outline (65–84), filled (≥85), always with the number.
 - **Icons:** Lucide only, 16–22px, stroke 1.5–2, always `aria-hidden` next to a text label.
 
@@ -86,6 +91,8 @@ Motion is allowed only where it helps reading, and it never hides content for lo
   Public), the hero caret blinks, switches slide.
 - **Example CV gallery (homepage):** two rows of example CVs drift slowly in opposite directions (90s per
   loop). They stop on hover, on keyboard focus and with the Pause button (WCAG 2.2.2).
+- **Hero card:** the sample CV types itself once (about 3s), then the recruiter check pops over it with a
+  score and one tip. Under reduced motion it shows the finished state.
 - **Accents in motion:** only ink (black) and the highlight yellow move or animate; signal orange is kept
   for static error marks.
 - **Reduced motion:** with `prefers-reduced-motion: reduce`, all of it is off. Sections, highlights and bars

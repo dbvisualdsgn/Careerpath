@@ -7,6 +7,7 @@ import { sampleCV } from '../app/cv/defaultCV';
 import { useI18n } from '../app/i18n';
 import { useCountUp, useReveal } from '../app/hooks/useReveal';
 import { CVGallery } from './CVGallery';
+import { PageSpecimen } from './PageSpecimen';
 
 const APP = 'app/';
 const label = 'font-mono text-[11px] uppercase tracking-[0.14em] text-ink-soft';
@@ -37,48 +38,6 @@ function Chapter({ id, title, n, children, wide }: { id: string; title: string; 
   );
 }
 
-/** A Kindle-like page showing what a finished CV looks like: just type. */
-function PageSpecimen() {
-  const { m } = useI18n();
-  return (
-    <figure aria-hidden="true" className="relative mx-auto w-full max-w-sm border border-ink bg-paper p-6 sm:p-8">
-      <div className={`flex justify-between ${label}`}>
-        <span>curriculi curricula</span>
-        <span>1 / 1</span>
-      </div>
-      <div className="mt-10 font-body">
-        <p className="font-title text-[34px] leading-[0.95] tracking-[-0.02em]">Ada<br />Lovelace</p>
-        <p className="mt-3 text-[15px] text-ink-soft">Analyst &amp; Programmer · London<span className="caret ml-0.5 inline-block h-[1em] w-px translate-y-[2px] bg-ink" /></p>
-      </div>
-      <div className="mt-8 border-t border-ink pt-3">
-        <p className={label}>{m.sections.experience}</p>
-        <dl className="mt-3 space-y-3 font-body text-[14px]">
-          <div className="flex justify-between gap-4 border-b border-rule pb-3">
-            <dt className="font-title">Analytical Engine</dt>
-            <dd className="font-mono text-[12px] text-ink-soft">1842 – 43</dd>
-          </div>
-          <div className="flex justify-between gap-4">
-            <dt className="font-title">Notes on the Engine</dt>
-            <dd className="font-mono text-[12px] text-ink-soft">1843</dd>
-          </div>
-        </dl>
-      </div>
-      <div className="mt-8 border-t border-ink pt-3">
-        <p className={label}>{m.sections.skills}</p>
-        <p className="mt-2 flex flex-wrap gap-1.5 font-body text-[13px]">
-          <span className="rounded-full border border-ink bg-highlight px-2 py-0.5 italic text-[#111]">Mathematics</span>
-          <span className="rounded-full border border-ink px-2 py-0.5">Algorithms</span>
-          <span className="rounded-full border border-ink px-2 py-0.5">Writing</span>
-        </p>
-      </div>
-      <div className="mt-10 flex items-center gap-3">
-        <span className="h-px flex-1 bg-rule"><span className="block h-px w-full bg-ink" /></span>
-        <span className="font-mono text-[11px] text-ink-soft">100%</span>
-      </div>
-    </figure>
-  );
-}
-
 /** The real ATS check, shown on the example CV: criteria, score meter, and the keyword match. */
 function AtsInfographic() {
   const { m, locale } = useI18n();
@@ -91,7 +50,7 @@ function AtsInfographic() {
   const steps = 20;
   const filled = Math.round((report.score / 100) * steps);
   return (
-    <div ref={ref} className="mt-12 grid gap-px border border-rule bg-rule lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
+    <div ref={ref} className="on-ink mt-12 grid gap-px bg-rule lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
       <div className="bg-paper p-6 md:p-10">
         <p className="max-w-[34ch] font-body text-lg leading-snug text-ink-soft">{h.atsLead}</p>
         <ol className="mt-8 border-t border-ink">
@@ -143,6 +102,10 @@ function AtsInfographic() {
 }
 
 type Mode = 'private' | 'public';
+
+/** Hero chips → privacy tabs: pick the diagram to show when the chapter scrolls into view. */
+const PRIVACY_EVENT = 'curricula:privacy';
+const showPrivacy = (mode: Mode) => window.dispatchEvent(new CustomEvent<Mode>(PRIVACY_EVENT, { detail: mode }));
 
 /** How the CV moves (or doesn't): private keeps it in this browser, public sends it inside one link. */
 function FlowDiagram({ mode }: { mode: Mode }) {
@@ -205,6 +168,11 @@ function PrivacyTabs() {
   const h = m.home;
   const hx = m.homeX;
   const [mode, setMode] = useState<Mode>('private');
+  useEffect(() => {
+    const pick = (e: Event) => setMode((e as CustomEvent<Mode>).detail);
+    window.addEventListener(PRIVACY_EVENT, pick);
+    return () => window.removeEventListener(PRIVACY_EVENT, pick);
+  }, []);
   const refs = useRef<Record<Mode, HTMLButtonElement | null>>({ private: null, public: null });
   const tabs: { id: Mode; icon: typeof Lock; title: string; body: string }[] = [
     { id: 'private', icon: Lock, title: h.privateT, body: h.privateB },
@@ -292,17 +260,17 @@ export function Home() {
             <p className={label}>{h.kicker}</p>
             <h1 className="mt-6 font-title text-[clamp(2.5rem,11vw,4rem)] md:text-[clamp(3rem,7.5vw,8rem)] hyphens-auto [overflow-wrap:anywhere] font-normal leading-[0.95]">
               {m.homeX.heroA}{' '}
-              <span className="hl">
-                {/* Each choice carries its icon; hovering a word tilts it. */}
-                <span className="hero-word group">
-                  <Link2 size="0.72em" aria-hidden="true" className="hero-icon" />
+              {/* The two choices as chips; each opens its diagram in the privacy chapter. */}
+              <span className="mt-[0.25em] flex flex-wrap items-center gap-x-[0.3em] gap-y-[0.2em] text-[0.55em] md:text-[0.42em]">
+                <a href="#privacy" onClick={() => showPrivacy('public')} className="hero-chip">
+                  <Link2 size="0.85em" aria-hidden="true" className="hero-icon" />
                   {m.homeX.heroShared}
-                </span>{' '}
-                {m.homeX.heroOr}{' '}
-                <span className="hero-word group">
-                  <Lock size="0.72em" aria-hidden="true" className="hero-icon" />
+                </a>{' '}
+                <span>{m.homeX.heroOr}</span>{' '}
+                <a href="#privacy" onClick={() => showPrivacy('private')} className="hero-chip">
+                  <Lock size="0.85em" aria-hidden="true" className="hero-icon" />
                   {m.homeX.heroPrivate}
-                </span>
+                </a>
               </span>
             </h1>
             <p className="mt-8 max-w-[34ch] font-body text-xl leading-snug text-ink-soft md:text-2xl">{h.sub}</p>
