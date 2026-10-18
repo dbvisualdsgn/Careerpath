@@ -81,3 +81,11 @@ describe('backend client', () => {
     expect(b.isBackendReady()).toBe(false);
   });
 });
+
+describe('published fingerprint', () => {
+  it('is stable for the same text and changes with it', async () => {
+    const { fingerprint } = await import('./usePublishing');
+    expect(fingerprint('abc')).toBe(fingerprint('abc'));
+    expect(fingerprint('abc')).not.toBe(fingerprint('abd'));
+  });
+});
