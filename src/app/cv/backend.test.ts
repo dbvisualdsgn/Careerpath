@@ -59,6 +59,14 @@ describe('backend client', () => {
     expect(body).toMatchObject({ p_id: 'abcdefghij', p_token: 't'.repeat(43), p_listed: true });
     expect((calls[0].init?.headers as Record<string, string>).apikey).toBe('anon');
   });
+  it('sends a publishable key only as apikey, never as a bearer token', async () => {
+    vi.stubEnv('VITE_SUPABASE_ANON_KEY', 'sb_publishable_test');
+    const b = await import('./backend');
+    await b.listPublicCVs();
+    const h = calls[0].init?.headers as Record<string, string>;
+    expect(h.apikey).toBe('sb_publishable_test');
+    expect(h.Authorization).toBeUndefined();
+  });
   it('reads public CVs without asking for the token hash', async () => {
     const b = await import('./backend');
     await b.fetchPublicCV('abcdefghij');

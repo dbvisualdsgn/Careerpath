@@ -22,7 +22,13 @@ export interface PublicCV {
 
 export class BackendError extends Error {}
 
-const headers = () => ({ apikey: KEY!, Authorization: `Bearer ${KEY}`, 'Content-Type': 'application/json' });
+// New publishable keys (sb_publishable_…) go in the apikey header only; legacy anon keys are JWTs and are
+// also sent as the bearer token.
+const headers = (): Record<string, string> => ({
+  apikey: KEY!,
+  'Content-Type': 'application/json',
+  ...(KEY!.startsWith('eyJ') ? { Authorization: `Bearer ${KEY}` } : {}),
+});
 
 async function call<T>(path: string, init: RequestInit = {}): Promise<T> {
   if (!isBackendReady()) throw new BackendError('not configured');
