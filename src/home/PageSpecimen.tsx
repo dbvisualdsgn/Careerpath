@@ -8,6 +8,7 @@ import { useI18n } from '../app/i18n';
 interface Specimen {
   name: string;
   headline: string;
+  /** The banknote, for reference only (not shown). */
   note: string;
   roles: [string, string][];
   skills: string[];
@@ -152,12 +153,8 @@ export function PageSpecimen() {
   return (
     <div className="relative mx-auto mb-16 w-full max-w-sm md:mb-0">
       <figure aria-hidden="true" className="relative">
-        <div key={index} className="diagram-in flex min-h-[33rem] flex-col border p-6 sm:p-8" style={{ background: s.colors.paper, color: s.colors.ink, borderColor: s.colors.ink }}>
-          <div className={`flex justify-between ${label}`} style={{ color: s.colors.soft }}>
-            <span>{s.note}</span>
-            <span>{index + 1} / {SPECIMENS.length}</span>
-          </div>
-          <div className="mt-10">
+        <div key={index} className="diagram-in flex min-h-[29rem] flex-col border p-6 sm:p-8" style={{ background: s.colors.paper, color: s.colors.ink, borderColor: s.colors.ink }}>
+          <div>
             <Typed text={s.name} shown={shownOf(0)} caret={caretAt(0)} className="text-[30px] leading-[1.02]" style={titleFont} />
             <Typed text={s.headline} shown={shownOf(1)} caret={caretAt(1)} className="mt-3 font-body text-[15px]" style={{ color: s.colors.soft }} />
           </div>
