@@ -333,6 +333,27 @@
   animation: link-travel 3.2s cubic-bezier(0.45, 0, 0.55, 1) infinite;
 }
 
+/* Private: the dot reaches this browser's storage and stays there, then the loop starts again. */
+@keyframes save-travel {
+  0% { left: 0; opacity: 0; }
+  10% { opacity: 1; }
+  55% { left: calc(100% - 9px); opacity: 1; }
+  85% { left: calc(100% - 9px); opacity: 1; }
+  100% { left: calc(100% - 9px); opacity: 0; }
+}
+.save-dot {
+  animation: save-travel 3.2s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+
+/* Switching Private / Public fades the new diagram in. */
+@keyframes diagram-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: none; }
+}
+.diagram-in {
+  animation: diagram-in 300ms ease-out;
+}
+
 /* Example CV gallery: two rows drifting in opposite directions, each drawn twice for a seamless loop.
    Stops on hover, keyboard focus or the Pause button; under reduced motion it is a still, scrollable row. */
 @keyframes gallery-drift {
@@ -364,6 +385,8 @@
     transition-delay: 0s !important;
   }
   .link-dot { animation: none; left: calc(50% - 4px); }
+  .save-dot { animation: none; left: calc(100% - 9px); }
+  .diagram-in { animation: none; }
   .reveal,
   .reveal .hl,
   .hl-draw,

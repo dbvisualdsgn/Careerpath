@@ -1,5 +1,5 @@
-import { useEffect, useMemo } from 'react';
-import { ArrowRight, ArrowUpRight, Check, ClipboardPaste, Github, Link2, ListChecks, Lock, Monitor, PenLine, Share2, Users } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { ArrowRight, ArrowUpRight, Check, ClipboardPaste, EyeOff, Github, Link2, ListChecks, Lock, Monitor, PenLine, Share2, Users, X } from 'lucide-react';
 import { SiteHeader } from '../app/components/SiteHeader';
 import { Wordmark } from '../app/components/Wordmark';
 import { matchKeywords, runAtsCheck } from '../app/cv/atsCheck';
@@ -142,34 +142,118 @@ function AtsInfographic() {
   );
 }
 
-/** How a share link works: the CV travels inside the link itself. */
-function LinkDiagram() {
+type Mode = 'private' | 'public';
+
+/** How the CV moves (or doesn't): private keeps it in this browser, public sends it inside one link. */
+function FlowDiagram({ mode }: { mode: Mode }) {
   const { m } = useI18n();
   const h = m.homeX;
-  const nodes = [
-    { icon: Monitor, text: h.linkA },
-    { icon: Link2, text: h.linkB },
-    { icon: Users, text: h.linkC },
-  ];
+  const isPublic = mode === 'public';
+  const nodes = isPublic
+    ? [
+        { icon: Monitor, text: h.linkA },
+        { icon: Link2, text: h.linkB, note: '…/app/#cv=eNqVk…', mark: true },
+        { icon: Users, text: h.linkC },
+      ]
+    : [
+        { icon: Monitor, text: h.privA },
+        { icon: Lock, text: h.privB, note: h.privBNote, mark: true },
+        { icon: EyeOff, text: h.privC, off: true },
+      ];
   return (
-    <figure className="mt-12">
+    <figure key={mode} className="diagram-in mt-12">
       <div className="relative grid grid-cols-3 items-start" aria-hidden="true">
-        {/* The line and the travelling dot */}
-        <div className="absolute left-[16.66%] right-[16.66%] top-7 h-px bg-ink">
-          <span className="link-dot absolute -top-[4px] left-0 h-[9px] w-[9px] rounded-full bg-signal" />
-        </div>
-        {nodes.map(({ icon: Icon, text }, i) => (
+        {isPublic ? (
+          // One line all the way: the CV travels inside the link to whoever opens it.
+          <div className="absolute left-[16.66%] right-[16.66%] top-7 h-px bg-ink">
+            <span className="link-dot absolute -top-[4px] left-0 h-[9px] w-[9px] rounded-full bg-ink" />
+          </div>
+        ) : (
+          <>
+            {/* It reaches this browser's storage and stops; the way out stays closed. */}
+            <div className="absolute left-[16.66%] right-1/2 top-7 h-px bg-ink">
+              <span className="save-dot absolute -top-[4px] left-0 h-[9px] w-[9px] rounded-full bg-ink" />
+            </div>
+            <div className="absolute left-1/2 right-[16.66%] top-7 border-t border-dashed border-ink-soft" />
+            <span className="absolute left-2/3 top-7 flex h-6 w-6 -translate-x-1/2 -translate-y-1/2 items-center justify-center bg-paper text-ink-soft">
+              <X size={20} />
+            </span>
+          </>
+        )}
+        {nodes.map(({ icon: Icon, text, note, mark, off }) => (
           <div key={text} className="relative flex flex-col items-center text-center">
-            <span className={`flex h-14 w-14 items-center justify-center rounded-sm border border-ink ${i === 1 ? 'bg-highlight text-[#111]' : 'bg-paper'}`}>
+            <span
+              className={`flex h-14 w-14 items-center justify-center rounded-sm border ${
+                mark ? 'border-ink bg-highlight text-[#111]' : off ? 'border-dashed border-ink-soft bg-paper text-ink-soft' : 'border-ink bg-paper'
+              }`}
+            >
               <Icon size={20} />
             </span>
-            <span className="mt-4 font-title text-lg leading-tight md:text-xl">{text}</span>
-            {i === 1 && <span className="mt-1 break-all font-mono text-[11px] text-ink-soft">…/app/#cv=eNqVk…</span>}
+            <span className={`mt-4 font-title text-lg leading-tight md:text-xl ${off ? 'text-ink-soft' : ''}`}>{text}</span>
+            {note && <span className="mt-1 break-all font-mono text-[11px] text-ink-soft">{note}</span>}
           </div>
         ))}
       </div>
-      <figcaption className="mx-auto mt-10 max-w-[46ch] text-center font-body text-lg text-ink-soft">{h.linkNote}</figcaption>
+      <figcaption className="mx-auto mt-10 max-w-[46ch] text-center font-body text-lg text-ink-soft">{isPublic ? h.linkNote : h.privNote}</figcaption>
     </figure>
+  );
+}
+
+/** Private and Public as two tabs; the diagram below shows how the chosen one works. Private first. */
+function PrivacyTabs() {
+  const { m } = useI18n();
+  const h = m.home;
+  const hx = m.homeX;
+  const [mode, setMode] = useState<Mode>('private');
+  const refs = useRef<Record<Mode, HTMLButtonElement | null>>({ private: null, public: null });
+  const tabs: { id: Mode; icon: typeof Lock; title: string; body: string }[] = [
+    { id: 'private', icon: Lock, title: h.privateT, body: h.privateB },
+    { id: 'public', icon: Link2, title: h.publicT, body: h.publicB },
+  ];
+  const onKey = (e: React.KeyboardEvent) => {
+    if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) return;
+    e.preventDefault();
+    const next: Mode = e.key === 'Home' ? 'private' : e.key === 'End' ? 'public' : mode === 'private' ? 'public' : 'private';
+    setMode(next);
+    refs.current[next]?.focus();
+  };
+  return (
+    <>
+      <div role="tablist" aria-label={h.privacyTitle} onKeyDown={onKey} className="mt-12 grid gap-px border border-rule bg-rule md:grid-cols-2">
+        {tabs.map(({ id, icon: Icon, title, body }) => {
+          const on = mode === id;
+          return (
+            <button
+              key={id}
+              ref={(el) => {
+                refs.current[id] = el;
+              }}
+              type="button"
+              role="tab"
+              id={`privacy-tab-${id}`}
+              aria-selected={on}
+              aria-controls="privacy-panel"
+              tabIndex={on ? 0 : -1}
+              onClick={() => setMode(id)}
+              className={`group relative bg-paper p-6 text-left md:p-10 ${on ? 'z-10 ring-2 ring-inset ring-ink' : 'hover:bg-panel'}`}
+            >
+              <span className="flex items-center justify-between gap-4">
+                <Icon size={20} aria-hidden="true" />
+                <span className={`font-mono text-[11px] uppercase tracking-[0.14em] ${on ? 'text-ink' : 'text-ink-soft'}`}>
+                  {on ? <span className="hl">{hx.shownBelow}</span> : hx.showMe}
+                </span>
+              </span>
+              <span className="mt-8 block font-title text-4xl font-normal tracking-[-0.02em] md:text-6xl">{title}</span>
+              <span className="mt-4 block max-w-[36ch] font-body text-lg leading-snug text-ink-soft">{body}</span>
+            </button>
+          );
+        })}
+      </div>
+      <div id="privacy-panel" role="tabpanel" aria-labelledby={`privacy-tab-${mode}`} className="mt-16">
+        <h3 className={label}>{mode === 'public' ? hx.linkTitle : hx.privTitle}</h3>
+        <FlowDiagram mode={mode} />
+      </div>
+    </>
   );
 }
 
@@ -261,22 +345,7 @@ export function Home() {
         </Chapter>
 
         <Chapter id="privacy" title={h.privacyTitle} n={4}>
-          <div className="mt-12 grid gap-px border border-rule bg-rule md:grid-cols-2">
-            {[
-              { icon: Lock, title: h.privateT, body: h.privateB },
-              { icon: Link2, title: h.publicT, body: h.publicB },
-            ].map(({ icon: Icon, title, body }) => (
-              <div key={title} className="bg-paper p-6 md:p-10">
-                <Icon size={20} aria-hidden="true" />
-                <h3 className="mt-8 font-title text-4xl font-normal tracking-[-0.02em] md:text-6xl">{title}</h3>
-                <p className="mt-4 max-w-[36ch] font-body text-lg leading-snug text-ink-soft">{body}</p>
-              </div>
-            ))}
-          </div>
-          <div className="mt-16">
-            <h3 className={label}>{m.homeX.linkTitle}</h3>
-            <LinkDiagram />
-          </div>
+          <PrivacyTabs />
         </Chapter>
 
         <Chapter id="faq" title={h.faqTitle} n={5}>
