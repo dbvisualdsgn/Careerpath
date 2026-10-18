@@ -167,9 +167,6 @@ function WhyChapter() {
 
 type Mode = 'private' | 'public';
 
-/** Hero chips → privacy tabs: pick the diagram to show when the chapter scrolls into view. */
-const PRIVACY_EVENT = 'curricula:privacy';
-const showPrivacy = (mode: Mode) => window.dispatchEvent(new CustomEvent<Mode>(PRIVACY_EVENT, { detail: mode }));
 
 /** How the CV moves (or doesn't): private keeps it in this browser, public sends it inside one link. */
 function FlowDiagram({ mode }: { mode: Mode }) {
@@ -232,11 +229,6 @@ function PrivacyTabs() {
   const h = m.home;
   const hx = m.homeX;
   const [mode, setMode] = useState<Mode>('private');
-  useEffect(() => {
-    const pick = (e: Event) => setMode((e as CustomEvent<Mode>).detail);
-    window.addEventListener(PRIVACY_EVENT, pick);
-    return () => window.removeEventListener(PRIVACY_EVENT, pick);
-  }, []);
   const refs = useRef<Record<Mode, HTMLButtonElement | null>>({ private: null, public: null });
   const tabs: { id: Mode; icon: typeof Lock; title: string; body: string }[] = [
     { id: 'private', icon: Lock, title: h.privateT, body: h.privateB },
@@ -320,24 +312,11 @@ export function Home() {
 
       <main id="main" tabIndex={-1} className="focus:outline-none">
         {/* Opening */}
-        <section className="mx-auto grid max-w-6xl xl:max-w-none xl:px-12 gap-14 px-4 pb-20 pt-14 sm:px-8 md:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] md:items-end md:pb-28 md:pt-24">
+        <section className="mx-auto grid max-w-6xl xl:max-w-none xl:px-12 gap-14 px-4 pb-20 pt-14 sm:px-8 md:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] md:items-center md:pb-28 md:pt-24">
           <div ref={heroRef} className="reveal">
-            <p className={label}>{h.kicker}</p>
-            <h1 className="mt-6 font-title text-[clamp(2.5rem,10vw,3.75rem)] md:text-[clamp(3rem,6vw,6.75rem)] hyphens-auto [overflow-wrap:anywhere] font-normal leading-[0.95]">
+            <h1 className="font-title text-[clamp(2.25rem,10vw,3.75rem)] md:text-[clamp(3rem,6vw,6.75rem)] hyphens-auto md:hyphens-manual [overflow-wrap:break-word] font-normal leading-[0.95]">
               {m.homeX.claimA} <span className="hl">{m.homeX.claimB}</span>
             </h1>
-            {/* The two choices as chips; each opens its diagram in the privacy chapter. */}
-            <p className="mt-6 flex flex-wrap items-center gap-x-[0.3em] gap-y-[0.2em] font-title text-[clamp(1.5rem,6vw,2rem)] leading-none md:text-[clamp(1.75rem,2.6vw,2.75rem)]">
-              <a href="#privacy" onClick={() => showPrivacy('public')} className="hero-chip">
-                <Link2 size="0.85em" aria-hidden="true" className="hero-icon" />
-                {m.homeX.heroShared}
-              </a>{' '}
-              <span>{m.homeX.heroOr}</span>{' '}
-              <a href="#privacy" onClick={() => showPrivacy('private')} className="hero-chip">
-                <Lock size="0.85em" aria-hidden="true" className="hero-icon" />
-                {m.homeX.heroPrivate}
-              </a>
-            </p>
             <p className="mt-8 max-w-[34ch] font-body text-xl leading-snug text-ink-soft md:text-2xl">{h.sub}</p>
             <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-4">
               <a href={`${APP}?new=1`} className={primaryBtn}>

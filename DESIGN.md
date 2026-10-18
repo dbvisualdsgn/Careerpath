@@ -80,8 +80,6 @@ PDF embeds the same title and text fonts.
 - **Recruiter-check frames:** every recruiter-check surface (the card above the CV, the score card in the
   editor, the homepage infographic, the hero pop-over) sits on black via `.on-ink`, which flips the colour
   tokens inside the frame. Text stays AAA (light ink 16:1, soft 9:1) and the yellow highlight keeps ink text.
-- **Hero chips:** "Shared" and "private" are pill links on their own line under the claim, outlined in ink;
-  hover or focus fills them yellow. Each opens the matching diagram in the privacy chapter.
 - **ATS score mark:** dashed outline (<65), outline (65–84), filled (≥85), always with the number.
 - **Icons:** Lucide only, 16–22px, stroke 1.5–2, always `aria-hidden` next to a text label.
 

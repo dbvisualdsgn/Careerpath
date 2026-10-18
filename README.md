@@ -6,7 +6,7 @@ The original design is available at https://www.figma.com/design/68PhbcZDT2IDB8n
 
 ## Pages
 
-- `/` is the homepage (`index.html` → `src/home/`): claim and hero CVs, example CVs, why, how it works, recruiter
+- `/` is the homepage (`index.html` → `src/home/`): claim, subtitle and hero CVs, example CVs, why, how it works, recruiter
   check, private or public, quick answers.
 - `/app/` is the CV tool (`app/index.html` → `src/app/`). `app/?new=1` starts writing and `app/?person=<id>` opens an example CV.
   Old `app/?example=1` links go to `/people/`. `app/?id=<id>` opens a public CV.
