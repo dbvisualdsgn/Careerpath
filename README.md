@@ -6,11 +6,14 @@ The original design is available at https://www.figma.com/design/68PhbcZDT2IDB8n
 
 ## Pages
 
-- `/` is the homepage (`index.html` → `src/home/`): claim, subtitle and hero CVs, example CVs, why, how it works, recruiter
+- `/` is the homepage (`index.html` → `src/home/`): claim, subtitle and hero CVs, example CVs, how it works, recruiter
   check, private or public, quick answers.
 - `/app/` is the CV tool (`app/index.html` → `src/app/`). `app/?new=1` starts writing and `app/?person=<id>` opens an example CV.
   Old `app/?example=1` links go to `/people/`. `app/?id=<id>` opens a public CV.
 - `/people/` lists public CVs (`people/index.html` → `src/people/`). The 17 profiles in `src/app/cv/people.ts` are fictional examples.
+- `/why/` explains why the project exists (`why/index.html` → `src/why/`): one person's passport, driving licence and CV,
+  animated (paused by a button, still under reduced motion), then the idea, where it came from, what it does and doesn't do,
+  your data, and who it's for.
 
 **My CVs:** keep several CVs in the same browser (`src/app/cv/library.ts`). Switch, create and delete them from the
 "My CVs" menu and the editor. An older single CV is migrated automatically.

@@ -372,6 +372,60 @@
   animation-play-state: paused;
 }
 
+/* Why page: passport, licence and CV, each doing its job. The resting state is the end of the story (what reduced
+   motion shows); with motion, each loop starts when the row is seen and stops with the page's Pause button. */
+.doc-arrive { background: var(--highlight); color: #111111; }
+.doc-stamp { transform: rotate(-9deg); }
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes doc-travel {
+    0% { left: 0; opacity: 0; }
+    5% { opacity: 1; }
+    35% { left: calc(100% - 20px); }
+    88% { left: calc(100% - 20px); opacity: 1; }
+    96%, 100% { left: calc(100% - 20px); opacity: 0; }
+  }
+  @keyframes doc-stamp {
+    0%, 36% { opacity: 0; transform: rotate(-9deg) scale(1.8); }
+    41% { opacity: 1; transform: rotate(-9deg) scale(0.94); }
+    45%, 88% { opacity: 1; transform: rotate(-9deg) scale(1); }
+    96%, 100% { opacity: 0; transform: rotate(-9deg) scale(1); }
+  }
+  @keyframes doc-arrive {
+    0%, 35% { background: transparent; color: inherit; }
+    38%, 90% { background: var(--highlight); color: #111111; }
+    96%, 100% { background: transparent; color: inherit; }
+  }
+  @keyframes doc-mark {
+    0%, 8% { background-size: 0% 100%; }
+    30%, 92% { background-size: 100% 100%; }
+    98%, 100% { background-size: 0% 100%; }
+  }
+  @keyframes doc-pop {
+    0%, 40% { opacity: 0; transform: translateY(8px); }
+    46%, 90% { opacity: 1; transform: none; }
+    97%, 100% { opacity: 0; transform: none; }
+  }
+  .docs .doc-travel, .docs .doc-stamp, .docs .doc-arrive, .docs .doc-mark, .docs .doc-pop {
+    animation: 7s cubic-bezier(0.45, 0, 0.55, 1) var(--doc-delay, 0s) infinite both paused;
+  }
+  .docs .doc-travel { animation-name: doc-travel; }
+  .docs .doc-stamp { animation-name: doc-stamp; }
+  .docs .doc-arrive { animation-name: doc-arrive; }
+  .docs .doc-mark { animation-name: doc-mark; }
+  .docs .doc-pop { animation-name: doc-pop; }
+  .docs.is-in .doc-travel, .docs.is-in .doc-stamp, .docs.is-in .doc-arrive, .docs.is-in .doc-mark, .docs.is-in .doc-pop {
+    animation-play-state: running;
+  }
+
+  /* A line of words drifting across the page, drawn twice for a seamless loop. */
+  @keyframes ticker {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+  .ticker-track { animation: ticker 45s linear infinite; }
+}
+[data-paused] .docs *, [data-paused] .ticker-track { animation-play-state: paused !important; }
+
 @media (prefers-reduced-motion: reduce) {
   .gallery-track { animation: none !important; transform: none; }
   .gallery-copy, .gallery-toggle { display: none !important; }

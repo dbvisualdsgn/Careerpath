@@ -105,6 +105,11 @@ Motion is allowed only where it helps reading, and it never hides content for lo
   it; after a hold the next one comes. Previous, Pause and Next buttons sit under the card (WCAG 2.2.2). Under
   reduced motion each card shows finished and nothing rotates. Each palette keeps ink at 13:1 or more and
   soft text at 7:1 or more.
+- **Why page documents:** Amara Okafor (an example CV) has a passport, a driving licence and a CV
+  (`src/why/Documents.tsx`). In a 7s loop a plane flies to Rome and a yellow entry stamp lands, a car
+  drives to the hospital and it lights up, a result on the CV is highlighted and an interview invitation
+  appears. The resting state is the end of each story, which is what reduced motion shows. A ticker of the
+  same words drifts above them. One Pause button stops both (WCAG 2.2.2).
 - **Accents in motion:** only ink (black) and the highlight yellow move or animate; signal orange is kept
   for static error marks.
 - **Reduced motion:** with `prefers-reduced-motion: reduce`, all of it is off. Sections, highlights and bars

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23ECEAE5'/%3E%3Ctext x='16' y='22' text-anchor='middle' font-family='Georgia,serif' font-size='20' fill='%23111111'%3Ecc%3C/text%3E%3C/svg%3E" />
+    <title>Why · curriculi curricula</title>
+    <meta name="description" content="Nobody designs their own passport. Why curriculi curricula exists: one CV template, designed once and well, free for everyone." />
+    <meta name="theme-color" content="#eceae5" />
+    <script>
+      // Apply the saved "Aa" typefaces and paper light before first paint.
+      try {
+        var d = document.documentElement.dataset, old = localStorage.getItem('curricula.type');
+        var face = function (k, fallback) { var v = localStorage.getItem(k); return v === 'sans' || v === 'serif' ? v : old === 'serif' ? 'serif' : old ? 'sans' : fallback; };
+        // Title font: a saved Fontshare family (the default, Clash Display, ships with the CSS).
+        var t = localStorage.getItem('curricula.title');
+        t = t === 'sans' ? 'switzer' : t === 'serif' ? 'gambetta' : t || (old === 'serif' ? 'gambetta' : old ? 'switzer' : '');
+        if (/^[a-z0-9-]+$/.test(t) && t !== 'clash-display') {
+          var st = document.createElement('style');
+          st.id = 'title-font-face';
+          st.dataset.slug = t;
+          st.textContent = "@font-face{font-family:'Title Active';src:url('../fonts/titles/" + t + ".woff2') format('woff2');font-weight:100 900;font-display:swap}";
+          document.head.appendChild(st);
+        }
+        d.body = face('curricula.body', 'serif');
+        var v = JSON.parse(localStorage.getItem('curricula.paper.vars') || 'null');
+        if (v) for (var k in v) if (/^--[\w-]+$/.test(k) && /^#[0-9a-f]{6}$/i.test(v[k])) document.documentElement.style.setProperty(k, v[k]);
+      } catch (e) {}
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/why/main.tsx"></script>
+  </body>
+</html>

@@ -103,68 +103,6 @@ function AtsInfographic() {
   );
 }
 
-/** Three documents side by side: each designed once, the same for everyone. The CV is the one this site designs. */
-function DocumentTrio() {
-  const { m } = useI18n();
-  const h = m.homeX;
-  // Real proportions: passport booklet (88 × 125 mm), ID-1 card (85.6 × 54 mm), A4 page.
-  const docs = [
-    { name: h.docPassport, w: 'w-[22%]', ratio: '88 / 125', lines: 2 },
-    { name: h.docLicence, w: 'w-[22%]', ratio: '85.6 / 54', lines: 2 },
-    { name: h.docCv, w: 'w-[38%]', ratio: '210 / 297', lines: 6, ours: true },
-  ];
-  return (
-    <figure className="mt-12">
-      <ul className="flex items-end gap-[4%]">
-        {docs.map((d) => (
-          <li key={d.name} className={d.w}>
-            <div
-              aria-hidden="true"
-              className={`flex flex-col gap-[7%] border border-ink p-[9%] ${d.ours ? 'bg-highlight text-[#111]' : 'bg-paper'}`}
-              style={{ aspectRatio: d.ratio }}
-            >
-              <span className="block h-[3px] w-3/5 bg-current" />
-              {Array.from({ length: d.lines }, (_, i) => (
-                <span key={i} className={`block h-px bg-current ${i % 3 === 2 ? 'w-2/3' : 'w-full'}`} />
-              ))}
-            </div>
-            <p className="mt-3 font-mono text-[11px] uppercase tracking-[0.14em]">{d.name}</p>
-          </li>
-        ))}
-      </ul>
-      <figcaption className="mt-6 font-body text-[15px] text-ink-soft">{h.docNote}</figcaption>
-    </figure>
-  );
-}
-
-/** Why it exists: the CV as a document, designed once and well, for everyone. */
-function WhyChapter() {
-  const { m } = useI18n();
-  const h = m.homeX;
-  const [before, after] = h.why4.split('{name}');
-  return (
-    <div className="mt-12 grid gap-14 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-20">
-      <div>
-        <p className="max-w-[30ch] font-body text-2xl leading-snug md:text-3xl">{h.why1}</p>
-        <p className="mt-6 max-w-[44ch] font-body text-lg leading-relaxed text-ink-soft">{h.why2}</p>
-        <DocumentTrio />
-      </div>
-      <div>
-        <blockquote className="border-l-2 border-ink pl-6">
-          <p className="font-title text-3xl leading-[1.05] tracking-[-0.02em] md:text-5xl">{h.whyQuote}</p>
-          <footer className="mt-4 font-mono text-[11px] uppercase tracking-[0.14em] text-ink-soft">Daniele Brusca</footer>
-        </blockquote>
-        <p className="mt-10 max-w-[44ch] font-body text-lg leading-relaxed text-ink-soft">{h.why3}</p>
-        <p className="mt-4 max-w-[44ch] font-body text-lg leading-relaxed text-ink">
-          {before}
-          <span className="whitespace-nowrap">curriculi <em>curricula</em></span>
-          {after}
-        </p>
-      </div>
-    </div>
-  );
-}
-
 type Mode = 'private' | 'public';
 
 
@@ -347,11 +285,7 @@ export function Home() {
           </div>
         </Chapter>
 
-        <Chapter id="why" title={m.homeX.whyTitle} n={2}>
-          <WhyChapter />
-        </Chapter>
-
-        <Chapter id="how" title={h.howTitle} n={3}>
+        <Chapter id="how" title={h.howTitle} n={2}>
           <ol className="mt-12 grid gap-px border border-rule bg-rule sm:grid-cols-2 lg:grid-cols-4">
             {steps.map(({ icon: Icon, title, body }, i) => (
               <li key={title} className="flex flex-col bg-paper p-6 md:p-8">
@@ -368,15 +302,15 @@ export function Home() {
           </ol>
         </Chapter>
 
-        <Chapter id="ats" title={m.homeX.atsTitle} n={4}>
+        <Chapter id="ats" title={m.homeX.atsTitle} n={3}>
           <AtsInfographic />
         </Chapter>
 
-        <Chapter id="privacy" title={h.privacyTitle} n={5}>
+        <Chapter id="privacy" title={h.privacyTitle} n={4}>
           <PrivacyTabs />
         </Chapter>
 
-        <Chapter id="faq" title={h.faqTitle} n={6}>
+        <Chapter id="faq" title={h.faqTitle} n={5}>
           <dl className="mt-12 border-t border-ink">
             {faq.map(([q, a]) => (
               <div key={q} className="grid gap-1 border-b border-rule py-5 sm:grid-cols-2 sm:gap-6">
@@ -405,6 +339,10 @@ export function Home() {
         <div className="mx-auto flex max-w-6xl xl:max-w-none xl:px-12 flex-col gap-6 px-4 py-10 sm:flex-row sm:items-center sm:justify-between sm:px-8">
           <Wordmark href="./" />
           <p className="font-body text-[15px] text-ink-soft">{h.footer}</p>
+          <a href="why/" className={`nudge ${textLink}`}>
+            {m.why.kicker}
+            <ArrowRight size={20} aria-hidden="true" />
+          </a>
           <a href="https://github.com/dbvisualdsgn/Careerpath" className={textLink} rel="noopener noreferrer" target="_blank">
             <Github size={20} aria-hidden="true" />
             {h.source}
