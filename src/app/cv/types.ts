@@ -6,9 +6,13 @@ export interface Profile {
   location: string;
   website: string;
   linkedin: string;
-  /** Square photo as a small grayscale JPEG data URL. */
+  /** Square photo as a grayscale JPEG data URL. */
   photo?: string;
+  /** What sits next to the name: nothing, the initials in a black square, or the photo. */
+  avatar?: AvatarMode;
 }
+
+export type AvatarMode = 'none' | 'initials' | 'photo';
 
 export interface Tool {
   id: string;

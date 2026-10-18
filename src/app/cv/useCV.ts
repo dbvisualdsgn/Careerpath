@@ -35,6 +35,7 @@ export function normalize(input: unknown): CVData {
       website: str(p.website, 300),
       linkedin: str(p.linkedin, 300),
       photo: safeImage(p.photo),
+      avatar: p.avatar === 'none' || p.avatar === 'initials' || p.avatar === 'photo' ? p.avatar : undefined,
     },
     summary: str(data.summary),
     skills: list(data.skills).filter((s): s is string => typeof s === 'string').map((s) => s.slice(0, 120)),

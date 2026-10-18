@@ -64,8 +64,13 @@ PDF embeds the same title and text fonts.
 
 - **Section opener:** 1px ink rule and a mono title (`SectionHead`). No running numbers on the CV.
 - **CV sheet:** the CV sits on one sheet (`panel`, a shade lighter than the `paper` desk) with a hairline
-  edge and a soft shadow. Print drops the sheet. The photo sits on the left of the name: square, no
-  rounding, grayscale (480px). Your own CV without a photo shows a dashed "Add photo" square that opens the editor.
+  edge and a soft shadow. Print drops the sheet. Next to the name, on the left, the person picks nothing,
+  their initials (a black square) or a photo (square, no rounding, grayscale, 480px). The PDF follows the same choice.
+- **CV page bars:** row 1 is the site (back, wordmark, My CVs, Public CVs). Row 2 is the CV menu, everything
+  you can do with this CV: Edit, Recruiter check, Skim view | typefaces, language, light | Private/Public,
+  Share, Download, Delete. Labels show from `md`; below that the buttons are icons with names for screen readers.
+- **Recruiter check on the page:** the black frame shows only while "Recruiter check" is on in the CV menu.
+  "See the full check" opens the job-ad match and every tip under it. The editor holds only the CV's content.
 - **Summary panel:** the summary sits in a hairline box on `paper`, the only tinted block on the sheet.
 - **Skills:** core skills and tools side by side in 2 columns from `md`, stacked on phones.
 - **Ruled lists:** entries separated by `rule` hairlines (experience, education, FAQ).

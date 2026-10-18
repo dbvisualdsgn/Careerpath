@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { ArrowRight, ClipboardPaste, EyeOff, Plus } from 'lucide-react';
+import { ChevronDown, ClipboardPaste, EyeOff, Plus } from 'lucide-react';
 import { runAtsCheck, type Finding } from '../cv/atsCheck';
 import { useCountUp, useReveal } from '../hooks/useReveal';
 import { fmt, useI18n } from '../i18n';
@@ -9,13 +9,17 @@ interface AtsSummaryProps {
   cv: CVData;
   /** Job title from the pasted ad, if any. */
   targetTitle?: string;
-  onOpen: (section?: Finding['section']) => void;
-  /** Open the check on the job-ad box. */
+  /** Open the editor on the section a tip is about. */
+  onOpen: (section: Finding['section']) => void;
+  /** Open the full check on the job-ad box. */
   onJobAd: () => void;
+  /** The full check (job ad, every tip) is open below. */
+  fullOpen: boolean;
+  onToggleFull: () => void;
 }
 
 /** The ATS check, up front on the CV page: big score, a 20-step meter and the first fixes as pills. */
-export function AtsSummary({ cv, targetTitle, onOpen, onJobAd }: AtsSummaryProps) {
+export function AtsSummary({ cv, targetTitle, onOpen, onJobAd, fullOpen, onToggleFull }: AtsSummaryProps) {
   const { m, locale } = useI18n();
   const report = useMemo(() => runAtsCheck(cv, locale, { targetTitle }), [cv, locale, targetTitle]);
   const shown = useCountUp(report.score);
@@ -81,9 +85,15 @@ export function AtsSummary({ cv, targetTitle, onOpen, onJobAd }: AtsSummaryProps
           <ClipboardPaste size={20} aria-hidden="true" />
           {targetTitle ? <>{m.app.jobAdShort}: {targetTitle}</> : m.app.jobAd}
         </button>
-        <button type="button" onClick={() => onOpen()} className="nudge inline-flex items-center gap-1.5 font-sans text-[14px] underline decoration-1 underline-offset-[6px]">
+        <button
+          type="button"
+          onClick={onToggleFull}
+          aria-expanded={fullOpen}
+          aria-controls="ats-full"
+          className="inline-flex items-center gap-1.5 font-sans text-[14px] underline decoration-1 underline-offset-[6px]"
+        >
           {m.atsCard.open}
-          <ArrowRight size={20} aria-hidden="true" />
+          <ChevronDown size={20} aria-hidden="true" className={`transition-transform motion-reduce:transition-none ${fullOpen ? 'rotate-180' : ''}`} />
         </button>
       </div>
     </section>

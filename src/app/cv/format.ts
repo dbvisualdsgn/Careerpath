@@ -1,4 +1,4 @@
-import type { CVData, Experience } from './types';
+import type { AvatarMode, CVData, Experience, Profile } from './types';
 import type { Messages } from '../i18n/en';
 import { saveFile } from './save';
 
@@ -99,3 +99,7 @@ const PRESENT = /^(present|current|now)$/i;
 export const downloadFile = (filename: string, content: string, type: string) => saveFile(filename, content, type);
 
 export const fileSlug = (name: string) => name.trim().replace(/\s+/g, '_').replace(/[^\w-]/g, '') || 'CV';
+
+/** What to show next to the name. Older CVs have no choice saved: their photo if they have one, else nothing. */
+export const avatarOf = (p: Profile): AvatarMode =>
+  p.avatar === 'initials' ? 'initials' : p.avatar === 'none' || !p.photo ? 'none' : 'photo';

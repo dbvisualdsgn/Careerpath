@@ -1,10 +1,9 @@
-import { useEffect, useId, useMemo, useRef, useState } from 'react';
-import { AlertCircle, AlertTriangle, Check, CheckCircle2, Lightbulb, Plus, RotateCw } from 'lucide-react';
+import { useEffect, useId, useMemo, useRef } from 'react';
+import { AlertCircle, AlertTriangle, Check, CheckCircle2, Lightbulb, Plus } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '../ui/button';
 import { Textarea } from '../ui/textarea';
 import { Input } from '../ui/input';
-import { Progress } from '../ui/progress';
 import { matchKeywords, runAtsCheck, titleMatch, type Finding } from '../../cv/atsCheck';
 import { setJobAdText, setJobAdTitle, useJobAd } from '../../cv/jobAd';
 import { fmt, useI18n } from '../../i18n';
@@ -44,30 +43,10 @@ export function AtsPanel({ cv, onJump, onAddSkill, onSetHeadline, focusJobAd = 0
       jdRef.current?.scrollIntoView({ block: 'center' });
     }
   }, [focusJobAd]);
-  // Bumped by the refresh button to force a fresh run (the check also re-runs on every edit).
-  const [runId, setRunId] = useState(0);
-  const [spinning, setSpinning] = useState(false);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const report = useMemo(() => runAtsCheck(cv, locale, { targetTitle: title }), [cv, locale, title, runId]);
-  const [checkedAt, setCheckedAt] = useState(() => new Date());
-  const timeLabel = checkedAt.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-
-  const refresh = () => {
-    // Commit a field that is still being edited (e.g. skills save on blur) before re-checking.
-    if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
-    setSpinning(true);
-    // Wait a tick so the blur's state update lands before the new run.
-    setTimeout(() => {
-      setRunId((n) => n + 1);
-      setCheckedAt(new Date());
-      setSpinning(false);
-      toast.success(m.ats.refreshed);
-    }, 350);
-  };
+  const report = useMemo(() => runAtsCheck(cv, locale, { targetTitle: title }), [cv, locale, title]);
   const match = useMemo(() => (hasAd ? matchKeywords(cv, jd, locale) : null), [cv, jd, hasAd, locale]);
   const fit = title.trim() ? titleMatch(cv, title) : null;
 
-  const scoreLabel = report.score >= 85 ? m.ats.strong : report.score >= 65 ? m.ats.good : m.ats.needsWork;
   // The fixes worth the most points come first.
   const findings = [...report.findings].sort((a, b) => b.weight - a.weight);
   const message = (f: Finding) =>
@@ -75,27 +54,6 @@ export function AtsPanel({ cv, onJump, onAddSkill, onSetHeadline, focusJobAd = 0
 
   return (
     <div className="space-y-6">
-      <div className="on-ink p-4">
-        <div className="flex items-baseline justify-between">
-          <h3 className="text-sm font-medium"><span className="hl">{m.ats.readiness}</span></h3>
-          <p className="font-title text-5xl tabular-nums tracking-[-0.03em]">
-            {report.score}
-            <span className="text-sm text-zinc-600 dark:text-zinc-400">/100</span>
-          </p>
-        </div>
-        <Progress value={report.score} className="mt-2" aria-label={m.ats.readiness} />
-        <p className="mt-2 text-xs text-zinc-600 dark:text-zinc-400" aria-live="polite">
-          {fmt(m.ats.summaryLine, { label: scoreLabel, words: report.wordCount, count: report.findings.length })}
-        </p>
-        <div className="mt-3 flex items-center justify-between gap-3 border-t border-zinc-200 dark:border-zinc-800 pt-3">
-          <p className="text-[11px] text-zinc-600 dark:text-zinc-400">{fmt(m.ats.lastChecked, { time: timeLabel })}</p>
-          <Button type="button" variant="outline" size="sm" className="h-8 gap-1.5 text-xs" onClick={refresh} disabled={spinning}>
-            <RotateCw size={20} aria-hidden="true" className={spinning ? 'animate-spin motion-reduce:animate-none' : ''} />
-            {m.ats.refresh}
-          </Button>
-        </div>
-      </div>
-
       <section>
         <h3 className={headingClass}>
           <label htmlFor={jdId}>{m.ats.jdTitle}</label>

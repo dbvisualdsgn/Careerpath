@@ -24,6 +24,7 @@ export const en = {
     cvTitle: 'CV',
     jobAd: 'Paste a job ad',
     jobAdShort: 'Job ad',
+    cvActions: 'This CV',
   },
   skim: {
     label: 'Skim view',
@@ -85,6 +86,10 @@ export const en = {
     hint: 'Square, shown in black and white. Many ATS ignore photos, and US/UK employers prefer none.',
     alt: 'Photo of {name}',
     error: 'Choose an image file (JPG, PNG or WebP).',
+    show: 'Next to your name',
+    none: 'Nothing',
+    initials: 'Initials',
+    photo: 'Photo',
   },
   download: {
     title: 'Download PDF',

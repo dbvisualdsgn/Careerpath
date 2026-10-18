@@ -1,6 +1,6 @@
 import { ReadingControls } from './components/ReadingControls';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Mail, Share2, Phone, MapPin, Linkedin, PencilLine, Eye, Globe, ArrowLeft, Loader2, Lock, Camera } from 'lucide-react';
+import { Mail, Share2, Phone, MapPin, Linkedin, PencilLine, Eye, Globe, ArrowLeft, Loader2, Lock, ScanEye } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { Toaster, toast } from 'sonner';
 import { TooltipProvider } from './components/ui/tooltip';
@@ -9,15 +9,16 @@ import { ExperienceCard } from './components/ExperienceCard';
 import { CertificationCard } from './components/CertificationCard';
 import { Wordmark } from './components/Wordmark';
 import { PrintCV } from './components/PrintCV';
-import { CVEditor, type EditorTab } from './components/editor/CVEditor';
-import { runAtsCheck } from './cv/atsCheck';
+import { CVEditor, sectionTab, type EditorTab } from './components/editor/CVEditor';
+import { runAtsCheck, type Finding } from './cv/atsCheck';
 import { useJobAd } from './cv/jobAd';
 import { hasSavedCV, useLibrary } from './cv/library';
 import { LibraryMenu } from './components/LibraryMenu';
-import { displayUrl, hrefUrl, toJsonLd } from './cv/format';
+import { avatarOf, displayUrl, hrefUrl, toJsonLd } from './cv/format';
 import { DownloadMenu } from './components/DownloadMenu';
 import { AtsSummary } from './components/AtsSummary';
-import { SkimToggle } from './components/SkimToggle';
+import { DeleteCVButton } from './components/DeleteCVButton';
+import { AtsPanel } from './components/editor/AtsPanel';
 import { BeyondNote, beyondNoteWanted } from './components/BeyondNote';
 import { PrivacySwitch } from './components/PrivacySwitch';
 import { Portrait } from './components/Portrait';
@@ -36,8 +37,10 @@ import { I18nProvider, fmt, useI18n } from './i18n';
 const hadSavedCV = hasSavedCV();
 
 const microLabel = 'font-mono text-[11px] uppercase tracking-[0.14em] text-ink-soft';
-const headerBtn =
-  'inline-flex h-9 items-center gap-2 rounded-sm px-1.5 text-[13px] text-ink hover:bg-zinc-100 disabled:opacity-60 dark:hover:bg-zinc-800 lg:px-3';
+// CV menu buttons: icon, with a label from md up. Pressed = ink fill (the shared button states).
+const toolBtn =
+  'inline-flex h-9 min-w-9 items-center justify-center gap-2 rounded-sm px-2 text-[13px] text-ink hover:bg-zinc-100 disabled:opacity-60 aria-pressed:bg-ink aria-pressed:text-paper dark:hover:bg-zinc-800';
+const toolLabel = 'hidden whitespace-nowrap md:inline';
 
 export default function App() {
   return (
@@ -194,23 +197,32 @@ function CVPage() {
   const jobAd = useJobAd();
   const targetTitle = sharedCV ? undefined : jobAd.title;
   const atsScore = useMemo(() => runAtsCheck(cv, locale, { targetTitle }).score, [cv, locale, targetTitle]);
-  const atsOpen = editing && editorTab === 'ats';
   const [skim, setSkim] = useState(false);
+  const [skimTouched, setSkimTouched] = useState(false);
+  // The recruiter check sits above the CV only while it is switched on in the CV menu.
+  const [checkOpen, setCheckOpen] = useState(false);
+  const [fullCheck, setFullCheck] = useState(false);
   const [jobAdRequest, setJobAdRequest] = useState(0);
   const [beyondOpen, setBeyondOpen] = useState(false);
   const openJobAd = () => {
-    setEditorTab('ats');
-    setEditing(true);
+    setFullCheck(true);
     setJobAdRequest((n) => n + 1);
   };
-  const toggleAts = () => {
-    if (atsOpen) setEditing(false);
-    else {
-      setEditorTab('ats');
-      setEditing(true);
+  const openSection = (section: Finding['section']) => {
+    setEditorTab(sectionTab[section]);
+    setEditing(true);
+  };
+  // A public CV is taken down before it is deleted, so no copy is left that nobody controls.
+  const deleteOwn = async () => {
+    if (publishing.isPublic && !(await publishing.makePrivate())) {
+      toast.error(m.publish.privateFailed);
+      return false;
     }
+    remove(activeId);
+    return true;
   };
   const { profile } = cv;
+  const avatar = avatarOf(profile);
   const bannerText =
     banner === 'directory' ? m.directory.banner : banner === 'public' ? m.shared.publicBanner : m.shared.banner;
   const name = profile.name || m.app.namePlaceholder;
@@ -264,12 +276,9 @@ function CVPage() {
       <div className={`print:hidden ${editing ? 'lg:pr-[480px]' : ''}`}>
         {!embed && (
         <header className="sticky top-0 z-40 w-full border-b border-rule bg-paper">
-          <nav
-            aria-label={m.app.home}
-            // Typefaces, language and light sit in the middle of the bar (3 columns) when there is room.
-            className={`mx-auto flex max-w-4xl flex-wrap xl:max-w-6xl 2xl:max-w-7xl items-center justify-between gap-x-2 gap-y-1 px-4 py-2 sm:h-16 sm:flex-nowrap sm:py-0 sm:px-6 ${editing ? '' : 'lg:grid lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:gap-4'}`}
-          >
-            <div className="flex items-center gap-1">
+          {/* Row 1: the site. Row 2: everything you can do with this CV. */}
+          <nav aria-label={m.app.home} className="mx-auto flex h-14 max-w-5xl items-center justify-between gap-2 px-3 sm:px-6">
+            <div className="flex min-w-0 items-center gap-1">
               <a href="../" aria-label={m.app.home} className="hidden h-9 w-9 items-center justify-center rounded-sm hover:bg-zinc-100 dark:hover:bg-zinc-800 md:inline-flex">
                 <ArrowLeft size={20} aria-hidden="true" />
               </a>
@@ -290,50 +299,62 @@ function CVPage() {
                 />
               )}
             </div>
-            <div className="order-3 -mx-1.5 flex w-full items-center justify-between gap-0.5 border-t border-rule pt-1 sm:order-2 sm:mx-0 sm:w-auto sm:justify-end sm:gap-1 sm:border-0 sm:pt-0 lg:order-3 lg:justify-self-end">
-              {!sharedCV && (
-                <PrivacySwitch isPublic={publishing.isPublic} busy={publishing.busy} onChange={togglePublic} />
-              )}
-              <button type="button" onClick={() => setShareOpen(true)} aria-label={m.app.share} className={headerBtn}>
-                <Share2 size={20} aria-hidden="true" />
-                <span className={editing ? 'hidden' : 'hidden 2xl:inline'}>{m.app.share}</span>
-              </button>
-              {!sharedCV && (
-                <>
-                  <button
-                    type="button"
-                    onClick={toggleAts}
-                    aria-pressed={atsOpen}
-                    aria-label={`${m.editor.tabs.ats}: ${atsScore}/100`}
-                    title={`${m.ats.readiness}: ${atsScore}/100`}
-                    className={`${headerBtn} ${atsOpen ? 'bg-zinc-100 dark:bg-zinc-800' : ''}`}
-                  >
-                    <ScoreMark score={atsScore} />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (editing && !atsOpen) setEditing(false);
-                      else {
-                        if (editorTab === 'ats') setEditorTab('profile');
-                        setEditing(true);
-                      }
-                    }}
-                    aria-pressed={editing && !atsOpen}
-                    aria-label={m.app.edit}
-                    title={m.app.edit}
-                    className={`${headerBtn} ${editing && !atsOpen ? 'bg-zinc-100 dark:bg-zinc-800' : ''}`}
-                  >
-                    <PencilLine size={20} aria-hidden="true" />
-                  </button>
-                </>
-              )}
-              <DownloadMenu cv={cv} compact={editing} onDownloaded={() => beyondNoteWanted() && setBeyondOpen(true)} />
-            </div>
-            <div className="order-2 flex items-center sm:order-3 lg:order-2 lg:justify-self-center">
-              <ReadingControls />
-            </div>
+            <a href="../people/" className="inline-flex h-9 shrink-0 items-center rounded-sm px-2 text-[13px] text-ink hover:bg-zinc-100 dark:hover:bg-zinc-800">
+              {m.directory.nav}
+            </a>
           </nav>
+          <div role="group" aria-label={m.app.cvActions} className="border-t border-rule">
+            <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-x-2 gap-y-1 px-3 py-1.5 sm:px-6">
+              <div className="flex items-center gap-0.5">
+                {!sharedCV && (
+                  <>
+                    <button type="button" onClick={() => setEditing((on) => !on)} aria-pressed={editing} title={m.app.edit} className={toolBtn}>
+                      <PencilLine size={20} aria-hidden="true" />
+                      <span className={toolLabel}>{m.app.edit}</span>
+                      <span className="sr-only md:hidden">{m.app.edit}</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setCheckOpen((on) => !on)}
+                      aria-pressed={checkOpen}
+                      aria-label={`${m.atsCard.title}: ${atsScore}/100`}
+                      title={`${m.atsCard.title}: ${atsScore}/100`}
+                      className={toolBtn}
+                    >
+                      <ScoreMark score={atsScore} />
+                      <span className={toolLabel}>{m.atsCard.title}</span>
+                    </button>
+                  </>
+                )}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSkimTouched(true);
+                    setSkim((on) => !on);
+                  }}
+                  aria-pressed={skim}
+                  aria-describedby="skim-hint"
+                  title={m.skim.hint}
+                  className={toolBtn}
+                >
+                  <ScanEye size={20} aria-hidden="true" />
+                  <span className={toolLabel}>{m.skim.label}</span>
+                  <span className="sr-only md:hidden">{m.skim.label}</span>
+                </button>
+                <span id="skim-hint" className="sr-only">{m.skim.hint}</span>
+                <span className="sr-only" role="status">{skim ? m.skim.on : skimTouched ? m.skim.off : ''}</span>
+              </div>
+              <ReadingControls />
+              <div className="flex items-center gap-0.5">
+                {!sharedCV && <PrivacySwitch isPublic={publishing.isPublic} busy={publishing.busy} onChange={togglePublic} />}
+                <button type="button" onClick={() => setShareOpen(true)} aria-label={m.app.share} title={m.app.share} className={toolBtn}>
+                  <Share2 size={20} aria-hidden="true" />
+                </button>
+                <DownloadMenu cv={cv} compact onDownloaded={() => beyondNoteWanted() && setBeyondOpen(true)} />
+                {!sharedCV && <DeleteCVButton name={ownCV.profile.name} onDelete={deleteOwn} className={toolBtn} />}
+              </div>
+            </div>
+          </div>
           {/* A live region that is always there, so the note is announced when it appears. */}
           <div role="status">{beyondOpen && <BeyondNote onClose={() => setBeyondOpen(false)} />}</div>
         </header>
@@ -358,25 +379,23 @@ function CVPage() {
           </div>
         )}
 
-        {!sharedCV && !publicId && (
-          <aside aria-label={m.atsCard.title} className="mx-auto max-w-5xl px-3 pt-8 sm:px-6 md:pt-10">
-            <AtsSummary
-              cv={cv}
-              targetTitle={targetTitle}
-              onJobAd={openJobAd}
-              onOpen={(section) => {
-                setEditorTab(section === 'profile' || section === 'summary' ? 'profile' : section === 'skills' ? 'skills' : section === 'experience' ? 'experience' : section ? 'more' : 'ats');
-                setEditing(true);
-              }}
-            />
+        {!sharedCV && !publicId && checkOpen && (
+          <aside aria-label={m.atsCard.title} className="mx-auto max-w-5xl px-3 pt-6 sm:px-6 md:pt-8">
+            <AtsSummary cv={cv} targetTitle={targetTitle} onJobAd={openJobAd} onOpen={openSection} fullOpen={fullCheck} onToggleFull={() => setFullCheck((on) => !on)} />
+            {fullCheck && (
+              <div id="ats-full" className="border border-t-0 border-ink bg-paper p-5 md:p-7">
+                <AtsPanel
+                  cv={ownCV}
+                  focusJobAd={jobAdRequest}
+                  onJump={openSection}
+                  onSetHeadline={(headline) => update((d) => ({ ...d, profile: { ...d.profile, headline } }))}
+                  onAddSkill={(skill) =>
+                    update((d) => (d.skills.some((k) => k.toLowerCase() === skill.toLowerCase()) ? d : { ...d, skills: [...d.skills, skill] }))
+                  }
+                />
+              </div>
+            )}
           </aside>
-        )}
-
-        {/* One column in standard ATS order: contact, summary, skills, experience, education, certifications, languages */}
-        {!embed && remote === 'idle' && (
-          <div className="mx-auto max-w-5xl px-3 pt-8 print:hidden sm:px-6">
-            <SkimToggle on={skim} onChange={setSkim} />
-          </div>
         )}
 
         {remote !== 'idle' ? (
@@ -409,22 +428,16 @@ function CVPage() {
           {/* The sheet: one page of paper on the desk. */}
           <div className="space-y-10 border border-rule bg-panel px-5 py-8 shadow-[0_1px_0_var(--rule),0_12px_32px_-18px_rgb(0_0_0/0.25)] sm:px-10 md:space-y-12 md:px-14 md:py-14 print:space-y-8 print:border-0 print:bg-transparent print:p-0 print:shadow-none">
           <div className="grid items-start gap-6 sm:grid-cols-[minmax(0,10rem)_minmax(0,1fr)] sm:gap-8 md:grid-cols-[minmax(0,13rem)_minmax(0,1fr)] md:gap-10">
-            {profile.photo ? (
-              <Portrait photo={profile.photo} name={name} alt={fmt(m.photo.alt, { name })} className="aspect-square w-32 sm:w-full" />
-            ) : !sharedCV ? (
-              <button
-                type="button"
-                onClick={() => {
-                  setEditorTab('profile');
-                  setEditing(true);
-                }}
-                className="flex aspect-square w-32 flex-col items-center justify-center gap-2 border border-dashed border-ink-soft bg-paper font-sans text-[13px] text-ink-soft hover:border-ink hover:text-ink sm:w-full print:hidden"
-              >
-                <Camera size={20} aria-hidden="true" />
-                {m.photo.add}
-              </button>
-            ) : null}
-            <div className={`min-w-0 ${!profile.photo && sharedCV ? 'sm:col-span-2' : ''}`}>
+            {avatar !== 'none' && (
+              <Portrait
+                skimKeep
+                photo={avatar === 'photo' ? profile.photo : undefined}
+                name={name}
+                alt={fmt(m.photo.alt, { name })}
+                className="aspect-square w-32 text-[3.5rem] sm:w-full md:text-[5rem]"
+              />
+            )}
+            <div className={`min-w-0 ${avatar === 'none' ? 'sm:col-span-2' : ''}`}>
                 <p className={microLabel}>{m.app.cvTitle}</p>
                 <h1 data-skim-keep className="mt-3 font-title text-[clamp(2.25rem,7vw,4.75rem)] hyphens-auto [overflow-wrap:anywhere] font-normal leading-[0.92] tracking-[-0.035em]">{name}</h1>
                 <p data-skim-keep className="mt-3 font-title text-xl text-ink-soft md:text-2xl">{headline}</p>
@@ -636,23 +649,10 @@ function CVPage() {
         versionName={versionName}
         onRenameVersion={rename}
         onSaveVersion={(name) => duplicate(name)}
-        jobAdRequest={jobAdRequest}
         tab={editorTab}
         onTabChange={setEditorTab}
         onCreate={(next) => create(next)}
         onImportPdf={() => pdfRef.current?.click()}
-        isPublic={publishing.isPublic}
-        publishBusy={publishing.busy}
-        onTogglePublic={togglePublic}
-        onDelete={async () => {
-          // A public CV is taken down before it is deleted, so no copy is left that nobody controls.
-          if (publishing.isPublic && !(await publishing.makePrivate())) {
-            toast.error(m.publish.privateFailed);
-            return false;
-          }
-          remove(activeId);
-          return true;
-        }}
       />
       <input
         ref={pdfRef}

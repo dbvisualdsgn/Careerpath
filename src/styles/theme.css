@@ -477,6 +477,15 @@ main[data-skim] img:not([data-skim-keep] img),
 main[data-skim] svg:not([data-skim-keep] svg) {
   opacity: 0.4;
 }
+/* Initials squares (avatar, company marks) step back like images instead of losing their letters. */
+main[data-skim] .bg-ink.text-paper {
+  color: var(--paper);
+  opacity: 0.4;
+}
+main[data-skim] [data-skim-keep].bg-ink.text-paper {
+  color: var(--paper);
+  opacity: 1;
+}
 
 /* Kobo-style light sliders: square thumb, hairline track showing the range of the setting. */
 .paper-range {

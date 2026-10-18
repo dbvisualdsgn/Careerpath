@@ -1,17 +1,5 @@
 import { cloneElement, isValidElement, useEffect, useId, useRef, useState } from 'react';
-import { ArrowDown, ArrowRight, ArrowUp, Camera, ClipboardPaste, Copy, FileDown, FileText, FileUp, Plus, Trash2, FilePlus2 } from 'lucide-react';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '../ui/alert-dialog';
-import { PrivacySwitch } from '../PrivacySwitch';
+import { ArrowDown, ArrowUp, Camera, Copy, FileDown, FileText, FileUp, Plus, Trash2, FilePlus2 } from 'lucide-react';
 import { Portrait } from '../Portrait';
 import { processPhoto } from '../../cv/photo';
 import { toast } from 'sonner';
@@ -22,15 +10,13 @@ import { Textarea } from '../ui/textarea';
 import { Label } from '../ui/label';
 import { Button } from '../ui/button';
 import { IconPicker } from './IconPicker';
-import { AtsPanel } from './AtsPanel';
-import { useJobAd } from '../../cv/jobAd';
 import { SaveVersionDialog } from './SaveVersionDialog';
 import { blankCV, emptyItems } from '../../cv/defaultCV';
 import { findIcon } from '../../cv/iconCatalog';
 import { normalize } from '../../cv/useCV';
-import { downloadFile, fileSlug, toPlainText } from '../../cv/format';
+import { avatarOf, downloadFile, fileSlug, toPlainText } from '../../cv/format';
 import { fmt, useI18n } from '../../i18n';
-import type { CVData, ListKey, Profile } from '../../cv/types';
+import type { AvatarMode, CVData, ListKey, Profile } from '../../cv/types';
 import type { Finding } from '../../cv/atsCheck';
 
 interface CVEditorProps {
@@ -39,29 +25,22 @@ interface CVEditorProps {
   cv: CVData;
   setCV: (cv: CVData) => void;
   update: (fn: (cv: CVData) => CVData) => void;
-  /** Active tab, controlled by the page so the header's ATS button can open the check directly. */
+  /** Active tab, controlled by the page so a recruiter-check tip can open the right section. */
   tab: EditorTab;
   onTabChange: (tab: EditorTab) => void;
   /** Add a CV to the library and open it (new CV, JSON import). */
   onCreate: (cv: CVData) => void;
   onImportPdf: () => void;
-  /** Resolves to false when the CV could not be deleted (a public copy that could not be taken down). */
-  onDelete: () => Promise<boolean>;
-  isPublic: boolean;
-  publishBusy: boolean;
-  onTogglePublic: (next: boolean) => void;
   /** Name of the open version (only the person sees it). */
   versionName: string;
   onRenameVersion: (name: string) => void;
   /** Copy the open CV as a new named version. */
   onSaveVersion: (name: string) => void;
-  /** Bumped by the page to open the check tab on the job-ad box. */
-  jobAdRequest?: number;
 }
 
-export type EditorTab = 'profile' | 'skills' | 'experience' | 'more' | 'ats';
+export type EditorTab = 'profile' | 'skills' | 'experience' | 'more';
 type Tab = EditorTab;
-const sectionTab: Record<Finding['section'], Tab> = {
+export const sectionTab: Record<Finding['section'], Tab> = {
   profile: 'profile', summary: 'profile', skills: 'skills', experience: 'experience', education: 'more', extras: 'more',
 };
 
@@ -116,10 +95,8 @@ const parseSkills = (text: string) => text.split(/[\n,]/).map((s) => s.trim()).f
 const cardClass = 'rounded-lg border border-zinc-200 dark:border-zinc-800 p-4 space-y-3';
 
 export function CVEditor({
-  open, onOpenChange, cv, setCV, update, tab, onTabChange: setTab, onCreate, onImportPdf, onDelete, isPublic, publishBusy, onTogglePublic, versionName, onRenameVersion, onSaveVersion, jobAdRequest = 0,
+  open, onOpenChange, cv, setCV, update, tab, onTabChange: setTab, onCreate, onImportPdf, versionName, onRenameVersion, onSaveVersion,
 }: CVEditorProps) {
-  const jobAd = useJobAd();
-  const [ownJobAdRequest, setOwnJobAdRequest] = useState(0);
   const { m } = useI18n();
   const e = m.editor;
   const importRef = useRef<HTMLInputElement>(null);
@@ -134,6 +111,8 @@ export function CVEditor({
 
   const setProfile = (key: keyof Profile, value: string) =>
     update((d) => ({ ...d, profile: { ...d.profile, [key]: value } }));
+  const avatar = avatarOf(cv.profile);
+  const setAvatar = (mode: AvatarMode) => update((d) => ({ ...d, profile: { ...d.profile, avatar: mode } }));
 
   function setItem<K extends ListKey>(key: K, id: string, patch: Partial<CVData[K][number]>) {
     update((d) => ({ ...d, [key]: (d[key] as CVData[K][number][]).map((it) => (it.id === id ? { ...it, ...patch } : it)) }));
@@ -189,28 +168,6 @@ export function CVEditor({
           <SheetDescription className="text-xs text-paper/80">{e.description}</SheetDescription>
         </SheetHeader>
 
-        {/* The job ad has its own entry point, always in view, not only inside the check tab. */}
-        <button
-          type="button"
-          onClick={() => {
-            setTab('ats');
-            setOwnJobAdRequest((n) => n + 1);
-          }}
-          className="nudge flex w-full items-center gap-2 border-b border-rule px-5 py-2.5 text-left text-sm hover:bg-zinc-100"
-        >
-          <ClipboardPaste size={20} aria-hidden="true" className="shrink-0" />
-          <span className="min-w-0 flex-1 truncate">
-            {jobAd.hasAd && jobAd.title ? (
-              <>
-                {m.app.jobAdShort}: <strong className="font-medium">{jobAd.title}</strong>
-              </>
-            ) : (
-              m.app.jobAd
-            )}
-          </span>
-          <ArrowRight size={20} aria-hidden="true" className="shrink-0" />
-        </button>
-
         <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)} className="flex-1 min-h-0 gap-0">
           <div className="px-5 pt-3">
             <TabsList className="w-full">
@@ -218,32 +175,61 @@ export function CVEditor({
               <TabsTrigger value="skills" className="text-xs">{e.tabs.skills}</TabsTrigger>
               <TabsTrigger value="experience" className="text-xs">{e.tabs.experience}</TabsTrigger>
               <TabsTrigger value="more" className="text-xs">{e.tabs.more}</TabsTrigger>
-              <TabsTrigger value="ats" className="text-xs">{e.tabs.ats}</TabsTrigger>
             </TabsList>
           </div>
 
           <div className="flex-1 overflow-y-auto px-5 py-5">
             <TabsContent value="profile" className="space-y-4 mt-0">
               <div className="space-y-4 border-b border-rule pb-4">
-                <PrivacySwitch isPublic={isPublic} busy={publishBusy} onChange={onTogglePublic} withHint />
                 <Field label={m.library.versionName} hint={m.library.versionHint}>
                   <Input value={versionName} placeholder={m.library.versionPlaceholder} onChange={(ev) => onRenameVersion(ev.target.value)} />
                 </Field>
               </div>
-              <div className="flex items-start gap-4">
-                <Portrait photo={cv.profile.photo} name={cv.profile.name} className="h-20 w-20 shrink-0 text-2xl" alt={fmt(m.photo.alt, { name: cv.profile.name })} />
-                <div className="space-y-2">
-                  <p className="text-xs font-medium text-zinc-700 dark:text-zinc-300">{m.photo.label}</p>
-                  <div className="flex flex-wrap gap-2">
-                    <Button type="button" variant="outline" size="sm" className="h-8 gap-1.5 text-xs" onClick={() => photoRef.current?.click()}>
-                      <Camera size={20} aria-hidden="true" /> {cv.profile.photo ? m.photo.change : m.photo.add}
-                    </Button>
-                    {cv.profile.photo && (
-                      <Button type="button" variant="ghost" size="sm" className="h-8 text-xs" onClick={() => setProfile('photo', '')}>
+              <fieldset className="flex items-start gap-4">
+                {avatar === 'none' ? (
+                  <span aria-hidden="true" className="h-20 w-20 shrink-0 border border-dashed border-ink-soft" />
+                ) : (
+                  <Portrait photo={avatar === 'photo' ? cv.profile.photo : undefined} name={cv.profile.name} className="h-20 w-20 shrink-0 text-2xl" alt={fmt(m.photo.alt, { name: cv.profile.name })} />
+                )}
+                <div className="min-w-0 flex-1 space-y-2">
+                  <legend className="text-xs font-medium text-zinc-700 dark:text-zinc-300">{m.photo.show}</legend>
+                  {/* Nothing, initials or photo: one hairline box divided by ink rules. */}
+                  <div className="grid grid-cols-3 border border-ink text-xs">
+                    {(['none', 'initials', 'photo'] as const).map((mode) => (
+                      <label
+                        key={mode}
+                        className={`flex h-8 cursor-pointer items-center justify-center border-r border-ink px-2 last:border-r-0 has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:-outline-offset-4 has-[:focus-visible]:outline-[var(--focus)] ${
+                          avatar === mode ? 'bg-ink text-paper' : 'text-ink-soft hover:bg-zinc-100 hover:text-ink'
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="avatar"
+                          value={mode}
+                          checked={avatar === mode}
+                          className="sr-only"
+                          onChange={() => (mode === 'photo' && !cv.profile.photo ? photoRef.current?.click() : setAvatar(mode))}
+                        />
+                        {m.photo[mode]}
+                      </label>
+                    ))}
+                  </div>
+                  {avatar === 'photo' && (
+                    <div className="flex flex-wrap gap-2">
+                      <Button type="button" variant="outline" size="sm" className="h-8 gap-1.5 text-xs" onClick={() => photoRef.current?.click()}>
+                        <Camera size={20} aria-hidden="true" /> {m.photo.change}
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 text-xs"
+                        onClick={() => update((d) => ({ ...d, profile: { ...d.profile, photo: '', avatar: 'none' } }))}
+                      >
                         {m.photo.remove}
                       </Button>
-                    )}
-                  </div>
+                    </div>
+                  )}
                   <p className="text-[11px] leading-snug text-zinc-600 dark:text-zinc-400">{m.photo.hint}</p>
                   <input
                     ref={photoRef}
@@ -257,14 +243,15 @@ export function CVEditor({
                       ev.target.value = '';
                       if (!file) return;
                       try {
-                        setProfile('photo', await processPhoto(file));
+                        const photo = await processPhoto(file);
+                        update((d) => ({ ...d, profile: { ...d.profile, photo, avatar: 'photo' } }));
                       } catch {
                         toast.error(m.photo.error);
                       }
                     }}
                   />
                 </div>
-              </div>
+              </fieldset>
               <Field label={e.fullName}>
                 <Input autoComplete="name" value={cv.profile.name} onChange={(ev) => setProfile('name', ev.target.value)} />
               </Field>
@@ -450,17 +437,6 @@ export function CVEditor({
               </div>
             </TabsContent>
 
-            <TabsContent value="ats" className="mt-0">
-              <AtsPanel
-                cv={cv}
-                focusJobAd={jobAdRequest + ownJobAdRequest}
-                onJump={(section) => setTab(sectionTab[section])}
-                onSetHeadline={(headline) => update((d) => ({ ...d, profile: { ...d.profile, headline } }))}
-                onAddSkill={(skill) =>
-                  update((d) => (d.skills.some((s) => s.toLowerCase() === skill.toLowerCase()) ? d : { ...d, skills: [...d.skills, skill] }))
-                }
-              />
-            </TabsContent>
           </div>
         </Tabs>
 
@@ -514,34 +490,6 @@ export function CVEditor({
           >
             <FilePlus2 size={20} aria-hidden="true" /> {m.library.newCv}
           </Button>
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button variant="ghost" size="sm" className="gap-1.5 text-xs">
-                <Trash2 size={20} aria-hidden="true" className="text-signal" /> {m.library.delete}
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent className="rounded-sm border-ink bg-paper text-ink">
-              <AlertDialogHeader>
-                <AlertDialogTitle className="font-title text-2xl font-normal">
-                  {fmt(m.library.deleteTitle, { name: cv.profile.name || m.library.untitled })}
-                </AlertDialogTitle>
-                <AlertDialogDescription className="text-ink-soft">{m.library.deleteBody}</AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel className="rounded-sm">{m.library.cancel}</AlertDialogCancel>
-                <AlertDialogAction
-                  className="gap-1.5 rounded-sm"
-                  onClick={async () => {
-                    if (!(await onDelete())) return;
-                    setTab('profile');
-                    toast.success(m.library.deleted);
-                  }}
-                >
-                  <Trash2 size={20} aria-hidden="true" /> {m.library.deleteConfirm}
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
           <input
             ref={importRef}
             type="file"

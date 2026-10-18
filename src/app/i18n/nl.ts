@@ -25,6 +25,7 @@ export const nl: Messages = {
     cvTitle: 'cv',
     jobAd: 'Vacature plakken',
     jobAdShort: 'Vacature',
+    cvActions: 'Dit cv',
   },
   skim: {
     label: 'Snelle blik',
@@ -86,6 +87,10 @@ export const nl: Messages = {
     hint: 'Vierkant, in zwart-wit. Veel ATS negeren foto’s en werkgevers in de VS/VK hebben liever geen foto.',
     alt: 'Foto van {name}',
     error: 'Kies een afbeelding (JPG, PNG of WebP).',
+    show: 'Naast je naam',
+    none: 'Niets',
+    initials: 'Initialen',
+    photo: 'Foto',
   },
   download: {
     title: 'PDF downloaden',

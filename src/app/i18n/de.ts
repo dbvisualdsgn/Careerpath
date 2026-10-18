@@ -25,6 +25,7 @@ export const de: Messages = {
     cvTitle: 'Lebenslauf',
     jobAd: 'Stellenanzeige einfügen',
     jobAdShort: 'Anzeige',
+    cvActions: 'Dieser Lebenslauf',
   },
   skim: {
     label: 'Schnellansicht',
@@ -86,6 +87,10 @@ export const de: Messages = {
     hint: 'Quadratisch, in Schwarz-Weiß. Viele ATS ignorieren Fotos, und Arbeitgeber in USA/UK bevorzugen keins.',
     alt: 'Foto von {name}',
     error: 'Wähle ein Bild (JPG, PNG oder WebP).',
+    show: 'Neben deinem Namen',
+    none: 'Nichts',
+    initials: 'Initialen',
+    photo: 'Foto',
   },
   download: {
     title: 'PDF herunterladen',

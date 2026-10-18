@@ -17,8 +17,9 @@ The original design is available at https://www.figma.com/design/68PhbcZDT2IDB8n
 
 **Import from PDF:** PDFs downloaded here carry the full CV in their XMP metadata (invisible to readers and ATS), so
 importing one restores it exactly, photo and logos included. Any other PDF with selectable text is read with pdf.js and
-split into sections using multilingual headings, month names and date ranges (`src/app/cv/importPdf.ts`). Check the
-result in the editor; scanned PDFs without text can't be read.
+split into sections using multilingual headings, month names and date ranges (`src/app/cv/importPdf.ts`). It reads
+two-column layouts column by column and letter-spaced headings ("P R O F I L E"); `importPdf.test.ts` checks this on
+the PDFs in `src/app/cv/__fixtures__`. Check the result in the editor; scanned PDFs without text can't be read.
 
 **Private / Public:** a CV is private by default: it stays in the browser and sharing is off. Making it public saves a
 copy online (Supabase, see `supabase/schema.sql`) so its link works; making it private again deletes that copy.

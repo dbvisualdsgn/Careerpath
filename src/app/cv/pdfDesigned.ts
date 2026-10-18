@@ -1,7 +1,7 @@
 // "As on the page" PDF: the same layout, typefaces, paper colour, rules, logos and photo as the
 // screen, with real selectable text. Fonts are the files in /public/fonts (Switzer, Gambetta, IBM Plex
 // Mono), embedded on demand.
-import { contactItems, dateRange } from './format';
+import { avatarOf, contactItems, dateRange, initials } from './format';
 import type { CVData } from './types';
 import { packCV, PDF_DATA_NS } from './share';
 import { resolveLogos } from './logos';
@@ -132,7 +132,6 @@ export async function buildDesignedPdf(input: CVData, m: Messages, faces: TypeFa
     doc.setLineWidth(w);
     doc.line(x1, yy, x2, yy);
   };
-  let section = 0;
   const head = (title: string) => {
     ensure(70);
     y += 26;
@@ -140,28 +139,36 @@ export async function buildDesignedPdf(input: CVData, m: Messages, faces: TypeFa
     y += 13;
     font(MONO, 8, 'bold', C.ink);
     doc.text(title.toUpperCase(), M, y, { charSpace: 1.1 });
-    label(String(++section).padStart(2, '0'), W - M, y, C.soft, 7.5, 'right');
     y += 16;
   };
 
-  // ---- Header: label, name, headline, contacts, square photo ----
+  // ---- Header: square photo or initials on the left, then label, name, headline, contacts ----
   const { profile } = cv;
-  const photoSize = 76;
-  const textWidth = profile.photo ? CW - photoSize - 20 : CW;
-  label(m.app.cvTitle, M, y + 6);
-  if (profile.photo) doc.addImage(profile.photo, 'JPEG', W - M - photoSize, y, photoSize, photoSize);
+  const avatar = avatarOf(profile);
+  const picSize = 76;
+  const tx = avatar === 'none' ? M : M + picSize + 20;
+  const textWidth = W - M - tx;
+  const top = y;
+  if (avatar === 'photo') doc.addImage(profile.photo!, 'JPEG', M, y, picSize, picSize);
+  if (avatar === 'initials') {
+    doc.setFillColor(C.ink);
+    doc.rect(M, y, picSize, picSize, 'F');
+    font(TITLE, 30, 'normal', C.paper);
+    doc.text(initials(profile.name), M + 7, y + picSize - 8);
+  }
+  label(m.app.cvTitle, tx, y + 6);
   y += 18;
   font(TITLE, 34, 'normal');
   const nameLines: string[] = doc.splitTextToSize(profile.name || m.app.namePlaceholder, textWidth);
   for (const line of nameLines) {
-    doc.text(line, M, y + 28);
+    doc.text(line, tx, y + 28);
     y += 33;
   }
   y += 4;
-  para(profile.headline || m.app.headlinePlaceholder, TITLE, 13, { color: C.soft, width: textWidth });
+  para(profile.headline || m.app.headlinePlaceholder, TITLE, 13, { color: C.soft, width: textWidth, x: tx });
   y += 8;
-  para(contactItems(cv).join('   ·   '), SANS, 8.5, { color: C.soft, width: textWidth });
-  if (profile.photo) y = Math.max(y, M + photoSize + 4);
+  para(contactItems(cv).join('   ·   '), SANS, 8.5, { color: C.soft, width: textWidth, x: tx });
+  if (avatar !== 'none') y = Math.max(y, top + picSize + 4);
 
   // ---- Summary ----
   if (cv.summary.trim()) {

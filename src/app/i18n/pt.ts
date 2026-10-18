@@ -25,6 +25,7 @@ export const pt: Messages = {
     cvTitle: 'CV',
     jobAd: 'Colar um anúncio',
     jobAdShort: 'Anúncio',
+    cvActions: 'Este CV',
   },
   skim: {
     label: 'Vista rápida',
@@ -86,6 +87,10 @@ export const pt: Messages = {
     hint: 'Quadrada, a preto e branco. Muitos ATS ignoram fotos e empregadores nos EUA/Reino Unido preferem sem.',
     alt: 'Foto de {name}',
     error: 'Escolhe uma imagem (JPG, PNG ou WebP).',
+    show: 'Ao lado do teu nome',
+    none: 'Nada',
+    initials: 'Iniciais',
+    photo: 'Foto',
   },
   download: {
     title: 'Transferir PDF',
