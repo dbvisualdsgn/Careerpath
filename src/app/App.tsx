@@ -181,6 +181,14 @@ function CVPage() {
     if (person) {
       setSharedCV(structuredClone(person.cv));
       setBanner('directory');
+      // A portrait ships as a file; the CV keeps images as data URLs, so read it in (the PDF needs it too).
+      if (person.photo) {
+        fetch(`../${person.photo}`)
+          .then((r) => (r.ok ? r.blob() : Promise.reject(r.status)))
+          .then((b) => new Promise<string>((done) => { const fr = new FileReader(); fr.onload = () => done(String(fr.result)); fr.readAsDataURL(b); }))
+          .then((photo) => setSharedCV((c) => (c ? { ...c, profile: { ...c.profile, photo, avatar: 'photo' } } : c)))
+          .catch(() => {});
+      }
     }
     if (params.has('new')) {
       // First visit: the starting CV is replaced by a blank one. Returning visitor: add a new blank CV unless the open one is empty.

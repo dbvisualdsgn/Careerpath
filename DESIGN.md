@@ -100,16 +100,19 @@ Motion is allowed only where it helps reading, and it never hides content for lo
 - **Example CV gallery (homepage):** two rows of example CVs drift slowly in opposite directions (90s per
   loop). They stop on hover, on keyboard focus and with the Pause button (WCAG 2.2.2).
 - **Hero cards:** 5 short CVs of people from pre-euro banknotes (Marie Curie, Carl Friedrich Gauss,
-  Alessandro Volta, Adolphe Sax, Gustave Eiffel), one at a time (`src/home/PageSpecimen.tsx`). Each has its
-  own paper colour and a title font chosen for the person, types itself, then the recruiter check pops over
+  Alessandro Volta, Adolphe Sax, Gustave Eiffel), one at a time (`src/home/PageSpecimen.tsx`). Each sits on a
+  paper from the site's light scale (cool to warm) or on the highlight yellow, and has a title font chosen for the person; types itself, then the recruiter check pops over
   it; after a hold the next one comes. Previous, Pause and Next buttons sit under the card (WCAG 2.2.2). Under
-  reduced motion each card shows finished and nothing rotates. Each palette keeps ink at 13:1 or more and
-  soft text at 7:1 or more.
+  reduced motion each card shows finished and nothing rotates. Ink is always #111111 and soft text comes
+  from the paper scale (7:1 or more).
 - **Why page documents:** Amara Okafor (an example CV) has a passport, a driving licence and a CV
   (`src/why/Documents.tsx`). In a 7s loop a plane flies to Rome and a yellow entry stamp lands, a car
   drives to the hospital and it lights up, a result on the CV is highlighted and an interview invitation
   appears. The resting state is the end of each story, which is what reduced motion shows. A ticker of the
   same words drifts above them. One Pause button stops both (WCAG 2.2.2).
+- **Example CV cards** (homepage gallery, /people/) are small sheets in the current template
+  (`src/app/components/CVCard.tsx`): panel paper, avatar on the left or nothing. About 60% of the examples
+  show nothing next to the name, 30% initials and 10% a photo (`src/app/cv/people.ts`).
 - **Accents in motion:** only ink (black) and the highlight yellow move or animate; signal orange is kept
   for static error marks.
 - **Reduced motion:** with `prefers-reduced-motion: reduce`, all of it is off. Sections, highlights and bars

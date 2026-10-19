@@ -1,7 +1,7 @@
 // Fictional example CVs for the public directory. Names, employers and contact details are invented;
 // the page labels them as examples.
 import { brandLogo } from './logos';
-import type { CVData, Experience, Tool } from './types';
+import type { AvatarMode, CVData, Experience, Tool } from './types';
 
 export type Field =
   | 'health' | 'trades' | 'tech' | 'education' | 'hospitality' | 'finance'
@@ -11,6 +11,8 @@ export interface Person {
   id: string;
   field: Field;
   cv: CVData;
+  /** A portrait in public/people/, as a path from the site root. Loaded into the CV when it opens. */
+  photo?: string;
 }
 
 let n = 0;
@@ -24,12 +26,14 @@ function cv(p: {
   name: string; headline: string; location: string; summary: string; skills: string[]; tools: Tool[];
   experience: Experience[]; degree: string; school: string; years: [string, string]; languages: [string, string][];
   certs?: [string, string, string][];
+  /** Next to the name: nothing (most), initials, or a photo. */
+  avatar?: AvatarMode;
 }): CVData {
   const handle = p.name.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z]+/g, '.');
   return {
     version: 1,
     isPublic: true,
-    profile: { name: p.name, headline: p.headline, email: `${handle}@example.com`, phone: '', location: p.location, website: '', linkedin: '' },
+    profile: { name: p.name, headline: p.headline, email: `${handle}@example.com`, phone: '', location: p.location, website: '', linkedin: '', avatar: p.avatar ?? 'none' },
     summary: p.summary,
     skills: p.skills,
     tools: p.tools,
@@ -40,8 +44,10 @@ function cv(p: {
   };
 }
 
+// About 60% of the examples show nothing next to the name, 30% their initials and 10% a photo.
 export const people: Person[] = [
   { id: 'amara-okafor', field: 'health', cv: cv({
+    avatar: 'initials',
     name: 'Amara Okafor', headline: 'Registered Nurse, Emergency Care', location: 'Manchester, UK',
     summary: 'Registered nurse with 8 years in emergency and acute care. Calm under pressure, careful with handovers, and known for teaching new starters. Looking for a senior staff nurse role in a busy ED.',
     skills: ['Triage', 'Patient assessment', 'IV therapy', 'Wound care', 'Clinical handover', 'Mentoring'],
@@ -66,6 +72,7 @@ export const people: Person[] = [
     languages: [['Portuguese', 'Native'], ['English', 'B2'], ['Spanish', 'B1']], certs: [['Solar PV Installer', 'DGEG', '2022']],
   }) },
   { id: 'mei-lin', field: 'tech', cv: cv({
+    avatar: 'initials',
     name: 'Mei Lin', headline: 'Senior Software Engineer', location: 'Singapore',
     summary: 'Full-stack engineer with 9 years building payment and logistics products. Cares about simple code, good tests and kind code reviews.',
     skills: ['TypeScript', 'React', 'Node.js', 'System design', 'API design', 'Testing', 'Mentoring'],
@@ -114,6 +121,7 @@ export const people: Person[] = [
     languages: [['French', 'Native'], ['Arabic', 'Native'], ['English', 'C1']],
   }) },
   { id: 'jonas-becker', field: 'logistics', cv: cv({
+    avatar: 'initials',
     name: 'Jonas Becker', headline: 'Logistics Coordinator', location: 'Hamburg, Germany',
     summary: 'Logistics coordinator with 6 years in port and warehouse operations. Good with numbers, drivers and last-minute changes.',
     skills: ['Freight planning', 'Inventory control', 'Customs paperwork', 'Route optimisation', 'Supplier communication'],
@@ -174,6 +182,7 @@ export const people: Person[] = [
     languages: [['English', 'Fluent'], ['Twi', 'Native'], ['French', 'B1']],
   }) },
   { id: 'elena-petrova', field: 'law', cv: cv({
+    avatar: 'initials',
     name: 'Elena Petrova', headline: 'Corporate Counsel', location: 'Berlin, Germany',
     summary: 'Corporate lawyer with 8 years in tech and start-up law: contracts, data protection and funding rounds. Writes contracts people can read.',
     skills: ['Commercial contracts', 'GDPR', 'Corporate governance', 'Venture financing', 'Employment law', 'Negotiation'],
@@ -222,6 +231,7 @@ export const people: Person[] = [
     languages: [['Japanese', 'Native'], ['English', 'B2']], certs: [['First-Class Registered Architect', 'MLIT Japan', '2017']],
   }) },
   { id: 'omar-haddad', field: 'support', cv: cv({
+    avatar: 'initials',
     name: 'Omar Haddad', headline: 'Customer Support Team Lead', location: 'Dubai, UAE',
     summary: 'Support lead with 7 years in travel and SaaS. Builds teams that solve things on the first reply and write help articles people read.',
     skills: ['Customer support', 'Team leadership', 'Knowledge base', 'Escalation management', 'Quality assurance', 'Hiring'],

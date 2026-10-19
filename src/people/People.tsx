@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ArrowUpRight, Info, Plus, Search, X } from 'lucide-react';
 import { SiteHeader } from '../app/components/SiteHeader';
-import { Portrait } from '../app/components/Portrait';
+import { CVCard } from '../app/components/CVCard';
 import { Wordmark } from '../app/components/Wordmark';
 import { fields, people, type Field } from '../app/cv/people';
 import { useReveal } from '../app/hooks/useReveal';
@@ -9,28 +9,6 @@ import { PublicCVs } from './PublicCVs';
 import { fmt, useI18n } from '../app/i18n';
 
 const label = 'whitespace-nowrap font-mono text-[11px] uppercase tracking-[0.14em] text-ink-soft';
-
-function Card({ id, field, name, headline, location, skills }: { id: string; field: Field; name: string; headline: string; location: string; skills: string[] }) {
-  const { m } = useI18n();
-  return (
-    <li className="group border-b border-r border-rule bg-paper">
-      <a href={`../app/?person=${id}`} className="flex h-full flex-col p-5 hover:bg-zinc-50 dark:hover:bg-zinc-900">
-        <div className="flex items-start justify-between gap-4">
-          <Portrait name={name} className="h-16 w-16 text-2xl" />
-          <span className={label}>{m.fields[field]}</span>
-        </div>
-        <h3 className="mt-6 font-title text-2xl leading-tight tracking-[-0.01em]">{name}</h3>
-        <p className="mt-1 font-body text-[15px] text-ink-soft">{headline}</p>
-        <p className="mt-3 font-mono text-[12px] text-ink-soft">{location}</p>
-        <p className="mt-4 text-[13px] leading-relaxed text-ink-soft">{skills.slice(0, 3).join(' · ')}</p>
-        <span className="nudge-up mt-auto inline-flex items-center gap-1 pt-5 text-[14px] underline decoration-1 underline-offset-[6px]">
-          {m.directory.open}
-          <ArrowUpRight size={20} aria-hidden="true" className="transition-transform duration-200 motion-reduce:transition-none" />
-        </span>
-      </a>
-    </li>
-  );
-}
 
 export function People() {
   const { m } = useI18n();
@@ -129,9 +107,11 @@ export function People() {
           <p className="font-mono text-[12px] text-ink-soft" aria-live="polite">{fmt(d.count, { count: list.length })}</p>
         </div>
         {list.length ? (
-          <ul className="mt-3 grid border-l border-t border-rule sm:grid-cols-2 lg:grid-cols-3">
+          <ul className="mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {list.map((p) => (
-              <Card key={p.id} id={p.id} field={p.field} name={p.cv.profile.name} headline={p.cv.profile.headline} location={p.cv.profile.location} skills={p.cv.skills} />
+              <li key={p.id}>
+                <CVCard person={p} root="../" />
+              </li>
             ))}
           </ul>
         ) : (

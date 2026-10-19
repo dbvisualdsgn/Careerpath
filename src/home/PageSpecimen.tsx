@@ -3,6 +3,7 @@ import { ChevronLeft, ChevronRight, Pause, Play, Plus } from 'lucide-react';
 import { useCountUp } from '../app/hooks/useReveal';
 import { loadPreview, previewFamily } from '../app/titleFontLoader';
 import { useI18n } from '../app/i18n';
+import { paperColors } from '../app/paper';
 
 /** A CV for someone who appeared on a banknote of a eurozone country before the euro. Short and factual. */
 interface Specimen {
@@ -18,6 +19,17 @@ interface Specimen {
   score: number;
 }
 
+// Only the site's own colours: a paper from the light scale (cool to warm), near-black ink,
+// secondary text from the same scale (7:1 or more), and the highlight yellow for the first skill.
+const INK = '#111111';
+const HIGHLIGHT = '#e6f05a';
+function tone(warmth: number): Specimen['colors'] {
+  const { vars } = paperColors({ warmth, brightness: 100 });
+  return { paper: vars['--paper'], ink: INK, soft: vars['--ink-soft'], accent: HIGHLIGHT };
+}
+// One card sits on the highlight itself; its first skill takes the paper instead.
+const YELLOW: Specimen['colors'] = { paper: HIGHLIGHT, ink: INK, soft: '#45433f', accent: '#eceae5' };
+
 const SPECIMENS: Specimen[] = [
   {
     name: 'Marie Curie',
@@ -26,7 +38,7 @@ const SPECIMENS: Specimen[] = [
     roles: [['Professor of Physics, Sorbonne', '1906 – 34'], ['Discovered polonium and radium', '1898']],
     skills: ['Radioactivity', 'Chemistry', 'Teaching'],
     font: 'zodiak',
-    colors: { paper: '#E4EFE7', ink: '#0E2A1B', soft: '#2F4A3B', accent: '#BFE3C9' },
+    colors: tone(0),
     score: 94,
   },
   {
@@ -36,7 +48,7 @@ const SPECIMENS: Specimen[] = [
     roles: [['Director, Göttingen Observatory', '1807 – 55'], ['Disquisitiones Arithmeticae', '1801']],
     skills: ['Number theory', 'Astronomy', 'Geodesy'],
     font: 'jet-brains-mono',
-    colors: { paper: '#E3E9F2', ink: '#0E1B30', soft: '#2E3D57', accent: '#C4D6F2' },
+    colors: tone(40),
     score: 91,
   },
   {
@@ -46,7 +58,7 @@ const SPECIMENS: Specimen[] = [
     roles: [['Professor of Experimental Physics, Pavia', '1779 – 1819'], ['Invented the voltaic pile, the first battery', '1800']],
     skills: ['Electricity', 'Chemistry', 'Instruments'],
     font: 'bespoke-serif',
-    colors: { paper: '#F3E7D3', ink: '#2A1A0D', soft: '#5A4330', accent: '#F2CF8F' },
+    colors: tone(100),
     score: 89,
   },
   {
@@ -56,7 +68,7 @@ const SPECIMENS: Specimen[] = [
     roles: [['Founder, instrument workshop, Paris', '1842'], ['Patented the saxophone', '1846']],
     skills: ['Acoustics', 'Brass making', 'Teaching'],
     font: 'melodrama',
-    colors: { paper: '#EEE5C8', ink: '#1E1A08', soft: '#4A4120', accent: '#E3C455' },
+    colors: YELLOW,
     score: 87,
   },
   {
@@ -66,7 +78,7 @@ const SPECIMENS: Specimen[] = [
     roles: [['Eiffel Tower, Paris', '1887 – 89'], ['Garabit Viaduct', '1880 – 84']],
     skills: ['Iron structures', 'Bridges', 'Aerodynamics'],
     font: 'bespoke-stencil',
-    colors: { paper: '#F1DFD6', ink: '#2B100A', soft: '#5C3427', accent: '#E9A88F' },
+    colors: tone(70),
     score: 93,
   },
 ];
