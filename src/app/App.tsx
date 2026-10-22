@@ -445,7 +445,7 @@ function CVPage() {
             <div className={`min-w-0 ${avatar === 'none' ? 'sm:col-span-2' : ''}`}>
                 <h1 className="font-title text-[clamp(2.25rem,7vw,4.75rem)] hyphens-auto [overflow-wrap:anywhere] font-normal leading-[0.92] tracking-[-0.035em]">{name}</h1>
                 {/* The job title is set in the text face, not the title face: a second voice that can run long and still read. */}
-                <p className="mt-4 max-w-[34ch] text-balance font-body text-[clamp(1.25rem,2.4vw,1.875rem)] leading-[1.2] tracking-[-0.01em] text-ink">{headline}</p>
+                <p className="mt-4 max-w-[30ch] text-balance font-body text-[clamp(1.5rem,3.4vw,2.5rem)] leading-[1.15] tracking-[-0.01em] text-ink">{headline}</p>
             <address className="mt-6 not-italic">
               <ul className="flex flex-wrap gap-x-6 gap-y-2 font-sans text-[14px] text-ink-soft">
                 {contacts.map(({ icon: Icon, kind, label, href }) => {

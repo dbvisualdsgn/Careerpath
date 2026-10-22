@@ -163,7 +163,7 @@ export async function buildDesignedPdf(input: CVData, m: Messages, faces: TypeFa
     y += 33;
   }
   y += 6;
-  para(profile.headline || m.app.headlinePlaceholder, BODY, 15, { width: Math.min(textWidth, 340), lead: 1.2, x: tx });
+  para(profile.headline || m.app.headlinePlaceholder, BODY, 19, { width: Math.min(textWidth, 380), lead: 1.15, x: tx });
   y += 8;
   para(contactItems(cv).join('   ·   '), SANS, 8.5, { color: C.soft, width: textWidth, x: tx });
   if (avatar !== 'none') y = Math.max(y, top + picSize + 4);
