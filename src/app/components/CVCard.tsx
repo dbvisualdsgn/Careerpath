@@ -28,7 +28,7 @@ export function CVCard({ person, root, copy, className = '' }: CVCardProps) {
       href={`${root}app/?person=${person.id}`}
       tabIndex={copy ? -1 : undefined}
       aria-label={`${name}, ${headline}. ${m.directory.open}`}
-      className={`flex h-full flex-col border border-rule bg-panel p-6 shadow-[0_1px_0_var(--rule),0_12px_32px_-18px_rgb(0_0_0/0.25)] transition-colors hover:border-ink motion-reduce:transition-none ${className}`}
+      className={`flex h-full flex-col border border-rule p-6 shadow-[0_1px_0_var(--rule),0_12px_32px_-18px_rgb(0_0_0/0.25)] transition-colors hover:border-ink motion-reduce:transition-none ${className}`}
     >
       <span className={`grid items-start gap-4 ${avatar !== 'none' ? 'grid-cols-[4rem_minmax(0,1fr)]' : ''}`}>
         {avatar !== 'none' && (

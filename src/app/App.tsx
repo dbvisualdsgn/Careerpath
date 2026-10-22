@@ -455,8 +455,8 @@ function CVPage() {
           data-skim={skim ? '' : undefined}
           className="mx-auto max-w-5xl px-3 py-6 font-body focus:outline-none sm:px-6 md:py-12 print:p-0"
         >
-          {/* The sheet: one page of paper on the desk. */}
-          <div className="space-y-10 border border-rule bg-panel px-5 py-8 shadow-[0_1px_0_var(--rule),0_12px_32px_-18px_rgb(0_0_0/0.25)] sm:px-10 md:space-y-12 md:px-14 md:py-14 print:space-y-8 print:border-0 print:bg-transparent print:p-0 print:shadow-none">
+          {/* The sheet: one page on the desk, in the paper the person chose (no fill of its own). */}
+          <div className="space-y-10 border border-rule px-5 py-8 shadow-[0_1px_0_var(--rule),0_12px_32px_-18px_rgb(0_0_0/0.25)] sm:px-10 md:space-y-12 md:px-14 md:py-14 print:space-y-8 print:border-0 print:bg-transparent print:p-0 print:shadow-none">
           <div className="grid items-start gap-6 sm:grid-cols-[minmax(0,10rem)_minmax(0,1fr)] sm:gap-8 md:grid-cols-[minmax(0,13rem)_minmax(0,1fr)] md:gap-10">
             {avatar !== 'none' && (
               <Portrait
