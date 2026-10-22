@@ -214,6 +214,14 @@
     font-size: var(--font-size);
   }
 
+  /* Headings break into even lines; paragraphs avoid a lone last word. */
+  h1, h2, h3 {
+    text-wrap: balance;
+  }
+  p, li, blockquote {
+    text-wrap: pretty;
+  }
+
   h1 {
     font-size: var(--text-2xl);
     font-weight: var(--font-weight-medium);

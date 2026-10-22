@@ -40,7 +40,7 @@ export function DownloadMenu({ cv, compact = false, onDownloaded }: { cv: CVData
     <button
       type="button"
       onClick={() => download(kind)}
-      className="flex w-full gap-3 border-b border-rule px-4 py-3 text-left last:border-b-0 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+      className="flex w-full gap-3 border-b border-rule px-4 py-3 text-left last:border-b-0 hover:bg-zinc-100"
     >
       <Icon size={20} aria-hidden="true" className="mt-0.5 shrink-0" />
       <span>

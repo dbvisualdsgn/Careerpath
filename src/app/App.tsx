@@ -555,7 +555,7 @@ function CVPage() {
                   setEditorTab('experience');
                   setEditing(true);
                 }}
-                className="w-full rounded-sm border border-dashed border-ink p-8 font-sans text-sm hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                className="w-full rounded-sm border border-dashed border-ink p-8 font-sans text-sm hover:bg-zinc-100"
               >
                 {m.app.addFirstRole}
               </button>

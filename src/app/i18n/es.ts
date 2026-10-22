@@ -291,7 +291,7 @@ export const es: Messages = {
     copyEmbed: 'Copiar código',
     embedTitle: 'CV de {name}',
     privateAnyTime: 'Hazlo privado cuando quieras: el enlace y las incrustaciones dejan de funcionar al instante.',
-    privateBody: 'Tu CV es privado: solo lo ves tú, en este navegador. No hay enlace que compartir. Puedes seguir descargándolo.',
+    privateBody: 'Solo lo ves tú, en este navegador. Puedes seguir descargándolo.',
     notSetUp: 'Los enlaces públicos aún no están activos en este sitio.',
     privateDescription: 'Los CV privados no tienen enlace. Hazlo público para compartirlo.',
   },

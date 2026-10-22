@@ -291,7 +291,7 @@ export const nl: Messages = {
     copyEmbed: 'Code kopiëren',
     embedTitle: 'Cv van {name}',
     privateAnyTime: 'Maak het op elk moment privé: de link en insluitingen werken dan meteen niet meer.',
-    privateBody: 'Je cv is privé: alleen jij ziet het, in deze browser. Er is geen link om te delen. Downloaden kan nog steeds.',
+    privateBody: 'Alleen jij ziet het, in deze browser. Downloaden kan nog steeds.',
     notSetUp: 'Openbare links zijn op deze site nog niet ingesteld.',
     privateDescription: 'Privé-cv’s hebben geen link. Maak het openbaar om het te delen.',
   },

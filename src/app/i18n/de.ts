@@ -291,7 +291,7 @@ export const de: Messages = {
     copyEmbed: 'Code kopieren',
     embedTitle: 'Lebenslauf von {name}',
     privateAnyTime: 'Jederzeit wieder privat: Link und Einbettungen funktionieren dann sofort nicht mehr.',
-    privateBody: 'Dein Lebenslauf ist privat: nur du siehst ihn, in diesem Browser. Es gibt keinen Link zum Teilen. Herunterladen kannst du ihn trotzdem.',
+    privateBody: 'Nur du siehst ihn, in diesem Browser. Herunterladen kannst du ihn trotzdem.',
     notSetUp: 'Öffentliche Links sind auf dieser Website noch nicht eingerichtet.',
     privateDescription: 'Private Lebensläufe haben keinen Link. Mach ihn öffentlich, um ihn zu teilen.',
   },

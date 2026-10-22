@@ -24,7 +24,7 @@ function Monogram({ name, size, fill, className = '' }: { name: string; size: nu
   return (
     <span
       aria-hidden="true"
-      className={`inline-flex shrink-0 items-center justify-center bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 font-semibold leading-none ${fill ? 'h-full w-full' : 'rounded-[4px]'} ${className}`}
+      className={`inline-flex shrink-0 items-center justify-center bg-zinc-900 text-white font-semibold leading-none ${fill ? 'h-full w-full' : 'rounded-[4px]'} ${className}`}
       style={fill ? { fontSize: '1rem' } : { width: size, height: size, fontSize: Math.round(size * 0.6) }}
     >
       {name.trim().charAt(0).toUpperCase() || '?'}

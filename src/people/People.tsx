@@ -73,7 +73,7 @@ export function People() {
               type="button"
               aria-pressed={active === null}
               onClick={() => setActive(null)}
-              className={`inline-flex min-h-11 shrink-0 items-center rounded-full border border-ink px-3.5 py-1.5 text-[14px] sm:min-h-0 ${active === null ? 'bg-highlight font-body italic text-[#111]' : 'hover:bg-zinc-100 dark:hover:bg-zinc-800'}`}
+              className={`inline-flex min-h-11 shrink-0 items-center rounded-full border border-ink px-3.5 py-1.5 text-[14px] sm:min-h-0 ${active === null ? 'bg-highlight font-body italic text-[#111]' : 'hover:bg-zinc-100'}`}
             >
               {d.all}
             </button>
@@ -85,7 +85,7 @@ export function People() {
                   type="button"
                   aria-pressed={on}
                   onClick={() => setActive(on ? null : f)}
-                  className={`group inline-flex min-h-11 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border border-ink px-3.5 py-1.5 text-[14px] sm:min-h-0 ${on ? 'bg-highlight font-body italic text-[#111]' : 'hover:bg-zinc-100 dark:hover:bg-zinc-800'}`}
+                  className={`group inline-flex min-h-11 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border border-ink px-3.5 py-1.5 text-[14px] sm:min-h-0 ${on ? 'bg-highlight font-body italic text-[#111]' : 'hover:bg-zinc-100'}`}
                 >
                   {m.fields[f]}
                   {on ? <X size={20} aria-hidden="true" /> : <Plus size={20} aria-hidden="true" className="transition-transform group-hover:rotate-90 motion-reduce:transition-none" />}

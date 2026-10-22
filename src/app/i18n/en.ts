@@ -290,7 +290,7 @@ export const en = {
     copyEmbed: 'Copy code',
     embedTitle: 'CV of {name}',
     privateAnyTime: 'Make it private any time: the link and embeds stop working at once.',
-    privateBody: 'Your CV is private: only you can see it, in this browser. There’s no link to share. You can still download it.',
+    privateBody: 'Only you can see it, in this browser. You can still download it.',
     notSetUp: 'Public links aren’t set up on this site yet.',
     privateDescription: 'Private CVs have no link. Make it public to share it.',
   },
