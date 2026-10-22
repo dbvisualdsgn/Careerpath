@@ -72,8 +72,15 @@ function SectionHead({ id, title }: { id: string; title: string }) {
 }
 
 /** ATS score as a monochrome mark: dashed (needs work), outlined (good), filled (strong).
- *  On a pressed (ink) button it is drawn in paper, so the score stays readable. */
-function ScoreMark({ score, onInk = false }: { score: number; onInk?: boolean }) {
+ *  On a pressed (ink) button it is drawn in paper, so the score stays readable.
+ *  Before there is anything to judge (no name, no role) it shows a dash, not a verdict. */
+function ScoreMark({ score, onInk = false }: { score: number | null; onInk?: boolean }) {
+  if (score === null)
+    return (
+      <span className={`inline-flex min-w-8 justify-center rounded-sm border border-dashed px-1 py-0.5 font-mono text-[11px] leading-none ${onInk ? 'border-paper text-paper' : 'border-ink-soft text-ink-soft'}`} aria-hidden="true">
+        –
+      </span>
+    );
   const tone = onInk
     ? score >= 85 ? 'bg-paper text-ink border-paper' : score >= 65 ? 'border-paper text-paper' : 'border-dashed border-paper text-paper'
     : score >= 85 ? 'bg-ink text-paper border-ink' : score >= 65 ? 'border-ink text-ink' : 'border-dashed border-ink text-ink';
@@ -99,7 +106,8 @@ function CVPage() {
   const [remote, setRemote] = useState<'idle' | 'loading' | 'missing'>(publicId ? 'loading' : 'idle');
   const cv = sharedCV ?? ownCV;
   const [shareOpen, setShareOpen] = useState(false);
-  const [editing, setEditing] = useState(false);
+  // A first visit (nothing saved, no shared or example CV in the URL) opens the editor: there is nothing to read yet.
+  const [editing, setEditing] = useState(() => !hadSavedCV && !/[?&](id|person)=/.test(window.location.search) && !window.location.hash.includes('cv='));
   const [editorTab, setEditorTab] = useState<EditorTab>('profile');
 
   useEffect(() => {
@@ -207,6 +215,7 @@ function CVPage() {
   const jobAd = useJobAd();
   const targetTitle = sharedCV ? undefined : jobAd.title;
   const atsScore = useMemo(() => runAtsCheck(cv, locale, { targetTitle }).score, [cv, locale, targetTitle]);
+  const hasContent = Boolean(cv.profile.name.trim() || cv.experience.length);
   const [skim, setSkim] = useState(false);
   const [skimTouched, setSkimTouched] = useState(false);
   // The recruiter check sits above the CV only while it is switched on in the CV menu.
@@ -327,11 +336,11 @@ function CVPage() {
                       type="button"
                       onClick={() => setCheckOpen((on) => !on)}
                       aria-pressed={checkOpen}
-                      aria-label={`${m.atsCard.title}: ${atsScore}/100`}
-                      title={`${m.atsCard.title}: ${atsScore}/100`}
+                      aria-label={hasContent ? `${m.atsCard.title}: ${atsScore}/100` : m.atsCard.title}
+                      title={hasContent ? `${m.atsCard.title}: ${atsScore}/100` : m.atsCard.title}
                       className={toolBtn}
                     >
-                      <ScoreMark score={atsScore} onInk={checkOpen} />
+                      <ScoreMark score={hasContent ? atsScore : null} onInk={checkOpen} />
                       <span className={toolLabel}>{m.atsCard.title}</span>
                     </button>
                   </>
