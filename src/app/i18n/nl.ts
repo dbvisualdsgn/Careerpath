@@ -10,6 +10,7 @@ export const nl: Messages = {
     linkCopied: 'Link gekopieerd naar klembord',
     edit: 'Cv bewerken',
     editShort: 'Bewerken',
+    menu: 'Menu',
     downloadPdf: 'PDF downloaden',
     downloadPdfShort: 'PDF',
     pdfSaved: 'PDF gedownload',

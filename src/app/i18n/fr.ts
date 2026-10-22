@@ -10,6 +10,7 @@ export const fr: Messages = {
     linkCopied: 'Lien copié dans le presse-papiers',
     edit: 'Modifier le CV',
     editShort: 'Modifier',
+    menu: 'Menu',
     downloadPdf: 'Télécharger le PDF',
     downloadPdfShort: 'PDF',
     pdfSaved: 'PDF téléchargé',

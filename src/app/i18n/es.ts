@@ -10,6 +10,7 @@ export const es: Messages = {
     linkCopied: 'Enlace copiado al portapapeles',
     edit: 'Editar CV',
     editShort: 'Editar',
+    menu: 'Menú',
     downloadPdf: 'Descargar PDF',
     downloadPdfShort: 'PDF',
     pdfSaved: 'PDF descargado',

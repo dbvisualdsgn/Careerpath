@@ -9,6 +9,7 @@ export const en = {
     linkCopied: 'Link copied to clipboard',
     edit: 'Edit CV',
     editShort: 'Edit',
+    menu: 'Menu',
     downloadPdf: 'Download PDF',
     downloadPdfShort: 'PDF',
     pdfSaved: 'PDF downloaded',

@@ -315,7 +315,7 @@ function CVPage() {
           {/* Three groups: write and check · how the page reads · who gets it. Download is the one filled button. */}
           <div role="group" aria-label={m.app.cvActions} className="border-t border-rule">
             <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-x-2 gap-y-1 px-3 py-1.5 sm:px-6">
-              <div className="flex items-center gap-0.5">
+              <div className="flex flex-wrap items-center gap-0.5">
                 {!sharedCV && (
                   <>
                     <button type="button" onClick={() => setEditing((on) => !on)} aria-pressed={editing} className={toolBtn}>
@@ -337,7 +337,7 @@ function CVPage() {
                   </>
                 )}
               </div>
-              <div className="order-last flex w-full items-center justify-between gap-1 border-t border-rule pt-1 md:order-none md:w-auto md:border-0 md:pt-0">
+              <div className="order-last flex w-full flex-wrap items-center justify-between gap-1 border-t border-rule pt-1 md:order-none md:w-auto md:border-0 md:pt-0">
                 {!sharedCV && (
                   <span className="md:hidden">
                     <PrivacySwitch isPublic={publishing.isPublic} busy={publishing.busy} onChange={togglePublic} />
@@ -362,7 +362,7 @@ function CVPage() {
                 <span id="skim-hint" className="sr-only">{m.skim.hint}</span>
                 <span className="sr-only" role="status">{skim ? m.skim.on : skimTouched ? m.skim.off : ''}</span>
               </div>
-              <div className="flex items-center gap-0.5">
+              <div className="flex flex-wrap items-center gap-0.5">
                 {!sharedCV && (
                   <span className="hidden md:inline">
                     <PrivacySwitch isPublic={publishing.isPublic} busy={publishing.busy} onChange={togglePublic} />

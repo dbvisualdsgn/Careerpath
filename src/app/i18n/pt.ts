@@ -10,6 +10,7 @@ export const pt: Messages = {
     linkCopied: 'Link copiado para a área de transferência',
     edit: 'Editar CV',
     editShort: 'Editar',
+    menu: 'Menu',
     downloadPdf: 'Transferir PDF',
     downloadPdfShort: 'PDF',
     pdfSaved: 'PDF transferido',

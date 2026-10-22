@@ -10,6 +10,7 @@ export const de: Messages = {
     linkCopied: 'Link in die Zwischenablage kopiert',
     edit: 'Lebenslauf bearbeiten',
     editShort: 'Bearbeiten',
+    menu: 'Menü',
     downloadPdf: 'PDF herunterladen',
     downloadPdfShort: 'PDF',
     pdfSaved: 'PDF heruntergeladen',

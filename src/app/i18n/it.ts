@@ -10,6 +10,7 @@ export const it: Messages = {
     linkCopied: 'Link copiato negli appunti',
     edit: 'Modifica CV',
     editShort: 'Modifica',
+    menu: 'Menu',
     downloadPdf: 'Scarica PDF',
     downloadPdfShort: 'PDF',
     pdfSaved: 'PDF scaricato',
