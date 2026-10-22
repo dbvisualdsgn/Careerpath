@@ -8,7 +8,7 @@ import { locales, useI18n, type Locale } from '../i18n';
 export function LanguageSwitcher() {
   const { locale, setLocale, m } = useI18n();
   return (
-    <div className="relative inline-flex h-9 items-center justify-center gap-1.5 rounded-sm px-2 text-[13px] font-medium leading-none text-ink hover:bg-zinc-100 focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-[var(--focus)]">
+    <div className="relative inline-flex h-11 min-w-11 items-center justify-center gap-1.5 rounded-sm px-2 text-[13px] font-medium leading-none text-ink hover:bg-zinc-100 focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-[var(--focus)] md:h-9 md:min-w-0">
       <Globe size={20} aria-hidden="true" />
       <span aria-hidden="true">{locales[locale].short}</span>
       <select

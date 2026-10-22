@@ -58,10 +58,12 @@ export function DownloadMenu({ cv, compact = false, onDownloaded }: { cv: CVData
           disabled={busy}
           aria-busy={busy}
           aria-label={d.title}
-          className="inline-flex h-9 items-center gap-2 rounded-sm border border-ink px-1.5 text-[13px] text-ink hover:bg-ink hover:text-paper disabled:opacity-60 lg:px-3"
+          className="inline-flex h-11 items-center gap-2 rounded-sm border border-ink bg-ink px-3 text-[13px] font-medium text-paper hover:opacity-90 active:translate-y-px disabled:opacity-60 md:h-9"
         >
           {busy ? <Loader2 size={20} className="animate-spin motion-reduce:animate-none" aria-hidden="true" /> : <Download size={20} aria-hidden="true" />}
-          <span className={compact ? 'hidden' : 'hidden whitespace-nowrap xl:inline'}>{d.title}</span>
+          {/* The one filled button in the CV menu. "PDF" where space is tight, the full label from lg. */}
+          <span aria-hidden="true" className={compact ? '' : 'lg:hidden'}>PDF</span>
+          <span className={compact ? 'hidden' : 'hidden whitespace-nowrap lg:inline'}>{d.title}</span>
           <ChevronDown size={20} aria-hidden="true" />
         </button>
       </PopoverTrigger>
