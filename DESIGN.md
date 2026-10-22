@@ -54,7 +54,9 @@ The **Typefaces** menu (`TypeSwitcher`, the "T" button) has a searchable list of
 in itself (previews load as rows scroll into view), and the Sans / Serif choice for text. The designed
 PDF embeds the same title and text fonts.
 
-- **Titles (`font-title`):** headings, names, job titles, big numbers.
+- **Titles (`font-title`):** headings, names, big numbers. The job title under the name is in the text face (`font-body`, 20–30px,
+  ink, at most 34ch with balanced lines), so a second voice carries it and a long title still reads; there is no
+  \"CV\" label above the name.
 - **Text (`font-body`):** summaries, bullets, descriptions, 16–20px, measure ≤60ch.
 - **Micro labels and dates:** IBM Plex Mono 11–12px, uppercase, tracking 0.14em, `ink-soft`. Self-hosted
   (woff2 in `src/assets/fonts`, OFL), like the text faces; Medium also serves 600–700.

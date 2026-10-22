@@ -142,7 +142,7 @@ export async function buildDesignedPdf(input: CVData, m: Messages, faces: TypeFa
     y += 16;
   };
 
-  // ---- Header: square photo or initials on the left, then label, name, headline, contacts ----
+  // ---- Header: square photo or initials on the left, then name, headline (in the text face), contacts ----
   const { profile } = cv;
   const avatar = avatarOf(profile);
   const picSize = 76;
@@ -156,16 +156,14 @@ export async function buildDesignedPdf(input: CVData, m: Messages, faces: TypeFa
     font(TITLE, 30, 'normal', C.paper);
     doc.text(initials(profile.name), M + 7, y + picSize - 8);
   }
-  label(m.app.cvTitle, tx, y + 6);
-  y += 18;
   font(TITLE, 34, 'normal');
   const nameLines: string[] = doc.splitTextToSize(profile.name || m.app.namePlaceholder, textWidth);
   for (const line of nameLines) {
     doc.text(line, tx, y + 28);
     y += 33;
   }
-  y += 4;
-  para(profile.headline || m.app.headlinePlaceholder, TITLE, 13, { color: C.soft, width: textWidth, x: tx });
+  y += 6;
+  para(profile.headline || m.app.headlinePlaceholder, BODY, 15, { width: Math.min(textWidth, 340), lead: 1.2, x: tx });
   y += 8;
   para(contactItems(cv).join('   ·   '), SANS, 8.5, { color: C.soft, width: textWidth, x: tx });
   if (avatar !== 'none') y = Math.max(y, top + picSize + 4);
