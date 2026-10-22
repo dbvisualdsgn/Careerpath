@@ -71,10 +71,12 @@ function SectionHead({ id, title }: { id: string; title: string }) {
   );
 }
 
-/** ATS score as a monochrome mark: dashed (needs work), outlined (good), filled (strong). */
-function ScoreMark({ score }: { score: number }) {
-  const tone =
-    score >= 85 ? 'bg-ink text-paper border-ink' : score >= 65 ? 'border-ink text-ink' : 'border-dashed border-ink text-ink';
+/** ATS score as a monochrome mark: dashed (needs work), outlined (good), filled (strong).
+ *  On a pressed (ink) button it is drawn in paper, so the score stays readable. */
+function ScoreMark({ score, onInk = false }: { score: number; onInk?: boolean }) {
+  const tone = onInk
+    ? score >= 85 ? 'bg-paper text-ink border-paper' : score >= 65 ? 'border-paper text-paper' : 'border-dashed border-paper text-paper'
+    : score >= 85 ? 'bg-ink text-paper border-ink' : score >= 65 ? 'border-ink text-ink' : 'border-dashed border-ink text-ink';
   return (
     <span className={`inline-flex min-w-8 justify-center rounded-sm border px-1 py-0.5 font-mono text-[11px] font-semibold tabular-nums leading-none ${tone}`} aria-hidden="true">
       {score}
@@ -329,7 +331,7 @@ function CVPage() {
                       title={`${m.atsCard.title}: ${atsScore}/100`}
                       className={toolBtn}
                     >
-                      <ScoreMark score={atsScore} />
+                      <ScoreMark score={atsScore} onInk={checkOpen} />
                       <span className={toolLabel}>{m.atsCard.title}</span>
                     </button>
                   </>
@@ -359,7 +361,7 @@ function CVPage() {
                   <Share2 size={20} aria-hidden="true" />
                 </button>
                 <DownloadMenu cv={cv} compact onDownloaded={() => beyondNoteWanted() && setBeyondOpen(true)} />
-                {!sharedCV && <DeleteCVButton name={ownCV.profile.name} onDelete={deleteOwn} className={toolBtn} />}
+                {!sharedCV && <DeleteCVButton name={ownCV.profile.name} isPublic={publishing.isPublic} onDelete={deleteOwn} className={toolBtn} />}
               </div>
             </div>
           </div>

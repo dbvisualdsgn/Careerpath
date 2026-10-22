@@ -8,7 +8,12 @@ import { useI18n } from '../app/i18n';
  *  the copy is hidden from screen readers and the keyboard. */
 function Row({ items, reverse, paused }: { items: Person[]; reverse?: boolean; paused: boolean }) {
   return (
-    <div className="gallery-row overflow-hidden" data-paused={paused || undefined}>
+    <div
+      className="gallery-row overflow-hidden"
+      data-paused={paused || undefined}
+      // Once the row stops for keyboard focus, bring the focused card into view.
+      onFocus={(e) => requestAnimationFrame(() => e.target.scrollIntoView({ block: 'nearest', inline: 'nearest' }))}
+    >
       <div className={`gallery-track flex w-max gap-4 ${reverse ? 'gallery-reverse' : ''}`}>
         <ul className="flex gap-4">
           {items.map((p) => <li key={p.id} className="w-[19rem] shrink-0 sm:w-[21rem]"><CVCard person={p} root="./" /></li>)}

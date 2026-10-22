@@ -13,8 +13,9 @@ import {
 } from './ui/alert-dialog';
 import { fmt, useI18n } from '../i18n';
 
-/** Bin button in the CV menu: asks first, then deletes the open CV from this browser. */
-export function DeleteCVButton({ name, onDelete, className }: { name: string; onDelete: () => Promise<boolean>; className: string }) {
+/** Bin button in the CV menu: asks first, then deletes the open CV from this browser.
+ *  A public CV is taken down first, so the warning says its link stops working. */
+export function DeleteCVButton({ name, isPublic, onDelete, className }: { name: string; isPublic: boolean; onDelete: () => Promise<boolean>; className: string }) {
   const { m } = useI18n();
   return (
     <AlertDialog>
@@ -26,7 +27,7 @@ export function DeleteCVButton({ name, onDelete, className }: { name: string; on
       <AlertDialogContent className="rounded-sm border-ink bg-paper text-ink">
         <AlertDialogHeader>
           <AlertDialogTitle className="font-title text-2xl font-normal">{fmt(m.library.deleteTitle, { name: name || m.library.untitled })}</AlertDialogTitle>
-          <AlertDialogDescription className="text-ink-soft">{m.library.deleteBody}</AlertDialogDescription>
+          <AlertDialogDescription className="text-ink-soft">{isPublic ? m.library.deleteBodyPublic : m.library.deleteBody}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel className="rounded-sm">{m.library.cancel}</AlertDialogCancel>

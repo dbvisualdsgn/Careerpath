@@ -48,7 +48,12 @@ export function PublishDialog({ open, onOpenChange, onConfirm, busy }: PublishDi
             <span className="mt-0.5 block text-[13px] text-ink-soft">{p.listHint}</span>
           </span>
         </label>
-        {failed && <p role="alert" className="text-[13px] text-signal">{p.failed}</p>}
+        {failed && (
+          <p role="alert" className="flex items-start gap-2 text-[13px]">
+            <span aria-hidden="true" className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-signal" />
+            {p.failed}
+          </p>
+        )}
         <DialogFooter className="gap-2">
           <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>{p.cancel}</Button>
           <Button

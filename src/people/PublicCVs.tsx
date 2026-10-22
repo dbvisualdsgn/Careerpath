@@ -12,6 +12,7 @@ function Report({ id, name }: { id: string; name: string }) {
   const r = m.report;
   const [open, setOpen] = useState(false);
   const [sent, setSent] = useState(false);
+  const [failed, setFailed] = useState(false);
   const [reason, setReason] = useState('spam');
   const groupId = useId();
   if (sent) return <p className="px-5 pb-4 text-[12px] text-ink-soft" role="status">{r.thanks}</p>;
@@ -27,8 +28,9 @@ function Report({ id, name }: { id: string; name: string }) {
       className="mx-5 mb-4 space-y-2 border border-rule p-3 text-[13px]"
       onSubmit={async (e) => {
         e.preventDefault();
-        await reportCV(id, reason).catch(() => undefined);
-        setSent(true);
+        setFailed(false);
+        // Thank the person only once the report has actually arrived.
+        await reportCV(id, reason).then(() => setSent(true), () => setFailed(true));
       }}
     >
       <fieldset>
@@ -40,6 +42,12 @@ function Report({ id, name }: { id: string; name: string }) {
           </label>
         ))}
       </fieldset>
+      {failed && (
+        <p role="alert" className="flex items-start gap-2">
+          <span aria-hidden="true" className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-signal" />
+          {r.failed}
+        </p>
+      )}
       <div className="flex gap-2">
         <button type="submit" className="h-8 rounded-sm bg-ink px-3 text-[12px] text-paper">{r.send}</button>
         <button type="button" onClick={() => setOpen(false)} className="h-8 rounded-sm border border-ink px-3 text-[12px]">{r.cancel}</button>
@@ -53,9 +61,11 @@ export function PublicCVs({ query }: { query: string }) {
   const { m } = useI18n();
   const d = m.directory;
   const [items, setItems] = useState<PublicCV[] | null>(null);
+  // An outage must not read as "nobody has shared a CV yet".
+  const [failed, setFailed] = useState(false);
   useEffect(() => {
     if (!isBackendReady()) return;
-    listPublicCVs().then(setItems, () => setItems([]));
+    listPublicCVs().then(setItems, () => setFailed(true));
   }, []);
   if (!isBackendReady()) return null;
   const q = query.trim().toLowerCase();
@@ -68,10 +78,15 @@ export function PublicCVs({ query }: { query: string }) {
     <section aria-labelledby="public-cvs" className="mt-14">
       <div className="flex items-baseline justify-between gap-4 border-t border-ink pt-4">
         <h2 id="public-cvs" className="font-title text-3xl md:text-4xl">{d.publicTitle}</h2>
-        <p className="font-mono text-[12px] text-ink-soft" aria-live="polite">{items ? fmt(d.count, { count: shown.length }) : d.loading}</p>
+        <p className="font-mono text-[12px] text-ink-soft" aria-live="polite">{items ? fmt(d.count, { count: shown.length }) : failed ? '' : d.loading}</p>
       </div>
       <p className="mt-3 max-w-[60ch] font-body text-lg text-ink-soft">{d.publicIntro}</p>
-      {items && shown.length === 0 ? (
+      {failed ? (
+        <p role="alert" className="mt-6 flex items-start gap-2.5 font-body text-lg">
+          <span aria-hidden="true" className="mt-2.5 h-2 w-2 shrink-0 rounded-full bg-signal" />
+          {d.loadFailed}
+        </p>
+      ) : items && shown.length === 0 ? (
         <p className="mt-6 font-body text-lg">{q ? d.empty : d.publicEmpty}</p>
       ) : (
         <ul className="mt-6 grid border-l border-t border-rule sm:grid-cols-2 lg:grid-cols-3">
