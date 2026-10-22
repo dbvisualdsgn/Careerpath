@@ -64,8 +64,8 @@ PDF embeds the same title and text fonts.
 ## Patterns
 
 - **Section opener:** 1px ink rule and a mono title (`SectionHead`). No running numbers on the CV.
-- **CV sheet:** the CV sits on one sheet (`panel`, a shade lighter than the `paper` desk) with a hairline
-  edge and a soft shadow. Print drops the sheet. Next to the name, on the left, the person picks nothing,
+- **CV sheet:** the CV sits on one sheet with a hairline edge and a soft shadow. The sheet has no fill of its
+  own: it is the `paper` the person chose in Light, so each CV looks like its own setting, not one fixed white. Print drops the sheet. Next to the name, on the left, the person picks nothing,
   their initials (a black square) or a photo (square, no rounding, grayscale, 480px). The PDF follows the same choice.
 - **CV page bars:** row 1 is the site (wordmark, My CVs, Public CVs). Row 2 is the CV menu, in three groups:
   write and check (Edit, Recruiter check) · how the page reads (typefaces, language, light, Skim view) · who
@@ -77,7 +77,7 @@ PDF embeds the same title and text fonts.
   popover): Open my CV first, then Why and Public CVs. Below `sm` the reading controls move into the panel.
 - **Recruiter check on the page:** the black frame shows only while "Recruiter check" is on in the CV menu.
   "See the full check" opens the job-ad match and every tip under it. The editor holds only the CV's content.
-- **Summary panel:** the summary sits in a hairline box on `paper`, the only tinted block on the sheet.
+- **Summary panel:** the summary sits in a hairline box, the only boxed block on the sheet.
 - **Skills:** core skills and tools side by side in 2 columns from `md`, stacked on phones.
 - **Ruled lists:** entries separated by `rule` hairlines (experience, education, FAQ).
 - **Hairline grids:** `gap-px` on a `rule` background (steps, tools, languages).
@@ -124,7 +124,7 @@ Motion is allowed only where it helps reading, and it never hides content for lo
   appears. The resting state is the end of each story, which is what reduced motion shows. A ticker of the
   same words drifts above them. One Pause button stops both (WCAG 2.2.2).
 - **Example CV cards** (homepage gallery, /people/) are small sheets in the current template
-  (`src/app/components/CVCard.tsx`): panel paper, avatar on the left or nothing. About 60% of the examples
+  (`src/app/components/CVCard.tsx`): the same sheet without a fill of its own, avatar on the left or nothing. About 60% of the examples
   show nothing next to the name, 30% initials and 10% a photo (`src/app/cv/people.ts`).
 - **Accents in motion:** only ink (black) and the highlight yellow move or animate; signal orange is kept
   for static error marks.
