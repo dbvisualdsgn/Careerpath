@@ -25,7 +25,6 @@ export const de: Messages = {
     headlinePlaceholder: 'Deine Berufsbezeichnung',
     cvTitle: 'Lebenslauf',
     jobAd: 'Stellenanzeige einfügen',
-    jobAdShort: 'Anzeige',
     cvActions: 'Dieser Lebenslauf',
   },
   beyond: {

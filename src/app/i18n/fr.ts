@@ -25,7 +25,6 @@ export const fr: Messages = {
     headlinePlaceholder: 'Votre intitulé de poste',
     cvTitle: 'CV',
     jobAd: 'Coller une annonce',
-    jobAdShort: 'Annonce',
     cvActions: 'Ce CV',
   },
   beyond: {

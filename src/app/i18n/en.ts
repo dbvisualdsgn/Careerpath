@@ -24,7 +24,6 @@ export const en = {
     headlinePlaceholder: 'Your Job Title',
     cvTitle: 'CV',
     jobAd: 'Paste a job ad',
-    jobAdShort: 'Job ad',
     cvActions: 'This CV',
   },
   beyond: {

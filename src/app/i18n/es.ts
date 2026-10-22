@@ -25,7 +25,6 @@ export const es: Messages = {
     headlinePlaceholder: 'Tu puesto',
     cvTitle: 'CV',
     jobAd: 'Pegar una oferta',
-    jobAdShort: 'Oferta',
     cvActions: 'Este CV',
   },
   beyond: {

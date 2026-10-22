@@ -25,7 +25,6 @@ export const nl: Messages = {
     headlinePlaceholder: 'Je functietitel',
     cvTitle: 'cv',
     jobAd: 'Vacature plakken',
-    jobAdShort: 'Vacature',
     cvActions: 'Dit cv',
   },
   beyond: {

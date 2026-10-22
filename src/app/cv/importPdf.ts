@@ -134,7 +134,7 @@ export async function readLines(doc: { numPages: number; getPage: (n: number) =>
 
 // ---- Heading dictionary (en, it, fr, es, de, pt, nl) ----
 const HEADINGS = {
-  summary: ['summary', 'professional summary', 'career summary', 'profile', 'professional profile', 'personal statement', 'about', 'about me', 'objective', 'profilo', 'profilo professionale', 'presentazione', 'sommario', 'riepilogo', 'chi sono', 'profil', 'profil professionnel', 'profil personnel', 'a propos', 'à propos', 'à propos de moi', 'perfil', 'perfil profesional', 'perfil profissional', 'extracto', 'resumen', 'resumo', 'resumo profissional', 'sobre mi', 'sobre mí', 'sobre mim', 'uber mich', 'über mich', 'kurzprofil', 'persönliches profil', 'zusammenfassung', 'profiel', 'samenvatting', 'over mij'],
+  summary: ['summary', 'professional summary', 'career summary', 'career objective', 'career profile', 'career goal', 'career goals', 'profile', 'professional profile', 'personal statement', 'about', 'about me', 'objective', 'profilo', 'profilo professionale', 'presentazione', 'sommario', 'riepilogo', 'chi sono', 'profil', 'profil professionnel', 'profil personnel', 'a propos', 'à propos', 'à propos de moi', 'perfil', 'perfil profesional', 'perfil profissional', 'extracto', 'resumen', 'resumo', 'resumo profissional', 'sobre mi', 'sobre mí', 'sobre mim', 'uber mich', 'über mich', 'kurzprofil', 'persönliches profil', 'zusammenfassung', 'profiel', 'samenvatting', 'over mij'],
   experience: ['experience', 'experiences', 'work experience', 'work experiences', 'professional experience', 'professional experiences', 'selected experience', 'employment', 'employment history', 'work history', 'career history', 'esperienza', 'esperienze', 'esperienza lavorativa', 'esperienze lavorative', 'esperienze professionali', 'esperienza professionale', 'experience professionnelle', 'expérience', 'expériences', 'expérience professionnelle', 'expériences professionnelles', 'parcours professionnel', 'experiencia', 'experiencias', 'experiencia laboral', 'experiencia profesional', 'trayectoria profesional', 'berufserfahrung', 'erfahrung', 'berufliche erfahrung', 'beruflicher werdegang', 'praxiserfahrung', 'experiência', 'experiências', 'experiência profissional', 'percurso profissional', 'werkervaring', 'werkervaringen', 'ervaring', 'loopbaan'],
   education: ['education', 'education & training', 'education and training', 'academic background', 'studies', 'istruzione', 'istruzione e formazione', 'formazione', 'titoli di studio', 'formation', 'formations', 'formation & diplômes', 'diplômes', 'éducation', 'études', 'educación', 'formación', 'formación académica', 'estudios', 'ausbildung', 'bildung', 'bildungsweg', 'studium', 'educação', 'formação', 'formação académica', 'formação acadêmica', 'opleiding', 'opleidingen'],
   skills: ['skills', 'core skills', 'key skills', 'technical skills', 'soft skills', 'hard skills', 'skills & expertise', 'expertise', 'competencies', 'competences', 'competenze', 'competenze chiave', 'competenze tecniche', 'competenze trasversali', 'abilità', 'compétences', 'compétences clés', 'savoir-faire', 'habilidades', 'competencias', 'aptitudes', 'kenntnisse', 'fähigkeiten', 'fertigkeiten', 'kompetenzen', 'kernkompetenzen', 'competências', 'vaardigheden', 'kernvaardigheden'],
@@ -175,11 +175,17 @@ function looseHeadingOf(line: PdfLine, bodySize: number): Bucket | null {
   const styled = (letters.length > 2 && letters === letters.toUpperCase()) || line.size >= bodySize * 1.12 || text.endsWith(':');
   if (!styled) return null;
   let best: { bucket: Bucket; at: number } | null = null;
+  let keywordWords = 0;
   for (const [bucket, re] of KEYWORDS) {
     const at = text.search(re);
-    if (at >= 0 && (!best || at < best.at)) best = { bucket, at };
+    if (at < 0) continue;
+    keywordWords++;
+    if (!best || at < best.at) best = { bucket, at };
   }
-  return best?.bucket ?? null;
+  // A heading is the section word plus at most one more ("Relevant Experience", "Skills & Tools");
+  // "Senior Software Engineer" names a job, not a section.
+  const extra = text.split(/\s+/).filter((w) => /\p{L}{3,}/u.test(w)).length - keywordWords;
+  return best && extra <= 1 ? best.bucket : null;
 }
 
 const PRESENT = "present|current|now|today|presente|attuale|oggi|aujourd'hui|aujourd’hui|actuel|actualidad|actual|heute|aktuell|atual|heden";
@@ -193,6 +199,12 @@ const EMAIL_RE = /[^\s@|·]+@[^\s@|·]+\.[^\s@|·]+/;
 const PHONE_RE = /\+?\d[\d\s().-]{7,}\d/;
 const URL_RE = /(?:https?:\/\/)?(?:www\.)?[a-z0-9-]+(?:\.[a-z0-9-]+)+(?:\/[^\s|·]*)?/i;
 const TYPE_RE = /^(full[- ]?time|part[- ]?time|freelance|contract|internship|volunteer|tempo pieno|part-time|cdi|cdd|jornada completa|vollzeit|teilzeit|freiberuflich|tempo inteiro|fulltime|parttime)$/i;
+
+/** A line that is only a date range ("Mar 2023 – Present", "2019 – 2021 ·"), with nothing else on it. */
+function onlyDates(text: string) {
+  const m = text.match(RANGE_RE);
+  return Boolean(m) && !text.replace(m![0], '').replace(/[|·,–(-]/g, '').trim();
+}
 
 /** Splits a "Company · City, Country · Full-time" style line. */
 function splitMeta(line: string) {
@@ -213,10 +225,7 @@ const isSentence = (s: string) => /[.!?;:]$/.test(s);
 function parseExperience(lines: string[]): Experience[] {
   // Durations are only stripped from date lines, so "3 years" inside a description stays.
   const clean = lines.map((l) => (RANGE_RE.test(l) ? l.replace(DURATION_RE, '').replace(/\s*[(·]\s*$/, '').trim() : l));
-  const dateOnly = (i: number) => {
-    const m = clean[i]?.match(RANGE_RE);
-    return Boolean(m) && !clean[i].replace(m![0], '').replace(/[|·,–(-]/g, '').trim();
-  };
+  const dateOnly = (i: number) => Boolean(clean[i]) && onlyDates(clean[i]);
   const plain = (i: number) => i >= 0 && i < clean.length && !BULLET_RE.test(clean[i]) && !RANGE_RE.test(clean[i]);
   // A dates-only line takes its title from the line above. When the first one has exactly a title and one more
   // line above it, that line is the company (LinkedIn: company, title, dates, place), and so for every role.
@@ -227,10 +236,13 @@ function parseExperience(lines: string[]): Experience[] {
     !datesFirst &&
     dated[0] === 2 && plain(0) && plain(1) && clean[0].length <= 60 && !isSentence(clean[0]) && !/[|·•]/.test(clean[3] ?? '|');
   const role = new Map<number, 'title' | 'company'>();
+  let prev = -Infinity;
   for (const j of datesFirst ? [] : dated) {
     if (!plain(j - 1)) continue;
     role.set(j - 1, 'title');
-    if (companyAbove && plain(j - 2) && !role.has(j - 2) && clean[j - 2].length <= 60) role.set(j - 2, 'company');
+    // Right after the previous role's place line, there is no company: it is another role at the same one.
+    if (companyAbove && j - 2 !== prev + 1 && plain(j - 2) && !role.has(j - 2) && clean[j - 2].length <= 60) role.set(j - 2, 'company');
+    prev = j;
   }
 
   const roles: Experience[] = [];
@@ -244,7 +256,8 @@ function parseExperience(lines: string[]): Experience[] {
       // A lone capital before the title is a logo's initial (e.g. "K Senior UX Researcher").
       const inline = line.replace(range[0], '').replace(/[|·,–-]\s*$/, '').trim().replace(/^\p{Lu}(?:\s·)?\s+(?=\p{Lu})/u, '');
       const title = inline || (role.get(i - 1) === 'title' ? clean[i - 1] : '');
-      const company = !inline && role.get(i - 2) === 'company' ? clean[i - 2] : '';
+      // LinkedIn groups several roles under one company name: those roles keep it.
+      const company = !inline && role.get(i - 2) === 'company' ? clean[i - 2] : companyAbove && !inline ? (current?.company ?? '') : '';
       current = { id: newId(), title, company, location: '', employmentType: '', start: range[1].trim(), end: range[2].trim(), bullets: [] };
       roles.push(current);
       expectTitle = datesFirst && !title;
@@ -261,6 +274,7 @@ function parseExperience(lines: string[]): Experience[] {
     if (BULLET_RE.test(line)) {
       current.bullets.push(line.replace(BULLET_RE, '').trim());
       expectMeta = false;
+      expectTitle = false;
     } else if (expectMeta) {
       const meta = splitMeta(line);
       // The company is known already (it came above the title): this line is the place.
@@ -294,7 +308,7 @@ function nameLine(lines: PdfLine[]) {
   return big && big.size >= median * 1.4 ? big : undefined;
 }
 
-const DEGREE_RE = /\b(?:master|bachelor|degree|msc|ma|ba|bsc|mba|phd|doctorat|laurea|diploma|diplôme|licence|licenciatura|grado|máster|mestrado|bacharelado|abitur|studium|baccalaur|bts|dut|hnd|certificate)\b/i;
+const DEGREE_RE = /\b(?:master|bachelor|degree|msc|ma|ba|bsc|mba|phd|laurea|diploma|diplôme|licence|licenciatura|grado|máster|mestrado|bacharelado|abitur|studium|bts|dut|hnd|certificate)\b|\b(?:doctora|dottorato|baccalaur|bachiller)\p{L}*/iu;
 
 /** Education entries: degree, then school, with dates on either line or on their own line. */
 function parseEducation(lines: string[]) {
@@ -369,18 +383,24 @@ export function parseLines(lines: PdfLine[]): CVData {
   const sizes = lines.map((l) => l.size).sort((a, b) => a - b);
   const bodySize = sizes[Math.floor(sizes.length / 2)] ?? 10;
   const seen = new Set<Bucket>();
+  // The size of headings already found word for word: a loose heading followed by dates must match it.
+  let headingSize = 0;
   lines.forEach((line, i) => {
     // The name opens the header, also when a sidebar was read before it (LinkedIn).
     if (line === name) return void (bucket = 'header');
     // A loose heading names a section not seen yet, and is not a job title followed by its dates.
     const loose = () => {
+      // The line under the name is the headline, whatever words it holds.
+      if (lines[i - 1] === name) return null;
       const b = looseHeadingOf(line, bodySize);
-      const next = lines[i + 1]?.text ?? '';
-      const nextIsDates = RANGE_RE.test(next) && !next.replace(next.match(RANGE_RE)![0], '').replace(/[|·,–(-]/g, '').trim();
-      // A job title in capitals followed by its dates is not a heading; a heading set bigger than the text is.
-      return b && !seen.has(b) && (!nextIsDates || line.size >= bodySize * 1.12) ? b : null;
+      // A job title followed by its dates is not a heading, unless it is set exactly like the headings.
+      const nextIsDates = onlyDates(lines[i + 1]?.text ?? '');
+      const asHeading = headingSize > 0 && Math.abs(line.size - headingSize) < 0.5;
+      return b && !seen.has(b) && (!nextIsDates || asHeading) ? b : null;
     };
-    const h = headingOf(line.text) ?? loose();
+    const exact = headingOf(line.text);
+    if (exact) headingSize ||= line.size;
+    const h = exact ?? loose();
     if (h) {
       bucket = h;
       seen.add(h);
@@ -390,17 +410,23 @@ export function parseLines(lines: PdfLine[]): CVData {
   // Header: name, headline, contact details. Other lines there usually belong to the summary.
   const header = buckets.header.filter((l) => !/^(cv|curriculum vitae|resume|résumé|lebenslauf)$/i.test(l));
   const plain: string[] = [];
+  // The current header line holds several contact details ("email · phone · city").
+  let among = false;
   const contact = (bit: string) => {
     const email = bit.match(EMAIL_RE)?.[0];
     if (email) return void (cv.profile.email ||= email);
     if (/linkedin\.com/i.test(bit)) return void (cv.profile.linkedin ||= bit.match(URL_RE)?.[0] ?? bit);
     if (PHONE_RE.test(bit) && !SINGLE_YEAR_RE.test(bit.replace(PHONE_RE, ''))) return void (cv.profile.phone ||= bit.match(PHONE_RE)![0].trim());
     if (URL_RE.test(bit) && !bit.includes(' ')) return void (cv.profile.website ||= bit);
-    if (/^[\p{L}' .-]+(?:,\s*[\p{L}' .-]+){1,2}$/u.test(bit) && bit.length <= 48) return void (cv.profile.location ||= bit);
+    if (/^[\p{L}' .-]+,\s*[\p{L}' .-]+$/u.test(bit) && bit.length <= 40) return void (cv.profile.location ||= bit);
+    // "Paris, Île-de-France, France": only after the headline, or next to other contact details,
+    // so a headline like "Designer, Researcher, Writer" stays the headline.
+    if (/^[\p{L}' .-]+(?:,\s*[\p{L}' .-]+){2}$/u.test(bit) && bit.length <= 48 && (plain.length > 0 || among)) return void (cv.profile.location ||= bit);
     return false;
   };
   for (const l of header) {
     const bits = l.split(/\s*[|·•]\s*/).map((b) => b.trim()).filter(Boolean);
+    among = bits.length > 1;
     const unknown = bits.filter((b) => contact(b) === false);
     if (unknown.length === bits.length) plain.push(l);
   }
