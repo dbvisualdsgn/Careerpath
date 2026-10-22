@@ -11,7 +11,7 @@ export function ToolBadge({ icon, name, description }: ToolBadgeProps) {
   return (
     <li title={description || undefined} className="inline-flex items-center gap-2 rounded-sm border border-ink px-2.5 py-1 text-[15px]">
       {/* Logos keep their colours; in night mode they sit on a light tile so dark marks stay visible. */}
-      <span className="inline-flex shrink-0 dark:rounded-[2px] dark:bg-[#eceae5] dark:p-px">
+      <span className="inline-flex shrink-0">
         <BrandIcon src={icon} name={name} size={16} />
       </span>
       {name}

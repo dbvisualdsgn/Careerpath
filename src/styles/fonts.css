@@ -10,8 +10,29 @@
 
 /* Switzer (sans) and Gambetta (reading serif) by the Indian Type Foundry, from Fontshare (ITF Free Font
    License, see public/fonts/FONTSHARE.txt). Self-hosted so no third party sees who reads a CV.
-   IBM Plex Mono (OFL) stays for small labels. */
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap');
+   IBM Plex Mono (OFL, public/fonts/OFL.txt) for small labels, self-hosted the same way. Medium also
+   serves 600–700, so bold labels use the real Medium cut instead of a smeared fake bold. */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  src: url('../assets/fonts/IBMPlexMono-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'IBM Plex Mono';
+  src: url('../assets/fonts/IBMPlexMono-Italic.woff2') format('woff2');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'IBM Plex Mono';
+  src: url('../assets/fonts/IBMPlexMono-Medium.woff2') format('woff2');
+  font-weight: 500 700;
+  font-style: normal;
+  font-display: swap;
+}
 
 @font-face {
   font-family: 'Switzer';

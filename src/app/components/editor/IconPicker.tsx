@@ -65,7 +65,7 @@ export function IconPicker({ value, name, onChange, fill = false }: IconPickerPr
           type="button"
           title={fmt(m.picker.change, { name: name || m.editor.item })}
           aria-label={fmt(m.picker.change, { name: name || m.editor.item })}
-          className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-md border border-zinc-200 bg-white hover:border-zinc-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus)] dark:border-zinc-700"
+          className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-md border border-zinc-200 bg-white hover:border-zinc-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus)]"
         >
           <BrandIcon src={value} name={name} size={18} fill={fill} />
         </button>
@@ -84,12 +84,12 @@ export function IconPicker({ value, name, onChange, fill = false }: IconPickerPr
         </div>
         <div className="mt-3 grid grid-cols-6 gap-1.5 max-h-56 overflow-y-auto min-h-12" aria-live="polite">
           {loading && results.length === 0 && (
-            <div className="col-span-6 flex items-center gap-2 text-xs text-zinc-600 dark:text-zinc-400 py-3">
+            <div className="col-span-6 flex items-center gap-2 text-xs text-zinc-600 py-3">
               <Loader2 size={20} className="animate-spin" aria-hidden="true" /> {m.picker.loading}
             </div>
           )}
           {!loading && query && results.length === 0 && (
-            <p className="col-span-6 text-xs text-zinc-600 dark:text-zinc-400 py-3">{m.picker.none}</p>
+            <p className="col-span-6 text-xs text-zinc-600 py-3">{m.picker.none}</p>
           )}
           {results.map((icon) => (
             <button
@@ -101,13 +101,13 @@ export function IconPicker({ value, name, onChange, fill = false }: IconPickerPr
                 onChange(icon.dataUrl);
                 setOpen(false);
               }}
-              className="flex h-11 items-center justify-center rounded-md border border-transparent bg-white hover:border-zinc-300 focus-visible:outline-2 focus-visible:outline-[var(--focus)] dark:hover:border-zinc-500"
+              className="flex h-11 items-center justify-center rounded-md border border-transparent bg-white hover:border-zinc-300 focus-visible:outline-2 focus-visible:outline-[var(--focus)]"
             >
               <img src={icon.dataUrl} alt="" className="h-6 w-6 object-contain" />
             </button>
           ))}
         </div>
-        <div className="mt-3 flex items-center gap-2 border-t border-zinc-200 dark:border-zinc-800 pt-3">
+        <div className="mt-3 flex items-center gap-2 border-t border-zinc-200 pt-3">
           <Button type="button" variant="outline" size="sm" className="gap-1.5" onClick={() => fileRef.current?.click()}>
             <Upload size={20} aria-hidden="true" /> {m.picker.upload}
           </Button>
@@ -130,7 +130,7 @@ export function IconPicker({ value, name, onChange, fill = false }: IconPickerPr
           />
         </div>
         {error && <p role="alert" className="mt-2 text-xs font-medium text-ink">{error}</p>}
-        <p className="mt-2 text-[11px] text-zinc-600 dark:text-zinc-400">{m.picker.credit}</p>
+        <p className="mt-2 text-[11px] text-zinc-600">{m.picker.credit}</p>
       </PopoverContent>
     </Popover>
   );

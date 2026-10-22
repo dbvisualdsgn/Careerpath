@@ -21,7 +21,7 @@ export function SaveVersionDialog({ onSave }: { onSave: (name: string) => void }
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="col-span-2 gap-1.5 text-xs">
+        <Button variant="outline" size="sm" className="h-10 flex-1 gap-1.5 rounded-sm text-xs sm:h-8">
           <CopyPlus size={20} aria-hidden="true" /> {l.saveVersion}
         </Button>
       </DialogTrigger>
@@ -32,7 +32,7 @@ export function SaveVersionDialog({ onSave }: { onSave: (name: string) => void }
             <DialogDescription className="text-ink-soft">{l.versionBody}</DialogDescription>
           </DialogHeader>
           <div className="space-y-1.5">
-            <label htmlFor={id} className="text-xs font-medium">{l.versionName}</label>
+            <label htmlFor={id} className="font-mono text-[11px] uppercase tracking-[0.14em] text-ink-soft">{l.versionName}</label>
             <Input id={id} value={name} onChange={(e) => setName(e.target.value)} placeholder={l.versionPlaceholder} aria-describedby={`${id}-hint`} autoFocus />
             <p id={`${id}-hint`} className="text-xs text-ink-soft">{l.versionHint}</p>
           </div>

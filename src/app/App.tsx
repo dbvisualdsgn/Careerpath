@@ -1,6 +1,6 @@
 import { ReadingControls } from './components/ReadingControls';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Mail, Share2, Phone, MapPin, Linkedin, PencilLine, Eye, Globe, ArrowLeft, Loader2, Lock, ScanEye } from 'lucide-react';
+import { Mail, Share2, Phone, MapPin, Linkedin, PencilLine, Eye, Globe, Loader2, Lock, ScanEye } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { Toaster, toast } from 'sonner';
 import { TooltipProvider } from './components/ui/tooltip';
@@ -17,7 +17,7 @@ import { LibraryMenu } from './components/LibraryMenu';
 import { avatarOf, displayUrl, hrefUrl, toJsonLd } from './cv/format';
 import { DownloadMenu } from './components/DownloadMenu';
 import { AtsSummary } from './components/AtsSummary';
-import { DeleteCVButton } from './components/DeleteCVButton';
+import { DeleteCVDialog } from './components/DeleteCVDialog';
 import { AtsPanel } from './components/editor/AtsPanel';
 import { BeyondNote, beyondNoteWanted } from './components/BeyondNote';
 import { PrivacySwitch } from './components/PrivacySwitch';
@@ -37,9 +37,9 @@ import { I18nProvider, fmt, useI18n } from './i18n';
 const hadSavedCV = hasSavedCV();
 
 const microLabel = 'font-mono text-[11px] uppercase tracking-[0.14em] text-ink-soft';
-// CV menu buttons: icon, with a label from md up. Pressed = ink fill (the shared button states).
+// CV menu buttons: icon, with a label from md up; 44px on phones. Pressed = ink fill (the shared button states).
 const toolBtn =
-  'inline-flex h-9 min-w-9 items-center justify-center gap-2 rounded-sm px-2 text-[13px] text-ink hover:bg-zinc-100 disabled:opacity-60 aria-pressed:bg-ink aria-pressed:text-paper dark:hover:bg-zinc-800';
+  'inline-flex h-11 min-w-11 items-center justify-center gap-2 rounded-sm px-2 text-[13px] text-ink hover:bg-zinc-100 disabled:opacity-60 aria-pressed:bg-ink aria-pressed:text-paper md:h-9 md:min-w-9';
 const toolLabel = 'hidden whitespace-nowrap md:inline';
 
 export default function App() {
@@ -71,10 +71,19 @@ function SectionHead({ id, title }: { id: string; title: string }) {
   );
 }
 
-/** ATS score as a monochrome mark: dashed (needs work), outlined (good), filled (strong). */
-function ScoreMark({ score }: { score: number }) {
-  const tone =
-    score >= 85 ? 'bg-ink text-paper border-ink' : score >= 65 ? 'border-ink text-ink' : 'border-dashed border-ink text-ink';
+/** ATS score as a monochrome mark: dashed (needs work), outlined (good), filled (strong).
+ *  On a pressed (ink) button it is drawn in paper, so the score stays readable.
+ *  Before there is anything to judge (no name, no role) it shows a dash, not a verdict. */
+function ScoreMark({ score, onInk = false }: { score: number | null; onInk?: boolean }) {
+  if (score === null)
+    return (
+      <span className={`inline-flex min-w-8 justify-center rounded-sm border border-dashed px-1 py-0.5 font-mono text-[11px] leading-none ${onInk ? 'border-paper text-paper' : 'border-ink-soft text-ink-soft'}`} aria-hidden="true">
+        –
+      </span>
+    );
+  const tone = onInk
+    ? score >= 85 ? 'bg-paper text-ink border-paper' : score >= 65 ? 'border-paper text-paper' : 'border-dashed border-paper text-paper'
+    : score >= 85 ? 'bg-ink text-paper border-ink' : score >= 65 ? 'border-ink text-ink' : 'border-dashed border-ink text-ink';
   return (
     <span className={`inline-flex min-w-8 justify-center rounded-sm border px-1 py-0.5 font-mono text-[11px] font-semibold tabular-nums leading-none ${tone}`} aria-hidden="true">
       {score}
@@ -97,7 +106,8 @@ function CVPage() {
   const [remote, setRemote] = useState<'idle' | 'loading' | 'missing'>(publicId ? 'loading' : 'idle');
   const cv = sharedCV ?? ownCV;
   const [shareOpen, setShareOpen] = useState(false);
-  const [editing, setEditing] = useState(false);
+  // A first visit (nothing saved, no shared or example CV in the URL) opens the editor: there is nothing to read yet.
+  const [editing, setEditing] = useState(() => !hadSavedCV && !/[?&](id|person)=/.test(window.location.search) && !window.location.hash.includes('cv='));
   const [editorTab, setEditorTab] = useState<EditorTab>('profile');
 
   useEffect(() => {
@@ -205,6 +215,7 @@ function CVPage() {
   const jobAd = useJobAd();
   const targetTitle = sharedCV ? undefined : jobAd.title;
   const atsScore = useMemo(() => runAtsCheck(cv, locale, { targetTitle }).score, [cv, locale, targetTitle]);
+  const hasContent = Boolean(cv.profile.name.trim() || cv.experience.length);
   const [skim, setSkim] = useState(false);
   const [skimTouched, setSkimTouched] = useState(false);
   // The recruiter check sits above the CV only while it is switched on in the CV menu.
@@ -212,6 +223,7 @@ function CVPage() {
   const [fullCheck, setFullCheck] = useState(false);
   const [jobAdRequest, setJobAdRequest] = useState(0);
   const [beyondOpen, setBeyondOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
   const openJobAd = () => {
     setFullCheck(true);
     setJobAdRequest((n) => n + 1);
@@ -287,9 +299,6 @@ function CVPage() {
           {/* Row 1: the site. Row 2: everything you can do with this CV. */}
           <nav aria-label={m.app.home} className="mx-auto flex h-14 max-w-5xl items-center justify-between gap-2 px-3 sm:px-6">
             <div className="flex min-w-0 items-center gap-1">
-              <a href="../" aria-label={m.app.home} className="hidden h-9 w-9 items-center justify-center rounded-sm hover:bg-zinc-100 dark:hover:bg-zinc-800 md:inline-flex">
-                <ArrowLeft size={20} aria-hidden="true" />
-              </a>
               <Wordmark href="../" />
               {!sharedCV && (
                 <LibraryMenu
@@ -304,62 +313,75 @@ function CVPage() {
                     toast.success(m.library.created);
                   }}
                   onImportPdf={() => pdfRef.current?.click()}
+                  onDelete={() => setDeleteOpen(true)}
                 />
               )}
             </div>
-            <a href="../people/" className="inline-flex h-9 shrink-0 items-center rounded-sm px-2 text-[13px] text-ink hover:bg-zinc-100 dark:hover:bg-zinc-800">
+            <a href="../people/" className="inline-flex h-11 shrink-0 items-center rounded-sm px-2 text-[13px] text-ink hover:bg-zinc-100 md:h-9">
               {m.directory.nav}
             </a>
           </nav>
+          {/* Three groups: write and check · how the page reads · who gets it. Download is the one filled button. */}
           <div role="group" aria-label={m.app.cvActions} className="border-t border-rule">
             <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-x-2 gap-y-1 px-3 py-1.5 sm:px-6">
-              <div className="flex items-center gap-0.5">
+              <div className="flex flex-wrap items-center gap-0.5">
                 {!sharedCV && (
                   <>
-                    <button type="button" onClick={() => setEditing((on) => !on)} aria-pressed={editing} title={m.app.edit} className={toolBtn}>
+                    <button type="button" onClick={() => setEditing((on) => !on)} aria-pressed={editing} className={toolBtn}>
                       <PencilLine size={20} aria-hidden="true" />
+                      <span className="whitespace-nowrap md:hidden">{m.app.editShort}</span>
                       <span className={toolLabel}>{m.app.edit}</span>
-                      <span className="sr-only md:hidden">{m.app.edit}</span>
                     </button>
                     <button
                       type="button"
                       onClick={() => setCheckOpen((on) => !on)}
                       aria-pressed={checkOpen}
-                      aria-label={`${m.atsCard.title}: ${atsScore}/100`}
-                      title={`${m.atsCard.title}: ${atsScore}/100`}
+                      aria-label={hasContent ? `${m.atsCard.title}: ${atsScore}/100` : m.atsCard.title}
+                      title={hasContent ? `${m.atsCard.title}: ${atsScore}/100` : m.atsCard.title}
                       className={toolBtn}
                     >
-                      <ScoreMark score={atsScore} />
+                      <ScoreMark score={hasContent ? atsScore : null} onInk={checkOpen} />
                       <span className={toolLabel}>{m.atsCard.title}</span>
                     </button>
                   </>
                 )}
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSkimTouched(true);
-                    setSkim((on) => !on);
-                  }}
-                  aria-pressed={skim}
-                  aria-describedby="skim-hint"
-                  title={m.skim.hint}
-                  className={toolBtn}
-                >
-                  <ScanEye size={20} aria-hidden="true" />
-                  <span className={toolLabel}>{m.skim.label}</span>
-                  <span className="sr-only md:hidden">{m.skim.label}</span>
-                </button>
+              </div>
+              <div className="order-last flex w-full flex-wrap items-center justify-between gap-1 border-t border-rule pt-1 md:order-none md:w-auto md:border-0 md:pt-0">
+                {!sharedCV && (
+                  <span className="md:hidden">
+                    <PrivacySwitch isPublic={publishing.isPublic} busy={publishing.busy} onChange={togglePublic} />
+                  </span>
+                )}
+                <ReadingControls>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSkimTouched(true);
+                      setSkim((on) => !on);
+                    }}
+                    aria-pressed={skim}
+                    aria-label={m.skim.label}
+                    aria-describedby="skim-hint"
+                    title={m.skim.hint}
+                    className={toolBtn}
+                  >
+                    <ScanEye size={20} aria-hidden="true" />
+                  </button>
+                </ReadingControls>
                 <span id="skim-hint" className="sr-only">{m.skim.hint}</span>
                 <span className="sr-only" role="status">{skim ? m.skim.on : skimTouched ? m.skim.off : ''}</span>
               </div>
-              <ReadingControls />
-              <div className="flex items-center gap-0.5">
-                {!sharedCV && <PrivacySwitch isPublic={publishing.isPublic} busy={publishing.busy} onChange={togglePublic} />}
+              <div className="flex flex-wrap items-center gap-0.5">
+                {!sharedCV && (
+                  <span className="hidden md:inline">
+                    <PrivacySwitch isPublic={publishing.isPublic} busy={publishing.busy} onChange={togglePublic} />
+                  </span>
+                )}
                 <button type="button" onClick={() => setShareOpen(true)} aria-label={m.app.share} title={m.app.share} className={toolBtn}>
                   <Share2 size={20} aria-hidden="true" />
+                  <span className={toolLabel} aria-hidden="true">{m.app.share}</span>
                 </button>
-                <DownloadMenu cv={cv} compact onDownloaded={() => beyondNoteWanted() && setBeyondOpen(true)} />
-                {!sharedCV && <DeleteCVButton name={ownCV.profile.name} onDelete={deleteOwn} className={toolBtn} />}
+                <DownloadMenu cv={cv} compact={editing} onDownloaded={() => beyondNoteWanted() && setBeyondOpen(true)} />
               </div>
             </div>
           </div>
@@ -533,7 +555,7 @@ function CVPage() {
                   setEditorTab('experience');
                   setEditing(true);
                 }}
-                className="w-full rounded-sm border border-dashed border-ink p-8 font-sans text-sm hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                className="w-full rounded-sm border border-dashed border-ink p-8 font-sans text-sm hover:bg-zinc-100"
               >
                 {m.app.addFirstRole}
               </button>
@@ -634,6 +656,9 @@ function CVPage() {
             if (!(await publishing.setListed(listed))) toast.error(m.publish.failed);
           }}
         />
+      )}
+      {!sharedCV && (
+        <DeleteCVDialog open={deleteOpen} onOpenChange={setDeleteOpen} name={ownCV.profile.name} isPublic={publishing.isPublic} onDelete={deleteOwn} />
       )}
       <PublishDialog
         open={publishOpen}

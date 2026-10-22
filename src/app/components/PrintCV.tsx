@@ -20,7 +20,7 @@ export function PrintCV({ cv }: { cv: CVData }) {
   return (
     <div className="hidden print:block text-black bg-white text-[10pt] leading-snug" style={{ fontFamily: 'Arial, Helvetica, sans-serif' }}>
       <header>
-        <h1 className="text-[20pt] font-bold leading-tight">{profile.name}</h1>
+        {profile.name && <h1 className="text-[20pt] font-bold leading-tight">{profile.name}</h1>}
         {profile.headline && <p className="text-[12pt]">{profile.headline}</p>}
         <p className="mt-1">{contactItems(cv).join('  |  ')}</p>
       </header>

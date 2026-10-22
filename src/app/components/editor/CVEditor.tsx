@@ -1,5 +1,5 @@
 import { cloneElement, isValidElement, useEffect, useId, useRef, useState } from 'react';
-import { ArrowDown, ArrowUp, Camera, Copy, FileDown, FileText, FileUp, Plus, Trash2, FilePlus2 } from 'lucide-react';
+import { ArrowDown, ArrowUp, Camera, ChevronDown, Copy, FileDown, FileText, FileUp, Plus, Trash2 } from 'lucide-react';
 import { Portrait } from '../Portrait';
 import { processPhoto } from '../../cv/photo';
 import { toast } from 'sonner';
@@ -9,9 +9,10 @@ import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
 import { Label } from '../ui/label';
 import { Button } from '../ui/button';
+import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { IconPicker } from './IconPicker';
 import { SaveVersionDialog } from './SaveVersionDialog';
-import { blankCV, emptyItems } from '../../cv/defaultCV';
+import { emptyItems } from '../../cv/defaultCV';
 import { findIcon } from '../../cv/iconCatalog';
 import { normalize } from '../../cv/useCV';
 import { avatarOf, downloadFile, fileSlug, toPlainText } from '../../cv/format';
@@ -44,15 +45,19 @@ export const sectionTab: Record<Finding['section'], Tab> = {
   profile: 'profile', summary: 'profile', skills: 'skills', experience: 'experience', education: 'more', extras: 'more',
 };
 
+// The editor speaks like the page: mono micro labels, ink-soft hints, entries divided by hairlines.
+const microLabel = 'font-mono text-[11px] font-normal uppercase tracking-[0.14em] text-ink-soft';
+const hintClass = 'text-[12px] leading-snug text-ink-soft';
+
 /** Label + control + hint, wired together with ids so screen readers announce all three. */
 function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactElement<Record<string, unknown>> }) {
   const id = useId();
   const hintId = `${id}-hint`;
   return (
     <div className="space-y-1.5">
-      <Label htmlFor={id} className="text-xs text-zinc-700 dark:text-zinc-300">{label}</Label>
+      <Label htmlFor={id} className={microLabel}>{label}</Label>
       {isValidElement(children) ? cloneElement(children, { id, 'aria-describedby': hint ? hintId : undefined }) : children}
-      {hint && <p id={hintId} className="text-[11px] text-zinc-600 dark:text-zinc-400">{hint}</p>}
+      {hint && <p id={hintId} className={hintClass}>{hint}</p>}
     </div>
   );
 }
@@ -64,13 +69,13 @@ function ItemControls({ onUp, onDown, onRemove, label }: { onUp?: () => void; on
   const remove = fmt(m.editor.remove, { label });
   return (
     <div className="flex shrink-0 items-center">
-      <Button type="button" variant="ghost" size="icon" className="h-8 w-8" disabled={!onUp} onClick={onUp} title={up} aria-label={up}>
+      <Button type="button" variant="ghost" size="icon" className="h-10 w-10 sm:h-8 sm:w-8" disabled={!onUp} onClick={onUp} title={up} aria-label={up}>
         <ArrowUp size={20} aria-hidden="true" />
       </Button>
-      <Button type="button" variant="ghost" size="icon" className="h-8 w-8" disabled={!onDown} onClick={onDown} title={down} aria-label={down}>
+      <Button type="button" variant="ghost" size="icon" className="h-10 w-10 sm:h-8 sm:w-8" disabled={!onDown} onClick={onDown} title={down} aria-label={down}>
         <ArrowDown size={20} aria-hidden="true" />
       </Button>
-      <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-zinc-600 hover:text-ink dark:text-zinc-400" onClick={onRemove} title={remove} aria-label={remove}>
+      <Button type="button" variant="ghost" size="icon" className="h-10 w-10 text-ink-soft hover:text-ink sm:h-8 sm:w-8" onClick={onRemove} title={remove} aria-label={remove}>
         <Trash2 size={20} aria-hidden="true" />
       </Button>
     </div>
@@ -79,10 +84,10 @@ function ItemControls({ onUp, onDown, onRemove, label }: { onUp?: () => void; on
 
 function SectionHeading({ title, onAdd, addLabel }: { title: string; onAdd?: () => void; addLabel?: string }) {
   return (
-    <div className="flex items-center justify-between">
-      <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-600 dark:text-zinc-400">{title}</h3>
+    <div className="flex items-center justify-between gap-3 border-t border-ink pt-3">
+      <h3 className="font-mono text-[12px] font-medium uppercase tracking-[0.14em] text-ink">{title}</h3>
       {onAdd && (
-        <Button type="button" variant="outline" size="sm" className="h-8 gap-1" onClick={onAdd}>
+        <Button type="button" variant="outline" size="sm" className="h-10 gap-1 rounded-sm sm:h-8" onClick={onAdd}>
           <Plus size={20} aria-hidden="true" /> {addLabel}
         </Button>
       )}
@@ -92,7 +97,8 @@ function SectionHeading({ title, onAdd, addLabel }: { title: string; onAdd?: () 
 
 const parseSkills = (text: string) => text.split(/[\n,]/).map((s) => s.trim()).filter(Boolean);
 
-const cardClass = 'rounded-lg border border-zinc-200 dark:border-zinc-800 p-4 space-y-3';
+// min-w-0: a fieldset is otherwise as wide as its longest title, which pushed fields off the panel.
+const cardClass = 'min-w-0 space-y-3 border-b border-rule pb-5';
 
 export function CVEditor({
   open, onOpenChange, cv, setCV, update, tab, onTabChange: setTab, onCreate, onImportPdf, versionName, onRenameVersion, onSaveVersion,
@@ -155,6 +161,19 @@ export function CVEditor({
   };
 
   const wordCount = cv.summary.trim().split(/\s+/).filter(Boolean).length;
+  const [ioOpen, setIoOpen] = useState(false);
+  const ioItem = (Icon: typeof FileText, label: string, run: () => void) => (
+    <button
+      type="button"
+      onClick={() => {
+        setIoOpen(false);
+        run();
+      }}
+      className="flex min-h-11 w-full items-center gap-3 border-b border-rule px-4 py-2.5 text-left text-[14px] last:border-b-0 hover:bg-zinc-100"
+    >
+      <Icon size={20} aria-hidden="true" className="shrink-0" /> {label}
+    </button>
+  );
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange} modal={false}>
@@ -180,11 +199,6 @@ export function CVEditor({
 
           <div className="flex-1 overflow-y-auto px-5 py-5">
             <TabsContent value="profile" className="space-y-4 mt-0">
-              <div className="space-y-4 border-b border-rule pb-4">
-                <Field label={m.library.versionName} hint={m.library.versionHint}>
-                  <Input value={versionName} placeholder={m.library.versionPlaceholder} onChange={(ev) => onRenameVersion(ev.target.value)} />
-                </Field>
-              </div>
               <fieldset className="flex items-start gap-4">
                 {avatar === 'none' ? (
                   <span aria-hidden="true" className="h-20 w-20 shrink-0 border border-dashed border-ink-soft" />
@@ -192,7 +206,7 @@ export function CVEditor({
                   <Portrait photo={avatar === 'photo' ? cv.profile.photo : undefined} name={cv.profile.name} className="h-20 w-20 shrink-0 text-2xl" alt={fmt(m.photo.alt, { name: cv.profile.name })} />
                 )}
                 <div className="min-w-0 flex-1 space-y-2">
-                  <legend className="text-xs font-medium text-zinc-700 dark:text-zinc-300">{m.photo.show}</legend>
+                  <legend className={microLabel}>{m.photo.show}</legend>
                   {/* Nothing, initials or photo: one hairline box divided by ink rules. */}
                   <div className="grid grid-cols-3 border border-ink text-xs">
                     {(['none', 'initials', 'photo'] as const).map((mode) => (
@@ -230,7 +244,7 @@ export function CVEditor({
                       </Button>
                     </div>
                   )}
-                  <p className="text-[11px] leading-snug text-zinc-600 dark:text-zinc-400">{m.photo.hint}</p>
+                  <p className={hintClass}>{m.photo.hint}</p>
                   <input
                     ref={photoRef}
                     type="file"
@@ -280,6 +294,12 @@ export function CVEditor({
               <Field label={e.summary} hint={fmt(e.summaryHint, { count: wordCount })}>
                 <Textarea className="min-h-32" value={cv.summary} onChange={(ev) => update((d) => ({ ...d, summary: ev.target.value }))} />
               </Field>
+              {/* Only the person sees this name, so it comes after everything that goes on the CV. */}
+              <div className="border-t border-rule pt-4">
+                <Field label={m.library.versionName} hint={m.library.versionHint}>
+                  <Input value={versionName} placeholder={m.library.versionPlaceholder} onChange={(ev) => onRenameVersion(ev.target.value)} />
+                </Field>
+              </div>
             </TabsContent>
 
             <TabsContent value="skills" className="space-y-6 mt-0">
@@ -296,7 +316,7 @@ export function CVEditor({
 
               <div className="space-y-3">
                 <SectionHeading title={e.toolsTitle} onAdd={() => addItem('tools')} addLabel={e.addTool} />
-                <p className="text-[11px] text-zinc-600 dark:text-zinc-400">{e.toolsHint}</p>
+                <p className={hintClass}>{e.toolsHint}</p>
                 <ul className="space-y-2">
                   {cv.tools.map((t, i) => (
                     <li key={t.id} className="flex items-center gap-2">
@@ -324,14 +344,22 @@ export function CVEditor({
             </TabsContent>
 
             <TabsContent value="experience" className="space-y-4 mt-0">
-              <SectionHeading title={e.experienceTitle} onAdd={() => addItem('experience')} addLabel={e.addRole} />
+              <SectionHeading title={e.experienceTitle} onAdd={cv.experience.length ? () => addItem('experience') : undefined} addLabel={e.addRole} />
+              {cv.experience.length === 0 && (
+                <div className="space-y-4 border border-dashed border-ink p-5">
+                  <p className="font-body text-[17px] leading-snug">{e.noExperience}</p>
+                  <Button type="button" className="h-10 gap-1.5 rounded-sm" onClick={() => addItem('experience')}>
+                    <Plus size={20} aria-hidden="true" /> {e.addRole}
+                  </Button>
+                </div>
+              )}
               {cv.experience.map((x, i) => (
                 <fieldset key={x.id} className={cardClass}>
                   <legend className="sr-only">{x.title || e.newRole}</legend>
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex items-center gap-2 min-w-0">
                       <IconPicker fill value={x.logo} name={x.company} onChange={(logo) => setItem('experience', x.id, { logo })} />
-                      <span className="truncate text-sm font-medium" aria-hidden="true">{x.title || e.newRole}</span>
+                      <span className="truncate font-title text-lg" aria-hidden="true">{x.title || e.newRole}</span>
                     </div>
                     {controls('experience', i, cv.experience.length, x.id, x.title)}
                   </div>
@@ -373,12 +401,12 @@ export function CVEditor({
             <TabsContent value="more" className="space-y-8 mt-0">
               <div className="space-y-3">
                 <SectionHeading title={e.educationTitle} onAdd={() => addItem('education')} addLabel={e.add} />
-                {cv.education.length === 0 && <p className="text-xs text-zinc-600 dark:text-zinc-400">{e.noEducation}</p>}
+                {cv.education.length === 0 && <p className={hintClass}>{e.noEducation}</p>}
                 {cv.education.map((x, i) => (
                   <fieldset key={x.id} className={cardClass}>
                     <legend className="sr-only">{x.degree || e.newEducation}</legend>
                     <div className="flex justify-between items-center">
-                      <span className="truncate text-sm font-medium" aria-hidden="true">{x.degree || e.newEducation}</span>
+                      <span className="truncate font-title text-lg" aria-hidden="true">{x.degree || e.newEducation}</span>
                       {controls('education', i, cv.education.length, x.id, x.degree)}
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -408,7 +436,7 @@ export function CVEditor({
               <div className="space-y-3">
                 <SectionHeading title={e.certificationsTitle} onAdd={() => addItem('certifications')} addLabel={e.add} />
                 {cv.certifications.map((c, i) => (
-                  <fieldset key={c.id} className="rounded-lg border border-zinc-200 dark:border-zinc-800 p-3 space-y-2">
+                  <fieldset key={c.id} className="min-w-0 space-y-2 border-b border-rule pb-4">
                     <legend className="sr-only">{c.title || e.certification}</legend>
                     <div className="flex gap-2 items-center">
                       <Input aria-label={e.certification} placeholder={e.certification} value={c.title} onChange={(ev) => setItem('certifications', c.id, { title: ev.target.value })} />
@@ -440,7 +468,7 @@ export function CVEditor({
           </div>
         </Tabs>
 
-        <div className="grid grid-cols-2 gap-2 border-t border-rule px-5 py-3">
+        <div className="flex gap-2 border-t border-rule px-5 py-3">
           <SaveVersionDialog
             onSave={(name) => {
               onSaveVersion(name);
@@ -448,48 +476,28 @@ export function CVEditor({
               toast.success(m.library.versionSaved);
             }}
           />
-          <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={onImportPdf}>
-            <FileText size={20} aria-hidden="true" /> {m.library.importPdf}
-          </Button>
-          <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={() => importRef.current?.click()}>
-            <FileUp size={20} aria-hidden="true" /> {m.library.importJson}
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            className="gap-1.5 text-xs"
-            onClick={() => downloadFile(`${fileSlug(cv.profile.name)}_CV.json`, JSON.stringify(cv, null, 2), 'application/json')}
-          >
-            <FileDown size={20} aria-hidden="true" /> {e.export}
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            className="gap-1.5 text-xs"
-            onClick={async () => {
-              const text = toPlainText(cv, m);
-              try {
-                await navigator.clipboard.writeText(text);
-                toast.success(e.copied);
-              } catch {
-                downloadFile(`${fileSlug(cv.profile.name)}_CV.txt`, text, 'text/plain');
-              }
-            }}
-          >
-            <Copy size={20} aria-hidden="true" /> {e.copyText}
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="gap-1.5 text-xs"
-            onClick={() => {
-              onCreate(structuredClone(blankCV));
-              setTab('profile');
-              toast.success(m.library.created);
-            }}
-          >
-            <FilePlus2 size={20} aria-hidden="true" /> {m.library.newCv}
-          </Button>
+          {/* Import, export and copy are occasional: one menu instead of a wall of buttons. New CV lives in My CVs. */}
+          <Popover open={ioOpen} onOpenChange={setIoOpen}>
+            <PopoverTrigger asChild>
+              <Button variant="outline" size="sm" className="h-10 flex-1 gap-1.5 rounded-sm text-xs sm:h-8">
+                {e.importExport} <ChevronDown size={20} aria-hidden="true" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent side="top" align="end" aria-label={e.importExport} className="w-64 rounded-sm border-ink bg-paper p-0 text-ink">
+              {ioItem(FileText, m.library.importPdf, onImportPdf)}
+              {ioItem(FileUp, m.library.importJson, () => importRef.current?.click())}
+              {ioItem(FileDown, e.export, () => downloadFile(`${fileSlug(cv.profile.name)}_CV.json`, JSON.stringify(cv, null, 2), 'application/json'))}
+              {ioItem(Copy, e.copyText, async () => {
+                const text = toPlainText(cv, m);
+                try {
+                  await navigator.clipboard.writeText(text);
+                  toast.success(e.copied);
+                } catch {
+                  downloadFile(`${fileSlug(cv.profile.name)}_CV.txt`, text, 'text/plain');
+                }
+              })}
+            </PopoverContent>
+          </Popover>
           <input
             ref={importRef}
             type="file"

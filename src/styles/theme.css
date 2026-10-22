@@ -214,6 +214,14 @@
     font-size: var(--font-size);
   }
 
+  /* Headings break into even lines; paragraphs avoid a lone last word. */
+  h1, h2, h3 {
+    text-wrap: balance;
+  }
+  p, li, blockquote {
+    text-wrap: pretty;
+  }
+
   h1 {
     font-size: var(--text-2xl);
     font-weight: var(--font-weight-medium);
@@ -371,6 +379,10 @@
 .gallery-row[data-paused] .gallery-track {
   animation-play-state: paused;
 }
+/* Keyboard focus in a row: it becomes the still, scrollable row, so the focused card is always on screen. */
+.gallery-row:has(:focus-visible) { overflow-x: auto; }
+.gallery-row:has(:focus-visible) .gallery-track { animation: none; transform: none; }
+.gallery-row:has(:focus-visible) .gallery-copy { display: none; }
 
 /* Why page: passport, licence and CV, each doing its job. The resting state is the end of the story (what reduced
    motion shows); with motion, each loop starts when the row is seen and stops with the page's Pause button. */

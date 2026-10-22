@@ -118,7 +118,7 @@ export function ShareDialog(props: Props) {
           {props.status === 'saving' ? (
             <><Loader2 size={20} aria-hidden="true" className="animate-spin motion-reduce:animate-none" />{s.saving}</>
           ) : props.status === 'error' ? (
-            <span className="text-signal">{s.syncError}</span>
+            <><span aria-hidden="true" className="h-2.5 w-2.5 shrink-0 rounded-full bg-signal" />{s.syncError}</>
           ) : (
             <><span aria-hidden="true" className="h-2.5 w-2.5 rounded-full bg-ink" />{s.live}</>
           )}

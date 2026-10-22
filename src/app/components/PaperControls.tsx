@@ -49,7 +49,7 @@ export function PaperControls() {
           type="button"
           aria-label={p.title}
           title={p.title}
-          className="inline-flex h-9 w-9 items-center justify-center rounded-sm text-ink hover:bg-zinc-100"
+          className="inline-flex h-11 w-11 items-center justify-center rounded-sm text-ink hover:bg-zinc-100 md:h-9 md:w-9"
         >
           <Sun size={20} aria-hidden="true" />
         </button>

@@ -19,7 +19,7 @@ export function Portrait({ photo, name, alt, className = '', skimKeep = false }:
         <img
           src={photo}
           alt={alt ?? ''}
-          className="h-full w-full object-cover grayscale contrast-[1.1] mix-blend-multiply dark:mix-blend-normal dark:brightness-90"
+          className="h-full w-full object-cover grayscale contrast-[1.1] mix-blend-multiply"
         />
       </span>
     );

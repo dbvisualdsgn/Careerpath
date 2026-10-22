@@ -1,5 +1,29 @@
 # Changelog
 
+## Unreleased
+
+### Clearer, and honest when something goes wrong
+- Deleting a public CV now says its link will stop working. Before, it said the opposite.
+- If the Public CVs page can’t load, it says so. It no longer looks empty.
+- A report that doesn’t send says so, instead of thanking you.
+- Error messages are easier to read: dark text with a small red dot.
+
+### The CV menu
+- Three groups: write and check, how the page reads, who gets it. Download is the main button.
+- Delete is in My CVs now, away from Download.
+- The recruiter check score stays readable while the check is open.
+
+### Starting a CV
+- Your first visit opens the editor, with your name first.
+- The score waits until you have written something.
+- The editor looks like the page: the same labels, rules and quiet fields.
+- Import and export are in one menu.
+
+### Phones and keyboards
+- A Menu on phones, so your CV and the other pages are always one tap away.
+- Bigger buttons, and nothing runs off the screen on small phones.
+- The example CVs on the homepage scroll into view when you reach them with the keyboard.
+
 ## 1.0.0 — 2026-10-19
 
 The first release of curriculi *curricula*: a free CV tool, with no account, in 7 languages.

@@ -56,7 +56,8 @@ PDF embeds the same title and text fonts.
 
 - **Titles (`font-title`):** headings, names, job titles, big numbers.
 - **Text (`font-body`):** summaries, bullets, descriptions, 16–20px, measure ≤60ch.
-- **Micro labels and dates:** IBM Plex Mono 11–12px, uppercase, tracking 0.14em, `ink-soft`.
+- **Micro labels and dates:** IBM Plex Mono 11–12px, uppercase, tracking 0.14em, `ink-soft`. Self-hosted
+  (woff2 in `src/assets/fonts`, OFL), like the text faces; Medium also serves 600–700.
 - **Brand and UI controls:** always Switzer, whatever title font is picked. The "ATS plain" PDF uses
   Helvetica (best for parsing).
 
@@ -66,9 +67,14 @@ PDF embeds the same title and text fonts.
 - **CV sheet:** the CV sits on one sheet (`panel`, a shade lighter than the `paper` desk) with a hairline
   edge and a soft shadow. Print drops the sheet. Next to the name, on the left, the person picks nothing,
   their initials (a black square) or a photo (square, no rounding, grayscale, 480px). The PDF follows the same choice.
-- **CV page bars:** row 1 is the site (back, wordmark, My CVs, Public CVs). Row 2 is the CV menu, everything
-  you can do with this CV: Edit, Recruiter check, Skim view | typefaces, language, light | Private/Public,
-  Share, Download, Delete. Labels show from `md`; below that the buttons are icons with names for screen readers.
+- **CV page bars:** row 1 is the site (wordmark, My CVs, Public CVs). Row 2 is the CV menu, in three groups:
+  write and check (Edit, Recruiter check) · how the page reads (typefaces, language, light, Skim view) · who
+  gets it (Private/Public, Share, Download). Download is the one filled (primary) button. Delete lives in
+  My CVs, away from Download. Labels show from `md`; on phones Edit and Download keep a short label
+  ("Edit", "PDF"), the rest are icons with names for screen readers, and the reading group drops to its own
+  row with the Private/Public switch. Buttons are 44px tall on phones, 36px from `md`.
+- **Site header on phones:** below `md` the links sit behind a Menu button (a disclosure panel, not a
+  popover): Open my CV first, then Why and Public CVs. Below `sm` the reading controls move into the panel.
 - **Recruiter check on the page:** the black frame shows only while "Recruiter check" is on in the CV menu.
   "See the full check" opens the job-ad match and every tip under it. The editor holds only the CV's content.
 - **Summary panel:** the summary sits in a hairline box on `paper`, the only tinted block on the sheet.
@@ -81,11 +87,17 @@ PDF embeds the same title and text fonts.
 - **Segmented tabs:** one hairline box divided by ink rules. Inactive = soft text, hover = tint + ink text,
   selected = ink fill with paper text, focus = inset outline.
 - **Editor sheet:** same paper as the page with a hairline edge; an ink header band is what marks it as the tool,
-  not part of the CV.
+  not part of the CV. Inside, it speaks like the page: mono micro labels, an ink rule over each section,
+  hairlines between entries (no cards). Fields are sharp, on `panel`, with italic placeholders so an example
+  never reads as a value. The footer has Save as a new version and one Import and export menu.
+- **First visit:** the CV page opens the editor. Until there is a name or a role, the score mark shows a dash.
+- **Errors in words:** ink text after a `signal` dot (signal text alone is only 3.3:1 on paper). A failed
+  load says so; it never shows as an empty list.
 - **Recruiter-check frames:** every recruiter-check surface (the card above the CV, the score card in the
   editor, the homepage infographic, the hero pop-over) sits on black via `.on-ink`, which flips the colour
   tokens inside the frame. Text stays AAA (light ink 16:1, soft 9:1) and the yellow highlight keeps ink text.
-- **ATS score mark:** dashed outline (<65), outline (65–84), filled (≥85), always with the number.
+- **ATS score mark:** dashed outline (<65), outline (65–84), filled (≥85), always with the number; drawn in
+  paper on a pressed (ink) button. A dash before there is anything to score.
 - **Icons:** Lucide only, 16–22px, stroke 1.5–2, always `aria-hidden` next to a text label.
 
 ## Motion
@@ -98,7 +110,8 @@ Motion is allowed only where it helps reading, and it never hides content for lo
   a black dot travels the privacy diagram (to "Saved here" for Private, along the whole link for
   Public), the hero caret blinks, switches slide.
 - **Example CV gallery (homepage):** two rows of example CVs drift slowly in opposite directions (90s per
-  loop). They stop on hover, on keyboard focus and with the Pause button (WCAG 2.2.2).
+  loop). They stop on hover, on keyboard focus and with the Pause button (WCAG 2.2.2). With keyboard focus
+  a row becomes the still, scrollable row and the focused card scrolls into view.
 - **Hero cards:** 5 short CVs of people from pre-euro banknotes (Marie Curie, Carl Friedrich Gauss,
   Alessandro Volta, Adolphe Sax, Gustave Eiffel), one at a time (`src/home/PageSpecimen.tsx`). Each sits on a
   paper from the site's light scale (cool to warm) or on the highlight yellow, and has a title font chosen for the person; types itself, then the recruiter check pops over

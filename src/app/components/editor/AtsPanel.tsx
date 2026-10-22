@@ -15,7 +15,7 @@ const severityStyle: Record<Finding['severity'], { icon: typeof AlertCircle; cla
   tip: { icon: Lightbulb, className: 'text-ink-soft' },
 };
 
-const headingClass = 'text-xs font-semibold uppercase tracking-wider text-zinc-600 dark:text-zinc-400 mb-2';
+const headingClass = 'text-xs font-semibold uppercase tracking-wider text-zinc-600 mb-2';
 
 interface AtsPanelProps {
   cv: CVData;
@@ -109,7 +109,7 @@ export function AtsPanel({ cv, onJump, onAddSkill, onSetHeadline, focusJobAd = 0
           <div className="mt-3 space-y-3" aria-live="polite">
             <p className="text-sm">
               <strong className="tabular-nums">{fmt(m.ats.matchLine, { rate: match.rate, matched: match.matched.length, total: match.keywords.length })}</strong>{' '}
-              <span className="text-zinc-600 dark:text-zinc-400">{m.ats.matchHint}</span>
+              <span className="text-zinc-600">{m.ats.matchHint}</span>
             </p>
             {match.missing.length > 0 && (
               <div>
@@ -154,7 +154,7 @@ export function AtsPanel({ cv, onJump, onAddSkill, onSetHeadline, focusJobAd = 0
 
       <section>
         <h3 className={headingClass}>{m.ats.suggestions}</h3>
-        {findings.length === 0 && <p className="text-sm text-zinc-600 dark:text-zinc-400">{m.ats.noIssues}</p>}
+        {findings.length === 0 && <p className="text-sm text-zinc-600">{m.ats.noIssues}</p>}
         <ul className="space-y-1.5">
           {findings.map((f) => {
             const s = severityStyle[f.severity];
@@ -163,7 +163,7 @@ export function AtsPanel({ cv, onJump, onAddSkill, onSetHeadline, focusJobAd = 0
                 <button
                   type="button"
                   onClick={() => onJump(f.section)}
-                  className="flex w-full gap-2 rounded-md p-2 text-left text-sm hover:bg-zinc-100 focus-visible:outline-2 focus-visible:outline-[var(--focus)] dark:hover:bg-zinc-800/60"
+                  className="flex w-full gap-2 rounded-md p-2 text-left text-sm hover:bg-zinc-100 focus-visible:outline-2 focus-visible:outline-[var(--focus)]"
                 >
                   <s.icon size={20} className={`mt-0.5 shrink-0 ${s.className}`} aria-hidden="true" />
                   <span className="flex-1">
@@ -181,7 +181,7 @@ export function AtsPanel({ cv, onJump, onAddSkill, onSetHeadline, focusJobAd = 0
             );
           })}
         </ul>
-        {locale !== 'en' && <p className="mt-2 text-xs text-zinc-600 dark:text-zinc-400">{m.ats.englishOnly}</p>}
+        {locale !== 'en' && <p className="mt-2 text-xs text-zinc-600">{m.ats.englishOnly}</p>}
       </section>
 
       {report.passed.length > 0 && (
@@ -189,7 +189,7 @@ export function AtsPanel({ cv, onJump, onAddSkill, onSetHeadline, focusJobAd = 0
           <h3 className={headingClass}>{m.ats.passing}</h3>
           <ul className="space-y-1">
             {report.passed.map((p) => (
-              <li key={p.key} className="flex gap-2 text-sm text-zinc-700 dark:text-zinc-300">
+              <li key={p.key} className="flex gap-2 text-sm text-zinc-700">
                 <CheckCircle2 size={20} className="mt-0.5 shrink-0 text-go" aria-hidden="true" />
                 {fmt(m.ats.passed[p.key], p.params)}
               </li>
@@ -199,8 +199,8 @@ export function AtsPanel({ cv, onJump, onAddSkill, onSetHeadline, focusJobAd = 0
       )}
 
 
-      <div className="rounded-lg bg-zinc-50 dark:bg-zinc-900 p-4 text-xs text-zinc-700 dark:text-zinc-300 space-y-1.5">
-        <p className="font-semibold text-zinc-900 dark:text-zinc-100">{m.ats.builtInTitle}</p>
+      <div className="rounded-lg bg-zinc-50 p-4 text-xs text-zinc-700 space-y-1.5">
+        <p className="font-semibold text-zinc-900">{m.ats.builtInTitle}</p>
         <p>{m.ats.builtIn1}</p>
         <p>{m.ats.builtIn2}</p>
       </div>

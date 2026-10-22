@@ -136,7 +136,7 @@ export function Why() {
               <button
                 type="button"
                 onClick={() => setPaused((p) => !p)}
-                className="inline-flex h-9 items-center gap-2 rounded-sm px-2 text-[14px] hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                className="inline-flex h-9 items-center gap-2 rounded-sm px-2 text-[14px] hover:bg-zinc-100"
               >
                 {paused ? <Play size={20} aria-hidden="true" /> : <Pause size={20} aria-hidden="true" />}
                 {paused ? w.play : w.pause}

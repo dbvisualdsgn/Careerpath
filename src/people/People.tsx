@@ -55,13 +55,8 @@ export function People() {
           </a>
         </div>
 
-        <p className="mt-8 flex items-start gap-2 border-y border-rule py-3 text-[13px] text-ink-soft">
-          <Info size={20} aria-hidden="true" className="mt-0.5 shrink-0" />
-          {d.examples}
-        </p>
-
         {/* Search + field pills */}
-        <div className="mt-8 space-y-4">
+        <div className="mt-10 space-y-4">
           <label className="flex h-12 items-center gap-3 border border-ink px-4 focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-[var(--focus)]">
             <Search size={20} aria-hidden="true" />
             <span className="sr-only">{d.search}</span>
@@ -73,12 +68,12 @@ export function People() {
               className="h-full flex-1 bg-transparent text-[15px] outline-none placeholder:text-ink-soft"
             />
           </label>
-          <div role="group" aria-label={d.title} className="flex flex-wrap gap-2">
+          <div role="group" aria-label={d.title} className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0">
             <button
               type="button"
               aria-pressed={active === null}
               onClick={() => setActive(null)}
-              className={`rounded-full border border-ink px-3.5 py-1.5 text-[14px] ${active === null ? 'bg-highlight font-body italic text-[#111]' : 'hover:bg-zinc-100 dark:hover:bg-zinc-800'}`}
+              className={`inline-flex min-h-11 shrink-0 items-center rounded-full border border-ink px-3.5 py-1.5 text-[14px] sm:min-h-0 ${active === null ? 'bg-highlight font-body italic text-[#111]' : 'hover:bg-zinc-100'}`}
             >
               {d.all}
             </button>
@@ -90,7 +85,7 @@ export function People() {
                   type="button"
                   aria-pressed={on}
                   onClick={() => setActive(on ? null : f)}
-                  className={`group inline-flex items-center gap-1.5 rounded-full border border-ink px-3.5 py-1.5 text-[14px] ${on ? 'bg-highlight font-body italic text-[#111]' : 'hover:bg-zinc-100 dark:hover:bg-zinc-800'}`}
+                  className={`group inline-flex min-h-11 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border border-ink px-3.5 py-1.5 text-[14px] sm:min-h-0 ${on ? 'bg-highlight font-body italic text-[#111]' : 'hover:bg-zinc-100'}`}
                 >
                   {m.fields[f]}
                   {on ? <X size={20} aria-hidden="true" /> : <Plus size={20} aria-hidden="true" className="transition-transform group-hover:rotate-90 motion-reduce:transition-none" />}
@@ -106,6 +101,11 @@ export function People() {
           <h2 className="font-title text-3xl md:text-4xl">{d.examplesTitle}</h2>
           <p className="font-mono text-[12px] text-ink-soft" aria-live="polite">{fmt(d.count, { count: list.length })}</p>
         </div>
+        {/* Said where it applies: the made-up profiles, not the CVs people shared above. */}
+        <p className="mt-3 flex items-start gap-2 text-[13px] text-ink-soft">
+          <Info size={20} aria-hidden="true" className="mt-0.5 shrink-0" />
+          {d.examples}
+        </p>
         {list.length ? (
           <ul className="mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {list.map((p) => (
