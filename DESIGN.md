@@ -54,7 +54,9 @@ The **Typefaces** menu (`TypeSwitcher`, the "T" button) has a searchable list of
 in itself (previews load as rows scroll into view), and the Sans / Serif choice for text. The designed
 PDF embeds the same title and text fonts.
 
-- **Titles (`font-title`):** headings, names, job titles, big numbers.
+- **Titles (`font-title`):** headings, names, big numbers. The job title under the name is in the text face (`font-body`, 24–40px,
+  ink, at most 30ch with balanced lines), so a second voice carries it and a long title still reads; there is no
+  \"CV\" label above the name.
 - **Text (`font-body`):** summaries, bullets, descriptions, 16–20px, measure ≤60ch.
 - **Micro labels and dates:** IBM Plex Mono 11–12px, uppercase, tracking 0.14em, `ink-soft`. Self-hosted
   (woff2 in `src/assets/fonts`, OFL), like the text faces; Medium also serves 600–700.
@@ -68,7 +70,7 @@ PDF embeds the same title and text fonts.
   own: it is the `paper` the person chose in Light, so each CV looks like its own setting, not one fixed white. Print drops the sheet. Next to the name, on the left, the person picks nothing,
   their initials (a black square) or a photo (square, no rounding, grayscale, 480px). The PDF follows the same choice.
 - **CV page bars:** row 1 is the site (wordmark, My CVs, Public CVs). Row 2 is the CV menu, in three groups:
-  write and check (Edit, Recruiter check) · how the page reads (typefaces, language, light, Skim view) · who
+  write and check (Edit, Recruiter check) · how the page reads (typefaces, language, light) · who
   gets it (Private/Public, Share, Download). Download is the one filled (primary) button. Delete lives in
   My CVs, away from Download. Labels show from `md`; on phones Edit and Download keep a short label
   ("Edit", "PDF"), the rest are icons with names for screen readers, and the reading group drops to its own
@@ -76,7 +78,11 @@ PDF embeds the same title and text fonts.
 - **Site header on phones:** below `md` the links sit behind a Menu button (a disclosure panel, not a
   popover): Open my CV first, then Why and Public CVs. Below `sm` the reading controls move into the panel.
 - **Recruiter check on the page:** the black frame shows only while "Recruiter check" is on in the CV menu.
-  "See the full check" opens the job-ad match and every tip under it. The editor holds only the CV's content.
+  "See the full check" opens every tip under it, each with the points it adds. The editor holds only the CV's content.
+- **Recruiter check score:** every criterion earns points and they add up to exactly 100 (`src/app/cv/atsCheck.ts`):
+  an empty CV scores 0, and the score plus the points of the open tips is always 100.
+- **Job ad frame:** under the black frame, on the paper, with an ink hairline: its title, one line, and a filled
+  "Paste a job ad" button. Pasting opens the ad's job title and the keywords the CV has or is missing.
 - **Summary panel:** the summary sits in a hairline box, the only boxed block on the sheet.
 - **Skills:** core skills and tools side by side in 2 columns from `md`, stacked on phones.
 - **Ruled lists:** entries separated by `rule` hairlines (experience, education, FAQ).
@@ -87,17 +93,17 @@ PDF embeds the same title and text fonts.
 - **Segmented tabs:** one hairline box divided by ink rules. Inactive = soft text, hover = tint + ink text,
   selected = ink fill with paper text, focus = inset outline.
 - **Editor sheet:** same paper as the page with a hairline edge; an ink header band is what marks it as the tool,
-  not part of the CV. Inside, it speaks like the page: mono micro labels, an ink rule over each section,
+  not part of the CV. It opens from the left. Inside, it speaks like the page: mono micro labels, an ink rule over each section,
   hairlines between entries (no cards). Fields are sharp, on `panel`, with italic placeholders so an example
-  never reads as a value. The footer has Save as a new version and one Import and export menu.
-- **First visit:** the CV page opens the editor. Until there is a name or a role, the score mark shows a dash.
+  never reads as a value. The footer has Save as a new version and Import from PDF.
+- **First visit:** the CV page opens the editor. The score mark shows 0 until something is written.
 - **Errors in words:** ink text after a `signal` dot (signal text alone is only 3.3:1 on paper). A failed
   load says so; it never shows as an empty list.
 - **Recruiter-check frames:** every recruiter-check surface (the card above the CV, the score card in the
   editor, the homepage infographic, the hero pop-over) sits on black via `.on-ink`, which flips the colour
   tokens inside the frame. Text stays AAA (light ink 16:1, soft 9:1) and the yellow highlight keeps ink text.
 - **ATS score mark:** dashed outline (<65), outline (65–84), filled (≥85), always with the number; drawn in
-  paper on a pressed (ink) button. A dash before there is anything to score.
+  paper on a pressed (ink) button.
 - **Icons:** Lucide only, 16–22px, stroke 1.5–2, always `aria-hidden` next to a text label.
 
 ## Motion

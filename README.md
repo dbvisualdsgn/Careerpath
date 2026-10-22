@@ -41,7 +41,8 @@ Run `npm i` to install the dependencies, then `npm run dev` to start the develop
 
 1. Click **Edit CV**. Every section is editable, and changes save automatically in your browser.
 2. Use **New CV** for another empty CV. The example CVs live on `/people/`.
-3. **Export** saves your CV as JSON, and **Import** loads it back on any device.
+3. **Import from PDF** fills every section from a CV you already have, including LinkedIn's "Save to PDF".
+   A PDF downloaded here comes back exactly.
 
 ### Tool and company logos
 
@@ -92,7 +93,7 @@ already sent (which point at the old address) would stop opening. Only the stora
 ## Languages
 
 Pick a language from the header (English is the default). It translates the interface, the CV section headings
-(on screen, in the PDF and in "Copy as text") and the ATS advice, and sets the page `lang` attribute.
+(on screen and in the PDF) and the ATS advice, and sets the page `lang` attribute.
 Strings live in `src/app/i18n/`. Add a locale by copying `en.ts` and registering it in `src/app/i18n/index.tsx`.
 Wording checks (action verbs, tense, clichés) run for English only.
 
@@ -111,11 +112,12 @@ selector, and animations that respect "reduce motion".
 - The page title becomes the PDF file name: `Name - Headline - CV`.
 - Experience uses separate start/end dates and achievement bullets. Skills and tools are plain-text keywords.
 - schema.org `Person` JSON-LD is embedded so AI tools can read the CV.
-- **Recruiter check** (in the editor) scores the CV and lists fixes, each with the points it costs: numbers in
-  bullets, months on dates, a strong latest role, contact details, weak openers, tense, clichés, length, and more.
-  The weights are documented at the top of `src/app/cv/atsCheck.ts`. Paste a job ad to see its job title (and
-  whether your headline matches it) and which keywords are missing, matched as whole words in 7 languages.
-- **Copy as text** gives a clean plain-text CV for application forms.
+- **Recruiter check** (from the CV menu) scores the CV out of 100 and lists fixes, each with the points it adds:
+  contact details, numbers in bullets, months on dates, a strong latest role, length, and more. The points add
+  up to exactly 100, so an empty CV scores 0; they are documented at the top of `src/app/cv/atsCheck.ts`.
+  Writing advice (weak openers, tense, clichés) is shown but not scored.
+- **Paste a job ad** (its own frame under the check) shows the ad's job title, whether your headline matches it,
+  and which keywords are missing, matched as whole words in 7 languages.
 
 ## Credits
 

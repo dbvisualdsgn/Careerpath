@@ -15,9 +15,14 @@
 
 ### Starting a CV
 - Your first visit opens the editor, with your name first.
-- The score waits until you have written something.
 - The editor looks like the page: the same labels, rules and quiet fields.
-- Import and export are in one menu.
+
+### Import, check and tailor
+- Importing a PDF now fills every section: profile, skills, experience, education and languages. It reads more
+  heading styles, LinkedIn’s PDF, and CVs that put the dates above each job.
+- The recruiter check adds up: an empty CV scores 0, and each tip shows the points it adds.
+- Pasting a job ad has its own frame and button, under the check.
+- The editor opens from the left. Import and export as JSON, copy as text and Skim view are gone.
 
 ### Phones and keyboards
 - A Menu on phones, so your CV and the other pages are always one tap away.

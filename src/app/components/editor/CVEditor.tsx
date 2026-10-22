@@ -1,5 +1,5 @@
 import { cloneElement, isValidElement, useEffect, useId, useRef, useState } from 'react';
-import { ArrowDown, ArrowUp, Camera, ChevronDown, Copy, FileDown, FileText, FileUp, Plus, Trash2 } from 'lucide-react';
+import { ArrowDown, ArrowUp, Camera, FileText, Plus, Trash2 } from 'lucide-react';
 import { Portrait } from '../Portrait';
 import { processPhoto } from '../../cv/photo';
 import { toast } from 'sonner';
@@ -9,13 +9,11 @@ import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
 import { Label } from '../ui/label';
 import { Button } from '../ui/button';
-import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { IconPicker } from './IconPicker';
 import { SaveVersionDialog } from './SaveVersionDialog';
 import { emptyItems } from '../../cv/defaultCV';
 import { findIcon } from '../../cv/iconCatalog';
-import { normalize } from '../../cv/useCV';
-import { avatarOf, downloadFile, fileSlug, toPlainText } from '../../cv/format';
+import { avatarOf } from '../../cv/format';
 import { fmt, useI18n } from '../../i18n';
 import type { AvatarMode, CVData, ListKey, Profile } from '../../cv/types';
 import type { Finding } from '../../cv/atsCheck';
@@ -24,13 +22,10 @@ interface CVEditorProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   cv: CVData;
-  setCV: (cv: CVData) => void;
   update: (fn: (cv: CVData) => CVData) => void;
   /** Active tab, controlled by the page so a recruiter-check tip can open the right section. */
   tab: EditorTab;
   onTabChange: (tab: EditorTab) => void;
-  /** Add a CV to the library and open it (new CV, JSON import). */
-  onCreate: (cv: CVData) => void;
   onImportPdf: () => void;
   /** Name of the open version (only the person sees it). */
   versionName: string;
@@ -101,11 +96,10 @@ const parseSkills = (text: string) => text.split(/[\n,]/).map((s) => s.trim()).f
 const cardClass = 'min-w-0 space-y-3 border-b border-rule pb-5';
 
 export function CVEditor({
-  open, onOpenChange, cv, setCV, update, tab, onTabChange: setTab, onCreate, onImportPdf, versionName, onRenameVersion, onSaveVersion,
+  open, onOpenChange, cv, update, tab, onTabChange: setTab, onImportPdf, versionName, onRenameVersion, onSaveVersion,
 }: CVEditorProps) {
   const { m } = useI18n();
   const e = m.editor;
-  const importRef = useRef<HTMLInputElement>(null);
   const photoRef = useRef<HTMLInputElement>(null);
   // Raw text keeps trailing commas/new lines while typing; the parsed list is saved on every keystroke.
   const [skillsText, setSkillsText] = useState(() => cv.skills.join('\n'));
@@ -149,38 +143,15 @@ export function CVEditor({
     if (match) apply(match.dataUrl);
   };
 
-  const onImport = async (file: File | undefined) => {
-    if (!file) return;
-    try {
-      onCreate(normalize(JSON.parse(await file.text())));
-      setTab('profile');
-      toast.success(e.imported);
-    } catch {
-      toast.error(e.importError);
-    }
-  };
 
   const wordCount = cv.summary.trim().split(/\s+/).filter(Boolean).length;
-  const [ioOpen, setIoOpen] = useState(false);
-  const ioItem = (Icon: typeof FileText, label: string, run: () => void) => (
-    <button
-      type="button"
-      onClick={() => {
-        setIoOpen(false);
-        run();
-      }}
-      className="flex min-h-11 w-full items-center gap-3 border-b border-rule px-4 py-2.5 text-left text-[14px] last:border-b-0 hover:bg-zinc-100"
-    >
-      <Icon size={20} aria-hidden="true" className="shrink-0" /> {label}
-    </button>
-  );
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange} modal={false}>
       <SheetContent
-        side="right"
+        side="left"
         onInteractOutside={(ev) => ev.preventDefault()}
-        className="w-full gap-0 border-l border-rule bg-paper p-0 print:hidden sm:max-w-[480px] [&>button:last-child]:text-paper [&>button:last-child]:focus-visible:outline-[var(--paper)]"
+        className="w-full gap-0 border-r border-rule bg-paper p-0 print:hidden sm:max-w-[480px] [&>button:last-child]:text-paper [&>button:last-child]:focus-visible:outline-[var(--paper)]"
       >
         <SheetHeader className="bg-ink px-5 py-4 text-paper">
           <SheetTitle className="font-title text-2xl font-normal tracking-[-0.01em] text-paper">{e.title}</SheetTitle>
@@ -476,40 +447,9 @@ export function CVEditor({
               toast.success(m.library.versionSaved);
             }}
           />
-          {/* Import, export and copy are occasional: one menu instead of a wall of buttons. New CV lives in My CVs. */}
-          <Popover open={ioOpen} onOpenChange={setIoOpen}>
-            <PopoverTrigger asChild>
-              <Button variant="outline" size="sm" className="h-10 flex-1 gap-1.5 rounded-sm text-xs sm:h-8">
-                {e.importExport} <ChevronDown size={20} aria-hidden="true" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent side="top" align="end" aria-label={e.importExport} className="w-64 rounded-sm border-ink bg-paper p-0 text-ink">
-              {ioItem(FileText, m.library.importPdf, onImportPdf)}
-              {ioItem(FileUp, m.library.importJson, () => importRef.current?.click())}
-              {ioItem(FileDown, e.export, () => downloadFile(`${fileSlug(cv.profile.name)}_CV.json`, JSON.stringify(cv, null, 2), 'application/json'))}
-              {ioItem(Copy, e.copyText, async () => {
-                const text = toPlainText(cv, m);
-                try {
-                  await navigator.clipboard.writeText(text);
-                  toast.success(e.copied);
-                } catch {
-                  downloadFile(`${fileSlug(cv.profile.name)}_CV.txt`, text, 'text/plain');
-                }
-              })}
-            </PopoverContent>
-          </Popover>
-          <input
-            ref={importRef}
-            type="file"
-            accept="application/json,.json"
-            className="hidden"
-            tabIndex={-1}
-            aria-hidden="true"
-            onChange={(ev) => {
-              onImport(ev.target.files?.[0]);
-              ev.target.value = '';
-            }}
-          />
+          <Button variant="outline" size="sm" className="h-10 flex-1 gap-1.5 rounded-sm text-xs sm:h-8" onClick={onImportPdf}>
+            <FileText size={20} aria-hidden="true" /> {m.library.importPdf}
+          </Button>
         </div>
       </SheetContent>
     </Sheet>
