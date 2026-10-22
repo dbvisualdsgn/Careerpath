@@ -1,6 +1,6 @@
 import { ReadingControls } from './components/ReadingControls';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Mail, Share2, Phone, MapPin, Linkedin, PencilLine, Eye, Globe, Loader2, Lock, ScanEye } from 'lucide-react';
+import { Mail, Share2, Phone, MapPin, Linkedin, PencilLine, Eye, Globe, Loader2, Lock } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { Toaster, toast } from 'sonner';
 import { TooltipProvider } from './components/ui/tooltip';
@@ -19,6 +19,7 @@ import { DownloadMenu } from './components/DownloadMenu';
 import { AtsSummary } from './components/AtsSummary';
 import { DeleteCVDialog } from './components/DeleteCVDialog';
 import { AtsPanel } from './components/editor/AtsPanel';
+import { JobAdCard } from './components/JobAdCard';
 import { BeyondNote, beyondNoteWanted } from './components/BeyondNote';
 import { PrivacySwitch } from './components/PrivacySwitch';
 import { Portrait } from './components/Portrait';
@@ -72,15 +73,8 @@ function SectionHead({ id, title }: { id: string; title: string }) {
 }
 
 /** ATS score as a monochrome mark: dashed (needs work), outlined (good), filled (strong).
- *  On a pressed (ink) button it is drawn in paper, so the score stays readable.
- *  Before there is anything to judge (no name, no role) it shows a dash, not a verdict. */
-function ScoreMark({ score, onInk = false }: { score: number | null; onInk?: boolean }) {
-  if (score === null)
-    return (
-      <span className={`inline-flex min-w-8 justify-center rounded-sm border border-dashed px-1 py-0.5 font-mono text-[11px] leading-none ${onInk ? 'border-paper text-paper' : 'border-ink-soft text-ink-soft'}`} aria-hidden="true">
-        –
-      </span>
-    );
+ *  On a pressed (ink) button it is drawn in paper, so the score stays readable. An empty CV scores 0. */
+function ScoreMark({ score, onInk = false }: { score: number; onInk?: boolean }) {
   const tone = onInk
     ? score >= 85 ? 'bg-paper text-ink border-paper' : score >= 65 ? 'border-paper text-paper' : 'border-dashed border-paper text-paper'
     : score >= 85 ? 'bg-ink text-paper border-ink' : score >= 65 ? 'border-ink text-ink' : 'border-dashed border-ink text-ink';
@@ -215,17 +209,15 @@ function CVPage() {
   const jobAd = useJobAd();
   const targetTitle = sharedCV ? undefined : jobAd.title;
   const atsScore = useMemo(() => runAtsCheck(cv, locale, { targetTitle }).score, [cv, locale, targetTitle]);
-  const hasContent = Boolean(cv.profile.name.trim() || cv.experience.length);
-  const [skim, setSkim] = useState(false);
-  const [skimTouched, setSkimTouched] = useState(false);
   // The recruiter check sits above the CV only while it is switched on in the CV menu.
   const [checkOpen, setCheckOpen] = useState(false);
   const [fullCheck, setFullCheck] = useState(false);
   const [jobAdRequest, setJobAdRequest] = useState(0);
   const [beyondOpen, setBeyondOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [jobAdOpen, setJobAdOpen] = useState(false);
   const openJobAd = () => {
-    setFullCheck(true);
+    setJobAdOpen(true);
     setJobAdRequest((n) => n + 1);
   };
   const openSection = (section: Finding['section']) => {
@@ -293,7 +285,7 @@ function CVPage() {
       {/* ATS-friendly single-column version, shown only when printing / saving as PDF */}
       <PrintCV cv={cv} />
 
-      <div className={`print:hidden ${editing ? 'lg:pr-[480px]' : ''}`}>
+      <div className={`print:hidden ${editing ? 'lg:pl-[480px]' : ''}`}>
         {!embed && (
         <header className="sticky top-0 z-40 w-full border-b border-rule bg-paper">
           {/* Row 1: the site. Row 2: everything you can do with this CV. */}
@@ -336,11 +328,11 @@ function CVPage() {
                       type="button"
                       onClick={() => setCheckOpen((on) => !on)}
                       aria-pressed={checkOpen}
-                      aria-label={hasContent ? `${m.atsCard.title}: ${atsScore}/100` : m.atsCard.title}
-                      title={hasContent ? `${m.atsCard.title}: ${atsScore}/100` : m.atsCard.title}
+                      aria-label={`${m.atsCard.title}: ${atsScore}/100`}
+                      title={`${m.atsCard.title}: ${atsScore}/100`}
                       className={toolBtn}
                     >
-                      <ScoreMark score={hasContent ? atsScore : null} onInk={checkOpen} />
+                      <ScoreMark score={atsScore} onInk={checkOpen} />
                       <span className={toolLabel}>{m.atsCard.title}</span>
                     </button>
                   </>
@@ -352,24 +344,7 @@ function CVPage() {
                     <PrivacySwitch isPublic={publishing.isPublic} busy={publishing.busy} onChange={togglePublic} />
                   </span>
                 )}
-                <ReadingControls>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSkimTouched(true);
-                      setSkim((on) => !on);
-                    }}
-                    aria-pressed={skim}
-                    aria-label={m.skim.label}
-                    aria-describedby="skim-hint"
-                    title={m.skim.hint}
-                    className={toolBtn}
-                  >
-                    <ScanEye size={20} aria-hidden="true" />
-                  </button>
-                </ReadingControls>
-                <span id="skim-hint" className="sr-only">{m.skim.hint}</span>
-                <span className="sr-only" role="status">{skim ? m.skim.on : skimTouched ? m.skim.off : ''}</span>
+                <ReadingControls />
               </div>
               <div className="flex flex-wrap items-center gap-0.5">
                 {!sharedCV && (
@@ -411,20 +386,22 @@ function CVPage() {
 
         {!sharedCV && !publicId && checkOpen && (
           <aside aria-label={m.atsCard.title} className="mx-auto max-w-5xl px-3 pt-6 sm:px-6 md:pt-8">
-            <AtsSummary cv={cv} targetTitle={targetTitle} onJobAd={openJobAd} onOpen={openSection} fullOpen={fullCheck} onToggleFull={() => setFullCheck((on) => !on)} />
+            <AtsSummary cv={cv} targetTitle={targetTitle} onOpen={openSection} fullOpen={fullCheck} onToggleFull={() => setFullCheck((on) => !on)} />
             {fullCheck && (
               <div id="ats-full" className="border border-t-0 border-ink bg-paper p-5 md:p-7">
-                <AtsPanel
-                  cv={ownCV}
-                  focusJobAd={jobAdRequest}
-                  onJump={openSection}
-                  onSetHeadline={(headline) => update((d) => ({ ...d, profile: { ...d.profile, headline } }))}
-                  onAddSkill={(skill) =>
-                    update((d) => (d.skills.some((k) => k.toLowerCase() === skill.toLowerCase()) ? d : { ...d, skills: [...d.skills, skill] }))
-                  }
-                />
+                <AtsPanel cv={ownCV} onJump={openSection} />
               </div>
             )}
+            <JobAdCard
+              cv={ownCV}
+              open={jobAdOpen}
+              onOpen={openJobAd}
+              focusRequest={jobAdRequest}
+              onSetHeadline={(headline) => update((d) => ({ ...d, profile: { ...d.profile, headline } }))}
+              onAddSkill={(skill) =>
+                update((d) => (d.skills.some((k) => k.toLowerCase() === skill.toLowerCase()) ? d : { ...d, skills: [...d.skills, skill] }))
+              }
+            />
           </aside>
         )}
 
@@ -452,7 +429,6 @@ function CVPage() {
         <main
           id="main"
           tabIndex={-1}
-          data-skim={skim ? '' : undefined}
           className="mx-auto max-w-5xl px-3 py-6 font-body focus:outline-none sm:px-6 md:py-12 print:p-0"
         >
           {/* The sheet: one page on the desk, in the paper the person chose (no fill of its own). */}
@@ -460,7 +436,6 @@ function CVPage() {
           <div className="grid items-start gap-6 sm:grid-cols-[minmax(0,10rem)_minmax(0,1fr)] sm:gap-8 md:grid-cols-[minmax(0,13rem)_minmax(0,1fr)] md:gap-10">
             {avatar !== 'none' && (
               <Portrait
-                skimKeep
                 photo={avatar === 'photo' ? profile.photo : undefined}
                 name={name}
                 alt={fmt(m.photo.alt, { name })}
@@ -469,8 +444,8 @@ function CVPage() {
             )}
             <div className={`min-w-0 ${avatar === 'none' ? 'sm:col-span-2' : ''}`}>
                 <p className={microLabel}>{m.app.cvTitle}</p>
-                <h1 data-skim-keep className="mt-3 font-title text-[clamp(2.25rem,7vw,4.75rem)] hyphens-auto [overflow-wrap:anywhere] font-normal leading-[0.92] tracking-[-0.035em]">{name}</h1>
-                <p data-skim-keep className="mt-3 font-title text-xl text-ink-soft md:text-2xl">{headline}</p>
+                <h1 className="mt-3 font-title text-[clamp(2.25rem,7vw,4.75rem)] hyphens-auto [overflow-wrap:anywhere] font-normal leading-[0.92] tracking-[-0.035em]">{name}</h1>
+                <p className="mt-3 font-title text-xl text-ink-soft md:text-2xl">{headline}</p>
             <address className="mt-6 not-italic">
               <ul className="flex flex-wrap gap-x-6 gap-y-2 font-sans text-[14px] text-ink-soft">
                 {contacts.map(({ icon: Icon, kind, label, href }) => {
@@ -677,14 +652,12 @@ function CVPage() {
         open={editing && !sharedCV}
         onOpenChange={setEditing}
         cv={ownCV}
-        setCV={setCV}
         update={update}
         versionName={versionName}
         onRenameVersion={rename}
         onSaveVersion={(name) => duplicate(name)}
         tab={editorTab}
         onTabChange={setEditorTab}
-        onCreate={(next) => create(next)}
         onImportPdf={() => pdfRef.current?.click()}
       />
       <input

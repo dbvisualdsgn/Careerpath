@@ -1,6 +1,4 @@
-import type { AvatarMode, CVData, Experience, Profile } from './types';
-import type { Messages } from '../i18n/en';
-import { saveFile } from './save';
+import type { AvatarMode, CVData, Profile } from './types';
 
 export const dateRange = (start: string, end: string) => [start, end].filter((s) => s.trim()).join(' – ');
 
@@ -20,50 +18,6 @@ export function contactItems(cv: CVData) {
   return [p.email, p.phone, p.location, p.linkedin && displayUrl(p.linkedin), p.website && displayUrl(p.website)].filter(
     Boolean,
   ) as string[];
-}
-
-const expMeta = (e: Experience) => [e.company, e.location, e.employmentType].filter(Boolean).join(' | ');
-
-/** Plain-text version for pasting into ATS application forms. */
-export function toPlainText(cv: CVData, m: Messages) {
-  const out: string[] = [];
-  const section = (title: string) => out.push('', title.toUpperCase(), '');
-  out.push(cv.profile.name, cv.profile.headline, contactItems(cv).join(' | '));
-  if (cv.summary.trim()) {
-    section(m.sections.summary);
-    out.push(cv.summary.trim());
-  }
-  if (cv.skills.length || cv.tools.length) {
-    section(m.sections.skills);
-    if (cv.skills.length) out.push(`${m.sections.coreSkills}: ${cv.skills.join(', ')}`);
-    if (cv.tools.length) out.push(`${m.sections.toolsShort}: ${cv.tools.map((t) => t.name).join(', ')}`);
-  }
-  if (cv.experience.length) {
-    section(m.sections.experience);
-    cv.experience.forEach((e, i) => {
-      if (i) out.push('');
-      out.push(`${e.title}`, `${expMeta(e)}${e.start || e.end ? ` | ${dateRange(e.start, e.end)}` : ''}`);
-      e.bullets.filter((b) => b.trim()).forEach((b) => out.push(`- ${b.trim()}`));
-    });
-  }
-  if (cv.education.length) {
-    section(m.sections.education);
-    cv.education.forEach((e) => {
-      out.push(`${e.degree}, ${e.school}${e.location ? `, ${e.location}` : ''}${e.start || e.end ? ` | ${dateRange(e.start, e.end)}` : ''}`);
-      if (e.details.trim()) out.push(e.details.trim());
-    });
-  }
-  if (cv.certifications.length) {
-    section(m.sections.certifications);
-    cv.certifications.forEach((c) =>
-      out.push(`- ${c.title}${c.description ? ` (${c.description})` : ''}, ${c.issuer}${c.year ? `, ${c.year}` : ''}`),
-    );
-  }
-  if (cv.languages.length) {
-    section(m.sections.languages);
-    out.push(cv.languages.map((l) => (l.level ? `${l.name} (${l.level})` : l.name)).join(', '));
-  }
-  return out.join('\n').trim() + '\n';
 }
 
 export function toJsonLd(cv: CVData) {
@@ -95,8 +49,6 @@ export function toJsonLd(cv: CVData) {
 
 const PRESENT = /^(present|current|now)$/i;
 
-/** Saves a text file as a browser download. */
-export const downloadFile = (filename: string, content: string, type: string) => saveFile(filename, content, type);
 
 export const fileSlug = (name: string) => name.trim().replace(/\s+/g, '_').replace(/[^\w-]/g, '') || 'CV';
 

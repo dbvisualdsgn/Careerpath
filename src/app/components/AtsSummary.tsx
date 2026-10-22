@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { ChevronDown, ClipboardPaste, EyeOff, Plus } from 'lucide-react';
+import { ChevronDown, EyeOff, Plus } from 'lucide-react';
 import { runAtsCheck, type Finding } from '../cv/atsCheck';
 import { useCountUp, useReveal } from '../hooks/useReveal';
 import { fmt, useI18n } from '../i18n';
@@ -11,15 +11,13 @@ interface AtsSummaryProps {
   targetTitle?: string;
   /** Open the editor on the section a tip is about. */
   onOpen: (section: Finding['section']) => void;
-  /** Open the full check on the job-ad box. */
-  onJobAd: () => void;
   /** The full check (job ad, every tip) is open below. */
   fullOpen: boolean;
   onToggleFull: () => void;
 }
 
 /** The ATS check, up front on the CV page: big score, a 20-step meter and the first fixes as pills. */
-export function AtsSummary({ cv, targetTitle, onOpen, onJobAd, fullOpen, onToggleFull }: AtsSummaryProps) {
+export function AtsSummary({ cv, targetTitle, onOpen, fullOpen, onToggleFull }: AtsSummaryProps) {
   const { m, locale } = useI18n();
   const report = useMemo(() => runAtsCheck(cv, locale, { targetTitle }), [cv, locale, targetTitle]);
   const shown = useCountUp(report.score);
@@ -81,10 +79,6 @@ export function AtsSummary({ cv, targetTitle, onOpen, onJobAd, fullOpen, onToggl
       )}
 
       <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3">
-        <button type="button" onClick={onJobAd} className="nudge inline-flex h-9 items-center gap-2 rounded-sm border border-ink px-3 font-sans text-[14px] font-medium hover:bg-ink hover:text-paper">
-          <ClipboardPaste size={20} aria-hidden="true" />
-          {targetTitle ? <>{m.app.jobAdShort}: {targetTitle}</> : m.app.jobAd}
-        </button>
         <button
           type="button"
           onClick={onToggleFull}

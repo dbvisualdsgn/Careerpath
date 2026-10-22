@@ -122,15 +122,21 @@ export async function readLines(doc: { numPages: number; getPage: (n: number) =>
       .map((i) => ({ x: i.transform[4], y: i.transform[5], w: i.width ?? 0, size: Math.abs(i.transform[0]) || 10, str: i.str }));
     for (const column of columnsOf(items)) lines.push(...rowsOf(column, n));
   }
-  // Drop our own running footer ("curriculi curricula 1 / 2") and page numbers.
-  return lines.filter((l) => l.text && !/^curriculi\s*curricula\b/i.test(l.text) && !/^\d+\s*\/\s*\d+$/.test(l.text));
+  // Drop our own running footer ("curriculi curricula 1 / 2") and page numbers ("2 / 3", "Page 2 of 3").
+  return lines.filter(
+    (l) =>
+      l.text &&
+      !/^curriculi\s*curricula\b/i.test(l.text) &&
+      !/^\d+\s*\/\s*\d+$/.test(l.text) &&
+      !/^(?:page|pagina|página|seite)\s+\d+\s+(?:of|di|sur|de|von|van)\s+\d+$/i.test(l.text),
+  );
 }
 
 // ---- Heading dictionary (en, it, fr, es, de, pt, nl) ----
 const HEADINGS = {
   summary: ['summary', 'professional summary', 'career summary', 'profile', 'professional profile', 'personal statement', 'about', 'about me', 'objective', 'profilo', 'profilo professionale', 'presentazione', 'sommario', 'riepilogo', 'chi sono', 'profil', 'profil professionnel', 'profil personnel', 'a propos', 'à propos', 'à propos de moi', 'perfil', 'perfil profesional', 'perfil profissional', 'extracto', 'resumen', 'resumo', 'resumo profissional', 'sobre mi', 'sobre mí', 'sobre mim', 'uber mich', 'über mich', 'kurzprofil', 'persönliches profil', 'zusammenfassung', 'profiel', 'samenvatting', 'over mij'],
   experience: ['experience', 'experiences', 'work experience', 'work experiences', 'professional experience', 'professional experiences', 'selected experience', 'employment', 'employment history', 'work history', 'career history', 'esperienza', 'esperienze', 'esperienza lavorativa', 'esperienze lavorative', 'esperienze professionali', 'esperienza professionale', 'experience professionnelle', 'expérience', 'expériences', 'expérience professionnelle', 'expériences professionnelles', 'parcours professionnel', 'experiencia', 'experiencias', 'experiencia laboral', 'experiencia profesional', 'trayectoria profesional', 'berufserfahrung', 'erfahrung', 'berufliche erfahrung', 'beruflicher werdegang', 'praxiserfahrung', 'experiência', 'experiências', 'experiência profissional', 'percurso profissional', 'werkervaring', 'werkervaringen', 'ervaring', 'loopbaan'],
-  education: ['education', 'education & training', 'education and training', 'academic background', 'studies', 'istruzione', 'istruzione e formazione', 'formazione', 'titoli di studio', 'formation', 'formations', 'formation & diplômes', 'diplômes', 'éducation', 'études', 'educación', 'formación', 'estudios', 'ausbildung', 'bildung', 'bildungsweg', 'studium', 'educação', 'formação', 'formação académica', 'formação acadêmica', 'opleiding', 'opleidingen'],
+  education: ['education', 'education & training', 'education and training', 'academic background', 'studies', 'istruzione', 'istruzione e formazione', 'formazione', 'titoli di studio', 'formation', 'formations', 'formation & diplômes', 'diplômes', 'éducation', 'études', 'educación', 'formación', 'formación académica', 'estudios', 'ausbildung', 'bildung', 'bildungsweg', 'studium', 'educação', 'formação', 'formação académica', 'formação acadêmica', 'opleiding', 'opleidingen'],
   skills: ['skills', 'core skills', 'key skills', 'technical skills', 'soft skills', 'hard skills', 'skills & expertise', 'expertise', 'competencies', 'competences', 'competenze', 'competenze chiave', 'competenze tecniche', 'competenze trasversali', 'abilità', 'compétences', 'compétences clés', 'savoir-faire', 'habilidades', 'competencias', 'aptitudes', 'kenntnisse', 'fähigkeiten', 'fertigkeiten', 'kompetenzen', 'kernkompetenzen', 'competências', 'vaardigheden', 'kernvaardigheden'],
   tools: ['tools', 'stack & tools', 'tools & software', 'tech stack', 'strumenti', 'software e strumenti', 'outils', 'logiciels', 'herramientas', 'ferramentas', 'werkzeuge', 'tools en software'],
   certifications: ['certifications', 'certificates', 'licenses', 'licences', 'certificazioni', 'certificati', 'certificats', 'certificaciones', 'zertifikate', 'zertifizierungen', 'certificações', 'certificaten'],
@@ -145,6 +151,35 @@ const HEADING_INDEX = new Map(Object.entries(HEADINGS).flatMap(([b, words]) => w
 function headingOf(line: string): Bucket | null {
   if (line.length > 48) return null;
   return HEADING_INDEX.get(tight(line)) ?? null;
+}
+
+// Words that name a section, wherever they sit in a short heading ("Relevant Experience", "Top Skills",
+// "Skills & Tools", "Languages spoken"). The earliest word in the line decides.
+const KEYWORDS: [Bucket, RegExp][] = [
+  ['header', /contact|contatt|coordonn|kontakt|personal (?:details|info)|dati personali|datos personales|persönliche daten|dados pessoais|persoonlijke gegevens/i],
+  ['languages', /language|lingue|langues|idiom|sprache|línguas|\btalen/i],
+  ['certifications', /certif|zertifi|licen[cs]e/i],
+  ['tools', /\btools?\b|software|\bstack\b|strumenti|outils|herramientas|ferramentas|werkzeuge/i],
+  ['skills', /skill|competen|compéten|habilidad|kenntnis|fähigkeit|kompetenz|vaardighe|expertise|abilità/i],
+  ['education', /educat|istruzione|formazione|formation|formación|formação|ausbildung|bildung|studies|studium|études|estudios|opleiding|academic|diplom/i],
+  ['experience', /experien|esperienz|erfahrung|ervaring|employment|work history|career|carriera|parcours|trayectoria|werdegang|loopbaan|percurso/i],
+  ['summary', /summary|profil|about|objective|sommario|riepilogo|presentazione|resumen|resumo|samenvatting|über mich|chi sono|propos/i],
+  ['other', /interest|hobb|referen|interess|intérêt|volunteer|volontariato|bénévolat|voluntariado|ehrenamt|vrijwilliger|award|publication/i],
+];
+
+/** A short line set like a heading (capitals, bigger than the body text, or ending in ":") that names a section. */
+function looseHeadingOf(line: PdfLine, bodySize: number): Bucket | null {
+  const text = line.text.replace(/^\d{1,2}\s*[.)—–-]?\s*/, '').trim();
+  if (!text || text.length > 40 || text.split(/\s+/).length > 5 || /[\d@]|[.,;]$/.test(text)) return null;
+  const letters = text.replace(/[^\p{L}]/gu, '');
+  const styled = (letters.length > 2 && letters === letters.toUpperCase()) || line.size >= bodySize * 1.12 || text.endsWith(':');
+  if (!styled) return null;
+  let best: { bucket: Bucket; at: number } | null = null;
+  for (const [bucket, re] of KEYWORDS) {
+    const at = text.search(re);
+    if (at >= 0 && (!best || at < best.at)) best = { bucket, at };
+  }
+  return best?.bucket ?? null;
 }
 
 const PRESENT = "present|current|now|today|presente|attuale|oggi|aujourd'hui|aujourd’hui|actuel|actualidad|actual|heute|aktuell|atual|heden";
@@ -171,28 +206,66 @@ function splitMeta(line: string) {
   return out;
 }
 
+// "(1 year 8 months)", "· 3 yrs", "(2 anni)": the length of a role, added by LinkedIn and others.
+const DURATION_RE = /[(·]?\s*\d+\s*(?:years?|yrs?|months?|mos?|anni|anno|mesi|mese|ans?|mois|años?|meses?|jahre?|monate?|jaar|maanden?)\b[^)·]*\)?/giu;
+const isSentence = (s: string) => /[.!?;:]$/.test(s);
+
 function parseExperience(lines: string[]): Experience[] {
+  // Durations are only stripped from date lines, so "3 years" inside a description stays.
+  const clean = lines.map((l) => (RANGE_RE.test(l) ? l.replace(DURATION_RE, '').replace(/\s*[(·]\s*$/, '').trim() : l));
+  const dateOnly = (i: number) => {
+    const m = clean[i]?.match(RANGE_RE);
+    return Boolean(m) && !clean[i].replace(m![0], '').replace(/[|·,–(-]/g, '').trim();
+  };
+  const plain = (i: number) => i >= 0 && i < clean.length && !BULLET_RE.test(clean[i]) && !RANGE_RE.test(clean[i]);
+  // A dates-only line takes its title from the line above. When the first one has exactly a title and one more
+  // line above it, that line is the company (LinkedIn: company, title, dates, place), and so for every role.
+  const dated = clean.map((_, i) => i).filter(dateOnly);
+  // Dates first: the section opens with a dates-only line, so each title comes on the line below its dates.
+  const datesFirst = dated[0] === 0;
+  const companyAbove =
+    !datesFirst &&
+    dated[0] === 2 && plain(0) && plain(1) && clean[0].length <= 60 && !isSentence(clean[0]) && !/[|·•]/.test(clean[3] ?? '|');
+  const role = new Map<number, 'title' | 'company'>();
+  for (const j of datesFirst ? [] : dated) {
+    if (!plain(j - 1)) continue;
+    role.set(j - 1, 'title');
+    if (companyAbove && plain(j - 2) && !role.has(j - 2) && clean[j - 2].length <= 60) role.set(j - 2, 'company');
+  }
+
   const roles: Experience[] = [];
   let current: Experience | null = null;
   let expectMeta = false;
-  lines.forEach((line, i) => {
+  let expectTitle = false;
+  clean.forEach((line, i) => {
+    if (role.has(i)) return;
     const range = line.match(RANGE_RE);
     if (range) {
       // A lone capital before the title is a logo's initial (e.g. "K Senior UX Researcher").
-      const title = line.replace(range[0], '').replace(/[|·,–-]\s*$/, '').trim().replace(/^\p{Lu}(?:\s·)?\s+(?=\p{Lu})/u, '') || (i > 0 && !BULLET_RE.test(lines[i - 1]) ? lines[i - 1] : '');
-      // If the title came from the previous line, it was wrongly added as a bullet/meta: remove it.
-      if (current && title === lines[i - 1] && current.bullets.at(-1) === title) current.bullets.pop();
-      current = { id: newId(), title, company: '', location: '', employmentType: '', start: range[1].trim(), end: range[2].trim(), bullets: [] };
+      const inline = line.replace(range[0], '').replace(/[|·,–-]\s*$/, '').trim().replace(/^\p{Lu}(?:\s·)?\s+(?=\p{Lu})/u, '');
+      const title = inline || (role.get(i - 1) === 'title' ? clean[i - 1] : '');
+      const company = !inline && role.get(i - 2) === 'company' ? clean[i - 2] : '';
+      current = { id: newId(), title, company, location: '', employmentType: '', start: range[1].trim(), end: range[2].trim(), bullets: [] };
       roles.push(current);
-      expectMeta = true;
+      expectTitle = datesFirst && !title;
+      expectMeta = !expectTitle;
       return;
     }
     if (!current) return;
+    if (expectTitle && !BULLET_RE.test(line)) {
+      current.title = line;
+      expectTitle = false;
+      expectMeta = true;
+      return;
+    }
     if (BULLET_RE.test(line)) {
       current.bullets.push(line.replace(BULLET_RE, '').trim());
       expectMeta = false;
     } else if (expectMeta) {
-      Object.assign(current, splitMeta(line));
+      const meta = splitMeta(line);
+      // The company is known already (it came above the title): this line is the place.
+      if (current.company) Object.assign(current, { location: [meta.company, meta.location].filter(Boolean).join(', '), employmentType: meta.employmentType });
+      else Object.assign(current, meta);
       expectMeta = false;
     } else if (current.bullets.length && !/[.!?;:]$/.test(current.bullets[current.bullets.length - 1])) {
       // The previous bullet wrapped onto this line.
@@ -221,18 +294,31 @@ function nameLine(lines: PdfLine[]) {
   return big && big.size >= median * 1.4 ? big : undefined;
 }
 
+const DEGREE_RE = /\b(?:master|bachelor|degree|msc|ma|ba|bsc|mba|phd|doctorat|laurea|diploma|diplôme|licence|licenciatura|grado|máster|mestrado|bacharelado|abitur|studium|baccalaur|bts|dut|hnd|certificate)\b/i;
+
 /** Education entries: degree, then school, with dates on either line or on their own line. */
 function parseEducation(lines: string[]) {
   const out: CVData['education'] = [];
   let cur: CVData['education'][number] | null = null;
+  let pending: [string, string] | null = null;
   for (const line of lines.map((l) => l.replace(BULLET_RE, ''))) {
     const range = line.match(RANGE_RE);
     const year = range ? null : line.match(SINGLE_YEAR_RE);
     const dated = Boolean(range || year);
-    const rest = line.replace(range?.[0] ?? year?.[0] ?? '', '').replace(/^[|·,–-]\s*|\s*[|·,–-]\s*$/g, '').trim();
-    if (rest && (!cur || (cur.degree && cur.school) || (dated && cur.degree && (cur.start || cur.end)))) {
-      cur = { id: newId(), degree: '', school: '', location: '', start: '', end: '', details: '' };
+    const rest = line
+      .replace(range?.[0] ?? year?.[0] ?? '', '')
+      .replace(/\(\s*\)/g, '')
+      .replace(/^[|·,–(-]\s*|\s*[|·,–(-]\s*$/g, '')
+      .trim();
+    // Dates on their own line before the degree (dates-first layouts): keep them for the entry that follows.
+    if (!rest && dated && (!cur || (cur.degree && (cur.start || cur.end)))) {
+      pending = range ? [range[1].trim(), range[2].trim()] : ['', year![0]];
+      continue;
+    }
+    if (rest && (!cur || (cur.degree && cur.school) || (dated && cur.degree && (cur.start || cur.end)) || pending)) {
+      cur = { id: newId(), degree: '', school: '', location: '', start: pending?.[0] ?? '', end: pending?.[1] ?? '', details: '' };
       out.push(cur);
+      pending = null;
     }
     if (!cur) continue;
     if (rest) {
@@ -246,6 +332,8 @@ function parseEducation(lines: string[]) {
     if (range) [cur.start, cur.end] = [range[1].trim(), range[2].trim()];
     else if (year && !cur.end) cur.end = year[0];
   }
+  // School first, degree second (LinkedIn): swap when only the second line names a degree.
+  for (const e of out) if (e.school && !DEGREE_RE.test(e.degree) && DEGREE_RE.test(e.school)) [e.degree, e.school] = [e.school, e.degree];
   return out;
 }
 
@@ -278,12 +366,26 @@ export function parseLines(lines: PdfLine[]): CVData {
   const name = nameLine(lines);
   const buckets: Record<Bucket, string[]> = { header: [], summary: [], experience: [], education: [], skills: [], tools: [], certifications: [], languages: [], other: [] };
   let bucket: Bucket = 'header';
-  for (const line of lines) {
-    if (line === name) continue;
-    const h = headingOf(line.text);
-    if (h) bucket = h;
-    else buckets[bucket].push(line.text);
-  }
+  const sizes = lines.map((l) => l.size).sort((a, b) => a - b);
+  const bodySize = sizes[Math.floor(sizes.length / 2)] ?? 10;
+  const seen = new Set<Bucket>();
+  lines.forEach((line, i) => {
+    // The name opens the header, also when a sidebar was read before it (LinkedIn).
+    if (line === name) return void (bucket = 'header');
+    // A loose heading names a section not seen yet, and is not a job title followed by its dates.
+    const loose = () => {
+      const b = looseHeadingOf(line, bodySize);
+      const next = lines[i + 1]?.text ?? '';
+      const nextIsDates = RANGE_RE.test(next) && !next.replace(next.match(RANGE_RE)![0], '').replace(/[|·,–(-]/g, '').trim();
+      // A job title in capitals followed by its dates is not a heading; a heading set bigger than the text is.
+      return b && !seen.has(b) && (!nextIsDates || line.size >= bodySize * 1.12) ? b : null;
+    };
+    const h = headingOf(line.text) ?? loose();
+    if (h) {
+      bucket = h;
+      seen.add(h);
+    } else buckets[bucket].push(line.text);
+  });
 
   // Header: name, headline, contact details. Other lines there usually belong to the summary.
   const header = buckets.header.filter((l) => !/^(cv|curriculum vitae|resume|résumé|lebenslauf)$/i.test(l));
@@ -294,7 +396,7 @@ export function parseLines(lines: PdfLine[]): CVData {
     if (/linkedin\.com/i.test(bit)) return void (cv.profile.linkedin ||= bit.match(URL_RE)?.[0] ?? bit);
     if (PHONE_RE.test(bit) && !SINGLE_YEAR_RE.test(bit.replace(PHONE_RE, ''))) return void (cv.profile.phone ||= bit.match(PHONE_RE)![0].trim());
     if (URL_RE.test(bit) && !bit.includes(' ')) return void (cv.profile.website ||= bit);
-    if (/^[\p{L}' .-]+,\s*[\p{L}' .-]+$/u.test(bit) && bit.length <= 40) return void (cv.profile.location ||= bit);
+    if (/^[\p{L}' .-]+(?:,\s*[\p{L}' .-]+){1,2}$/u.test(bit) && bit.length <= 48) return void (cv.profile.location ||= bit);
     return false;
   };
   for (const l of header) {

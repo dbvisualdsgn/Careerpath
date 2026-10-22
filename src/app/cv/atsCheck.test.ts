@@ -66,9 +66,25 @@ const generic: CVData = {
   languages: [{ id: 'l', name: 'French', level: 'Native' }],
 };
 
+const missingPoints = (cv: CVData, targetTitle?: string) =>
+  runAtsCheck(cv, 'en', { targetTitle }).findings.reduce((sum, f) => sum + f.weight, 0);
+
 describe('scoring', () => {
-  it('keeps a filled-in but generic CV under 70', () => {
-    expect(runAtsCheck(generic, 'en').score).toBeLessThan(70);
+  it('gives an empty CV 0', () => {
+    expect(runAtsCheck(structuredClone(blankCV), 'en').score).toBe(0);
+  });
+  it('adds up: the score plus the points of every open finding is 100', () => {
+    const named = { ...structuredClone(blankCV), profile: { ...blankCV.profile, name: 'Alex Martin' } };
+    for (const [cv, title] of [[blankCV, undefined], [named, undefined], [generic, undefined], [generic, 'Data Engineer']] as const) {
+      expect(runAtsCheck(cv, 'en', { targetTitle: title }).score + missingPoints(cv, title)).toBeCloseTo(100, 0);
+    }
+  });
+  it('earns points step by step: a name alone is worth 6', () => {
+    const named = { ...structuredClone(blankCV), profile: { ...blankCV.profile, name: 'Alex Martin' } };
+    expect(runAtsCheck(named, 'en').score).toBe(6);
+  });
+  it('keeps a filled-in but generic CV below Strong', () => {
+    expect(runAtsCheck(generic, 'en').score).toBeLessThan(85);
   });
   it('rewards numbers and a strong latest role', () => {
     const strong = structuredClone(generic);
@@ -77,7 +93,7 @@ describe('scoring', () => {
     strong.summary += ' 8 years of experience.';
     expect(runAtsCheck(strong, 'en').score).toBeGreaterThanOrEqual(85);
   });
-  it('makes LinkedIn and languages worth at most 1 point', () => {
+  it('makes LinkedIn and languages worth 1 point each', () => {
     const cv = structuredClone(generic);
     cv.profile.linkedin = '';
     cv.languages = [];

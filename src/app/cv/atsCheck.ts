@@ -1,19 +1,21 @@
 // Heuristic checks based on how recruiters read, search and rank CVs (and how parsers read them):
 // parseable contact details, standard sections, dated roles, achievement-led bullets, keywords.
 //
-// SCORING. The score is 100 minus the points of every finding, clamped to 0–100. Points are explicit,
-// so a CV that only fills fields in does not reach the top: evidence (numbers, dates, a strong latest
-// role, the right title) weighs most.
+// SCORING. Every criterion earns points, and together they add up to exactly 100, so an empty CV scores 0.
+// Each finding carries the points it would add: the score plus the points of the open findings is always 100.
 //
-//   Essentials       name 15 · email 12 · no experience 25 · headline 8 · empty summary 6 · education 4
-//   Per role         missing title/company 8 · missing dates 8 · unreadable dates 4 · no month on a date 4
-//                    fewer than 2 bullets 4 · no number in any bullet 2
-//   Evidence         share of bullets with a number: up to 25 (full marks at 50% or more)
-//                    latest role: fewer than 3 bullets 6 · first bullet without a number 6
-//   Job ad (if any)  title matches neither headline nor a past title 12 · matches a past title only 4
-//   Wording          weak opener 3 · emoji 4 · fewer than 6 skills 4 · no core skills 3 · phone 3 · location 3
-//   Tips (≤1 each)   LinkedIn, summary length, languages, pronouns, years in summary, verbs, tense,
-//                    long bullets, too many bullets, clichés, overall length
+//   Contact & title  22   name 6 · email 6 · headline 6 (with a job ad: its title in the headline 6, in a past role 3)
+//                          · phone 2 · location 2
+//   Summary           8   written 4 · 30–120 words 4
+//   Skills           10   6 or more skills and tools 7 (pro rata) · core skills, not only tools 3
+//   Experience       40   at least one role 5
+//                          per role, averaged: title and company 5 · readable dates with months 5 · 3+ bullets 5 (pro rata)
+//                          evidence: half the bullets with a number 15 (pro rata)
+//                          latest role: 3+ bullets 3 · first bullet with a number 2
+//   Education        10
+//   Extras            2   languages 1 · LinkedIn 1
+//   Length            8   up to 250 words (pro rata); over 1,100 words 4
+//   Tips              0   emoji, weak openers, clichés, pronouns, years in summary, verbs, tense, long or many bullets
 import type { CVData } from './types';
 import type { Messages } from '../i18n/en';
 import { stopwordsFor } from './stopwords';
@@ -81,18 +83,18 @@ export function allText(cv: CVData) {
   ].join(' ');
 }
 
-const WEIGHTS: Partial<Record<FindingKey, number>> = {
-  name: 15, email: 12, experience: 25, headline: 8, summary: 6, education: 4,
-  expBasics: 8, expDates: 8, expDateFormat: 4, expMonth: 4, expBullets: 4, expMetrics: 2,
-  recentBullets: 6, recentFirst: 6, titleNone: 12, titleHeadline: 4,
-  expWeak: 3, emoji: 4, skills: 4, skillsCore: 3, phone: 3, location: 3,
-  linkedin: 1, summaryShort: 1, summaryLong: 1, languages: 1, summaryPronoun: 1, summaryYears: 1,
-  expVerb: 0.5, expTense: 0.5, expLength: 0.5, expTooMany: 1, cliches: 1, lengthShort: 1, lengthLong: 1,
+const POINTS = {
+  name: 6, email: 6, headline: 6, phone: 2, location: 2,
+  summary: 4, summaryLength: 4,
+  skills: 7, skillsCore: 3,
+  role: 5, roleBasics: 5, roleDates: 5, roleBullets: 5, evidence: 15, recentBullets: 3, recentFirst: 2,
+  education: 10, languages: 1, linkedin: 1,
+  length: 8,
 };
 
 /** Share of bullets with a number at which the evidence points are all earned. */
 const METRICS_TARGET = 0.5;
-const METRICS_WEIGHT = 25;
+const round1 = (n: number) => Math.round(n * 10) / 10;
 
 export interface AtsOptions {
   /** Job title from a pasted job ad, if any. */
@@ -102,126 +104,131 @@ export interface AtsOptions {
 export function runAtsCheck(cv: CVData, locale: string = 'en', options: AtsOptions = {}): AtsReport {
   const findings: Finding[] = [];
   const passed: AtsReport['passed'] = [];
-  const add = (severity: Severity, section: Finding['section'], key: FindingKey, params?: Params, id: string = key, weight = WEIGHTS[key] ?? 0) =>
-    findings.push({ id, severity, section, key, params, weight });
+  // `weight` is the number of points the fix would add (0 for tips that are good advice but not scored).
+  const add = (severity: Severity, section: Finding['section'], key: FindingKey, weight: number, params?: Params, id: string = key) =>
+    findings.push({ id, severity, section, key, params, weight: round1(weight) });
   const pass = (key: PassedKey, params?: Params) => passed.push({ key, params });
   // Verb, tense, pronoun and cliché checks rely on English word lists.
   const english = locale === 'en';
   const { profile } = cv;
+  const target = options.targetTitle?.trim();
 
-  // Contact details: ATS parsers look for these in the document body.
-  if (!profile.name.trim()) add('error', 'profile', 'name');
-  if (!profile.headline.trim()) add('error', 'profile', 'headline');
-  else pass('headline');
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(profile.email.trim())) add('error', 'profile', 'email');
+  // Contact details and title: parsers and recruiters look for these first.
+  if (!profile.name.trim()) add('error', 'profile', 'name', POINTS.name);
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(profile.email.trim())) add('error', 'profile', 'email', POINTS.email);
   else pass('email');
-  if (!profile.phone.trim()) add('warning', 'profile', 'phone');
+  if (!profile.headline.trim()) add('error', 'profile', 'headline', POINTS.headline);
+  else if (target) {
+    // With a job ad, the headline earns its points when it carries the ad's title.
+    const fit = titleMatch(cv, target);
+    if (fit === 'none') add('error', 'profile', 'titleNone', POINTS.headline, { title: target });
+    else if (fit === 'past') add('warning', 'profile', 'titleHeadline', POINTS.headline / 2, { title: target });
+    else pass('title', { title: target });
+  } else pass('headline');
+  if (!profile.phone.trim()) add('warning', 'profile', 'phone', POINTS.phone);
   else pass('phone');
-  if (!profile.location.trim()) add('warning', 'profile', 'location');
+  if (!profile.location.trim()) add('warning', 'profile', 'location', POINTS.location);
   else pass('location');
-  if (!profile.linkedin.trim()) add('tip', 'profile', 'linkedin');
+  if (!profile.linkedin.trim()) add('tip', 'profile', 'linkedin', POINTS.linkedin);
 
   // Summary.
   const summaryWords = words(cv.summary).length;
-  if (summaryWords === 0) add('error', 'summary', 'summary');
-  else if (summaryWords < 30) add('warning', 'summary', 'summaryShort', { words: summaryWords });
-  else if (summaryWords > 120) add('warning', 'summary', 'summaryLong', { words: summaryWords });
+  if (summaryWords === 0) add('error', 'summary', 'summary', POINTS.summary + POINTS.summaryLength);
+  else if (summaryWords < 30) add('warning', 'summary', 'summaryShort', POINTS.summaryLength, { words: summaryWords });
+  else if (summaryWords > 120) add('warning', 'summary', 'summaryLong', POINTS.summaryLength, { words: summaryWords });
   else pass('summary');
-  if (english && FIRST_PERSON.test(cv.summary)) add('tip', 'summary', 'summaryPronoun');
-  if (summaryWords > 0 && !/\d/.test(cv.summary)) add('tip', 'summary', 'summaryYears');
+  if (english && FIRST_PERSON.test(cv.summary)) add('tip', 'summary', 'summaryPronoun', 0);
+  if (summaryWords > 0 && !/\d/.test(cv.summary)) add('tip', 'summary', 'summaryYears', 0);
 
   // Skills.
   const skillCount = cv.skills.length + cv.tools.length;
-  if (skillCount < 6) add('warning', 'skills', 'skills', { count: skillCount });
+  if (skillCount < 6) add('warning', 'skills', 'skills', POINTS.skills * (1 - skillCount / 6), { count: skillCount });
   else pass('skills', { count: skillCount });
-  if (cv.skills.length === 0) add('warning', 'skills', 'skillsCore');
+  if (cv.skills.length === 0) add('warning', 'skills', 'skillsCore', POINTS.skillsCore);
 
   // Experience.
-  if (cv.experience.length === 0) add('error', 'experience', 'experience');
+  const roles = cv.experience;
+  if (roles.length === 0) {
+    // Nothing to judge yet: every experience point waits on the first role.
+    add('error', 'experience', 'experience', POINTS.role + POINTS.roleBasics + POINTS.roleDates + POINTS.roleBullets + POINTS.evidence + POINTS.recentBullets + POINTS.recentFirst);
+  }
+  // Per-role points are averaged, so each role's fix is worth its share.
+  const share = roles.length ? 1 / roles.length : 0;
   let quantified = 0;
   let bulletTotal = 0;
-  cv.experience.forEach((exp) => {
+  roles.forEach((exp) => {
     const label = exp.title || exp.company || '';
     const id = (suffix: string) => `exp-${exp.id}-${suffix}`;
     const start = exp.start.trim();
     const end = exp.end.trim();
     const finished = Boolean(end) && !PRESENT_RE.test(end);
-    if (!exp.title.trim() || !exp.company.trim()) add('error', 'experience', 'expBasics', { label }, id('basics'));
-    if (!start || !end) add('error', 'experience', 'expDates', { label }, id('dates'));
+    if (!exp.title.trim() || !exp.company.trim()) add('error', 'experience', 'expBasics', POINTS.roleBasics * share, { label }, id('basics'));
+    if (!start || !end) add('error', 'experience', 'expDates', POINTS.roleDates * share, { label }, id('dates'));
     else if (!DATE_RE.test(start) || !(DATE_RE.test(end) || PRESENT_RE.test(end)))
-      add('warning', 'experience', 'expDateFormat', { label }, id('datefmt'));
+      add('warning', 'experience', 'expDateFormat', POINTS.roleDates * 0.8 * share, { label }, id('datefmt'));
     else if (!MONTH_DATE_RE.test(start) || (finished && !MONTH_DATE_RE.test(end)))
-      add('warning', 'experience', 'expMonth', { label }, id('month'));
+      add('warning', 'experience', 'expMonth', POINTS.roleDates * 0.4 * share, { label }, id('month'));
 
     const bullets = exp.bullets.filter((b) => b.trim());
     bulletTotal += bullets.length;
-    if (bullets.length < 2) add('warning', 'experience', 'expBullets', { label, count: bullets.length }, id('bullets'));
-    if (bullets.length > 7) add('tip', 'experience', 'expTooMany', { label }, id('many'));
+    if (bullets.length < 3) add('warning', 'experience', 'expBullets', POINTS.roleBullets * (1 - bullets.length / 3) * share, { label, count: bullets.length }, id('bullets'));
+    if (bullets.length > 7) add('tip', 'experience', 'expTooMany', 0, { label }, id('many'));
     const roleQuantified = bullets.filter((b) => /\d/.test(b)).length;
     quantified += roleQuantified;
-    if (bullets.length > 0 && roleQuantified === 0) add('warning', 'experience', 'expMetrics', { label }, id('metrics'));
+    if (bullets.length > 0 && roleQuantified === 0) add('tip', 'experience', 'expMetrics', 0, { label }, id('metrics'));
 
     bullets.forEach((b, i) => {
       const n = words(b).length;
-      if (n > 40) add('tip', 'experience', 'expLength', { label, count: n }, id(`len-${i}`));
+      if (n > 40) add('tip', 'experience', 'expLength', 0, { label, count: n }, id(`len-${i}`));
       if (!english) return;
       const first = words(b)[0]?.toLowerCase().replace(/[^\p{L}]/gu, '') ?? '';
       const opening = b.trim().split(/\s+/).slice(0, 2).join(' ');
-      if (WEAK_OPENERS.test(b.trim())) add('warning', 'experience', 'expWeak', { label, start: opening }, id(`weak-${i}`));
+      if (WEAK_OPENERS.test(b.trim())) add('warning', 'experience', 'expWeak', 0, { label, start: opening }, id(`weak-${i}`));
       else if (first && !ACTION_VERBS.has(first) && !first.endsWith('ed') && !IRREGULAR_PAST.has(first))
-        add('tip', 'experience', 'expVerb', { label, start: b.slice(0, 40) }, id(`verb-${i}`));
+        add('tip', 'experience', 'expVerb', 0, { label, start: b.slice(0, 40) }, id(`verb-${i}`));
       else if (finished && ACTION_VERBS.has(first) && !first.endsWith('ed') && !IRREGULAR_PAST.has(first))
-        add('tip', 'experience', 'expTense', { label, start: opening }, id(`tense-${i}`));
+        add('tip', 'experience', 'expTense', 0, { label, start: opening }, id(`tense-${i}`));
     });
   });
-  if (cv.experience.length > 0 && cv.experience.every((e) => e.start && e.end)) pass('dates');
+  if (roles.length > 0 && roles.every((e) => e.start && e.end)) pass('dates');
 
-  // Evidence: how many bullets carry a number.
-  if (bulletTotal > 0) {
-    const share = quantified / bulletTotal;
-    const percent = Math.round(share * 100);
-    const missing = Math.max(0, 1 - share / METRICS_TARGET);
-    if (missing > 0) add('warning', 'experience', 'metricsShare', { percent }, 'metrics-share', Math.round(METRICS_WEIGHT * missing * 10) / 10);
+  // Evidence: how many bullets carry a number. No bullets yet counts as none.
+  if (roles.length > 0) {
+    const ratio = bulletTotal ? quantified / bulletTotal : 0;
+    const percent = Math.round(ratio * 100);
+    const missing = Math.max(0, 1 - ratio / METRICS_TARGET);
+    if (missing > 0) add('warning', 'experience', 'metricsShare', POINTS.evidence * missing, { percent }, 'metrics-share');
     else pass('quantified', { percent });
   }
 
   // The latest role is read first, so it should carry the most.
-  const recent = cv.experience.find((e) => PRESENT_RE.test(e.end.trim())) ?? cv.experience[0];
+  const recent = roles.find((e) => PRESENT_RE.test(e.end.trim())) ?? roles[0];
   if (recent) {
     const label = recent.title || recent.company || '';
     const bullets = recent.bullets.filter((b) => b.trim());
-    if (bullets.length < 3) add('warning', 'experience', 'recentBullets', { label, count: bullets.length }, 'recent-bullets');
-    if (bullets.length > 0 && !/\d/.test(bullets[0])) add('warning', 'experience', 'recentFirst', { label }, 'recent-first');
+    if (bullets.length < 3) add('warning', 'experience', 'recentBullets', POINTS.recentBullets * (1 - bullets.length / 3), { label, count: bullets.length }, 'recent-bullets');
+    if (!bullets.length || !/\d/.test(bullets[0])) add('warning', 'experience', 'recentFirst', POINTS.recentFirst, { label }, 'recent-first');
     if (bullets.length >= 3 && /\d/.test(bullets[0])) pass('recent', { label });
   }
 
-  // Job title from a pasted ad: recruiters search by title first.
-  const target = options.targetTitle?.trim();
-  if (target) {
-    const fit = titleMatch(cv, target);
-    if (fit === 'none') add('error', 'profile', 'titleNone', { title: target });
-    else if (fit === 'past') add('warning', 'profile', 'titleHeadline', { title: target });
-    else pass('title', { title: target });
-  }
-
   // Education & extras.
-  if (cv.education.length === 0) add('warning', 'education', 'education');
+  if (cv.education.length === 0) add('warning', 'education', 'education', POINTS.education);
   else pass('education');
-  if (cv.languages.length === 0) add('tip', 'extras', 'languages');
+  if (cv.languages.length === 0) add('tip', 'extras', 'languages', POINTS.languages);
 
-  // Language quality across the CV.
+  // Language quality across the CV: advice, not points.
   const text = allText(cv);
   const found = english ? CLICHES.filter((c) => text.toLowerCase().includes(c)) : [];
-  if (found.length) add('tip', 'summary', 'cliches', { list: found.map((c) => `"${c}"`).join(', ') });
-  if (EMOJI_RE.test(text)) add('warning', 'profile', 'emoji');
+  if (found.length) add('tip', 'summary', 'cliches', 0, { list: found.map((c) => `"${c}"`).join(', ') });
+  if (EMOJI_RE.test(text)) add('warning', 'profile', 'emoji', 0);
 
   const wordCount = words(text).length;
-  if (wordCount < 250) add('tip', 'experience', 'lengthShort', { words: wordCount });
-  else if (wordCount > 1100) add('tip', 'experience', 'lengthLong', { words: wordCount });
+  if (wordCount < 250) add('tip', 'experience', 'lengthShort', POINTS.length * (1 - wordCount / 250), { words: wordCount });
+  else if (wordCount > 1100) add('tip', 'experience', 'lengthLong', POINTS.length / 2, { words: wordCount });
   else pass('length');
 
-  const penalty = findings.reduce((sum, f) => sum + f.weight, 0);
-  const score = Math.max(0, Math.min(100, Math.round(100 - penalty)));
+  const missing = findings.reduce((sum, f) => sum + f.weight, 0);
+  const score = Math.max(0, Math.min(100, Math.round(100 - missing)));
   return { score, findings, passed, wordCount };
 }
 

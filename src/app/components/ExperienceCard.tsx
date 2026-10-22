@@ -13,23 +13,23 @@ export function ExperienceCard({ title, company, location, employmentType, start
   return (
     <article className="grid grid-cols-[2.5rem_minmax(0,1fr)] gap-x-5 border-t border-rule py-7 first:border-t-0 first:pt-1">
       {/* Company logo - full-frame tile */}
-      <div data-skim-keep className="h-10 w-10 overflow-hidden rounded-sm ring-1 ring-inset ring-rule">
+      <div className="h-10 w-10 overflow-hidden rounded-sm ring-1 ring-inset ring-rule">
         <BrandIcon src={logo} name={company} fill />
       </div>
 
       <div className="min-w-0">
         <div className="flex flex-col justify-between gap-1 sm:flex-row sm:items-baseline sm:gap-6">
-          <h3 data-skim-keep className="font-title text-xl font-medium leading-tight md:text-2xl">{title}</h3>
-          {dates && <span data-skim-keep className="whitespace-nowrap font-mono text-[12px] text-ink-soft">{dates}</span>}
+          <h3 className="font-title text-xl font-medium leading-tight md:text-2xl">{title}</h3>
+          {dates && <span className="whitespace-nowrap font-mono text-[12px] text-ink-soft">{dates}</span>}
         </div>
-        <p data-skim-keep className="mt-1.5 font-sans text-[14px] text-ink-soft">
+        <p className="mt-1.5 font-sans text-[14px] text-ink-soft">
           {[company, location, employmentType].filter(Boolean).join(' · ')}
         </p>
 
         {items.length > 0 && (
           <ul className="mt-4 space-y-1.5 text-[16px] leading-relaxed">
             {items.map((b, i) => (
-              <li key={i} data-skim-keep={i === 0 ? '' : undefined} className="grid grid-cols-[1rem_minmax(0,1fr)]">
+              <li key={i} className="grid grid-cols-[1rem_minmax(0,1fr)]">
                 <span aria-hidden="true" className="text-ink-soft">–</span>
                 <span>{b}</span>
               </li>
