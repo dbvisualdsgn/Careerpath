@@ -7,7 +7,7 @@ import { findPerson } from '../app/cv/people';
 import { useI18n } from '../app/i18n';
 import { useCountUp, useReveal } from '../app/hooks/useReveal';
 import { CVGallery } from './CVGallery';
-import { PageSpecimen } from './PageSpecimen';
+import { DeskHero } from './desk/DeskHero';
 
 const APP = 'app/';
 const label = 'font-mono text-[11px] uppercase tracking-[0.14em] text-ink-soft';
@@ -250,7 +250,7 @@ export function Home() {
 
       <main id="main" tabIndex={-1} className="focus:outline-none">
         {/* Opening */}
-        <section className="mx-auto grid max-w-6xl xl:max-w-none xl:px-12 gap-14 px-4 pb-20 pt-14 sm:px-8 md:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] md:items-center md:pb-28 md:pt-24">
+        <section className="mx-auto grid max-w-6xl xl:max-w-none xl:px-12 gap-14 px-4 pb-20 pt-14 sm:px-8 md:grid-cols-[minmax(0,11fr)_minmax(0,13fr)] md:items-center md:pb-28 md:pt-24">
           <div ref={heroRef} className="reveal">
             <h1 className="font-title text-[clamp(2.25rem,10vw,3.75rem)] md:text-[clamp(3rem,6vw,6.75rem)] hyphens-auto md:hyphens-manual [overflow-wrap:break-word] font-normal leading-[0.95]">
               {m.homeX.claimA} <span className="hl">{m.homeX.claimB}</span>
@@ -267,7 +267,7 @@ export function Home() {
               </a>
             </div>
           </div>
-          <PageSpecimen />
+          <DeskHero />
         </section>
 
         <Chapter

@@ -1,0 +1,64 @@
+@import './iso.css';
+
+/* The Anatomy kit's light theme in the site's colour system: tops are the panel, the desk is the page's
+   paper, sides step from paper toward ink, and every line is the site's ink, soft ink or rule. The only
+   colours are the site's own accents: the highlight yellow and the ink. It follows the Light panel too. */
+.desk-hero.iso[data-theme='light'] {
+  --anatomy-page: var(--paper);
+  --anatomy-card: transparent;
+  --anatomy-paper: var(--paper);
+  --anatomy-face: var(--panel);
+  --anatomy-top: var(--panel);
+  --anatomy-shade-0: color-mix(in srgb, var(--paper) 78%, var(--ink));
+  --anatomy-shade-1: color-mix(in srgb, var(--paper) 85%, var(--ink));
+  --anatomy-shade-2: color-mix(in srgb, var(--paper) 91%, var(--ink));
+  --anatomy-shade-3: var(--paper);
+  --anatomy-lit-top: var(--panel);
+  --anatomy-lit-shade: var(--paper);
+  --anatomy-hi: var(--ink);
+  --anatomy-mid: var(--ink);
+  --anatomy-lo: var(--ink-soft);
+  --anatomy-faint: var(--rule);
+  --anatomy-lit: var(--ink);
+  --anatomy-halo: var(--ink);
+  --anatomy-halo-opacity: 0.12;
+  --anatomy-dot: var(--ink);
+  --anatomy-mono: var(--font-mono);
+}
+
+.desk-hero .dk-well { fill: var(--anatomy-shade-1); }
+.desk-hero .dk-bezel { fill: var(--anatomy-top); }
+.desk-hero .dk-dark { fill: var(--anatomy-shade-0); }
+/* The screen: pale glass with ink text, like e-ink, so the CV reads like the page it becomes. */
+.desk-hero .dk-glass { fill: var(--panel); }
+.desk-hero .dk-glow { fill: var(--anatomy-lit); opacity: 0.03; filter: blur(6px); }
+.desk-hero .dk-scan { fill: none; stroke: var(--anatomy-faint); stroke-width: 0.5px; vector-effect: non-scaling-stroke; opacity: 0.45; }
+.desk-hero .dk-text { fill: var(--ink); font-family: var(--anatomy-mono); }
+.desk-hero .dk-name { font-weight: 600; letter-spacing: -0.01em; }
+.desk-hero .dk-label { fill: var(--ink-soft); letter-spacing: 0.14em; }
+.desk-hero .dk-rule { fill: none; stroke: var(--ink); stroke-width: 0.8px; vector-effect: non-scaling-stroke; transition: opacity 0.3s var(--anatomy-ease); }
+.desk-hero .dk-cursor { fill: var(--ink); animation: dk-blink 1.06s steps(1, end) infinite; }
+.desk-hero [data-part='buttons'], .desk-hero [data-part='pointer'] { transition: opacity 0.35s var(--anatomy-ease); }
+.desk-hero .dk-btn-face { fill: var(--panel); stroke: var(--ink); stroke-width: 0.6px; vector-effect: non-scaling-stroke; }
+.desk-hero .dk-btn-text { fill: var(--ink); font-family: var(--anatomy-mono); }
+.desk-hero .dk-btn[data-on] .dk-btn-face { fill: var(--highlight); }
+.desk-hero .dk-btn[data-on] .dk-btn-text { fill: #111; }
+.desk-hero .dk-pointer { fill: var(--panel); stroke: var(--ink); stroke-width: 0.7px; vector-effect: non-scaling-stroke; stroke-linejoin: round; }
+.desk-hero .dk-cord { stroke-width: 1.1px; }
+.desk-hero .dk-sheet > .iso-top { fill: var(--panel); }
+/* The printer's light: a dull bead at rest, blinking in the site's highlight yellow while it prints. */
+.desk-hero [data-part='power'][data-on] .iso-top, .desk-hero [data-part='power'][data-on] .iso-shade { fill: var(--highlight); }
+.desk-hero [data-pile] { opacity: 0; pointer-events: none; transition: opacity 0.6s var(--anatomy-ease); }
+.desk-hero [data-pile][data-shown] { opacity: 1; pointer-events: auto; }
+/* Every object answers a click: under the pointer its tops warm toward the highlight yellow. */
+.desk-hero [data-hit] { cursor: pointer; }
+/* The moving sheet never takes the click meant for the pile under it. */
+.desk-hero [data-part='sheet'] { pointer-events: none; }
+.desk-hero [data-hit] .iso-top { transition: fill 0.2s var(--anatomy-ease); }
+.desk-hero [data-hit]:hover .iso-top { fill: color-mix(in srgb, var(--highlight) 30%, var(--panel)); }
+.desk-hero [data-hit='keys'] .dk-key:hover .iso-top { fill: var(--highlight); }
+
+@keyframes dk-blink { 50% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .desk-hero .dk-cursor { animation: none; }
+}
