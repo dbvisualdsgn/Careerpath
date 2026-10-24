@@ -1,26 +1,27 @@
 @import './iso.css';
 
-/* The Anatomy kit's light theme, drawn in the site's own paper and ink: every tone is a mix of the two,
-   so the desk follows the Light panel (warmth and brightness) like the rest of the page. */
+/* The Anatomy kit's light theme in the site's colour system: tops are the panel, the desk is the page's
+   paper, sides step from paper toward ink, and every line is the site's ink, soft ink or rule. The only
+   colours are the site's own accents: the highlight yellow and the ink. It follows the Light panel too. */
 .desk-hero.iso[data-theme='light'] {
   --anatomy-page: var(--paper);
   --anatomy-card: transparent;
   --anatomy-paper: var(--paper);
   --anatomy-face: var(--panel);
   --anatomy-top: var(--panel);
-  --anatomy-shade-0: color-mix(in srgb, var(--paper) 80%, var(--ink));
-  --anatomy-shade-1: color-mix(in srgb, var(--paper) 86%, var(--ink));
+  --anatomy-shade-0: color-mix(in srgb, var(--paper) 78%, var(--ink));
+  --anatomy-shade-1: color-mix(in srgb, var(--paper) 85%, var(--ink));
   --anatomy-shade-2: color-mix(in srgb, var(--paper) 91%, var(--ink));
-  --anatomy-shade-3: color-mix(in srgb, var(--paper) 95%, var(--ink));
+  --anatomy-shade-3: var(--paper);
   --anatomy-lit-top: var(--panel);
-  --anatomy-lit-shade: color-mix(in srgb, var(--paper) 93%, var(--ink));
+  --anatomy-lit-shade: var(--paper);
   --anatomy-hi: var(--ink);
-  --anatomy-mid: color-mix(in srgb, var(--paper) 45%, var(--ink));
-  --anatomy-lo: color-mix(in srgb, var(--paper) 64%, var(--ink));
-  --anatomy-faint: color-mix(in srgb, var(--paper) 80%, var(--ink));
+  --anatomy-mid: var(--ink);
+  --anatomy-lo: var(--ink-soft);
+  --anatomy-faint: var(--rule);
   --anatomy-lit: var(--ink);
-  --anatomy-halo: color-mix(in srgb, var(--paper) 30%, var(--ink));
-  --anatomy-halo-opacity: 0.22;
+  --anatomy-halo: var(--ink);
+  --anatomy-halo-opacity: 0.12;
   --anatomy-dot: var(--ink);
   --anatomy-mono: var(--font-mono);
 }
@@ -40,24 +41,31 @@
 .desk-hero [data-part='buttons'], .desk-hero [data-part='pointer'] { transition: opacity 0.35s var(--anatomy-ease); }
 .desk-hero .dk-btn-face { fill: var(--panel); stroke: var(--ink); stroke-width: 0.6px; vector-effect: non-scaling-stroke; }
 .desk-hero .dk-btn-text { fill: var(--ink); font-family: var(--anatomy-mono); }
-.desk-hero .dk-btn[data-on] .dk-btn-face { fill: var(--ink); }
-.desk-hero .dk-btn[data-on] .dk-btn-text { fill: var(--panel); }
+.desk-hero .dk-btn[data-on] .dk-btn-face { fill: var(--highlight); }
+.desk-hero .dk-btn[data-on] .dk-btn-text { fill: #111; }
 .desk-hero .dk-pointer { fill: var(--panel); stroke: var(--ink); stroke-width: 0.7px; vector-effect: non-scaling-stroke; stroke-linejoin: round; }
 .desk-hero .dk-cord { stroke-width: 1.1px; }
 .desk-hero .dk-coffee { fill: color-mix(in srgb, var(--paper) 35%, var(--ink)); }
 .desk-hero .dk-sheet > .iso-top { fill: var(--panel); }
-/* The printer's power light: off is a dull bead, on is the site's green. */
-.desk-hero .dk-led .iso-top, .desk-hero .dk-led .iso-shade { transition: fill 0.25s var(--anatomy-ease); }
-.desk-hero [data-part='power'][data-on] .iso-top, .desk-hero [data-part='power'][data-on] .iso-shade { fill: var(--go); }
-.desk-hero .dk-steam { animation: dk-steam 4.8s ease-in-out infinite; }
-.desk-hero .dk-steam + .dk-steam { animation-delay: -2.4s; }
+/* The printer's light: a dull bead at rest, blinking in the site's highlight yellow while it prints. */
+.desk-hero [data-part='power'][data-on] .iso-top, .desk-hero [data-part='power'][data-on] .iso-shade { fill: var(--highlight); }
+.desk-hero .dk-steam { stroke-width: 1px; stroke-linecap: round; }
+.desk-hero .dk-hole { fill: color-mix(in srgb, var(--paper) 55%, var(--ink)); }
+/* Pens: the fineliner is ink, the highlighter is the site's yellow, the pencil and ballpoint stay paper. */
+.desk-hero .dk-black .iso-top, .desk-hero .dk-black .iso-fill { fill: color-mix(in srgb, var(--ink) 80%, var(--paper)); }
+.desk-hero .dk-black .iso-shade[data-shade='3'] { fill: color-mix(in srgb, var(--ink) 84%, var(--paper)); }
+.desk-hero .dk-black .iso-shade[data-shade='2'] { fill: color-mix(in srgb, var(--ink) 89%, var(--paper)); }
+.desk-hero .dk-black .iso-shade[data-shade='1'] { fill: color-mix(in srgb, var(--ink) 94%, var(--paper)); }
+.desk-hero .dk-black .iso-shade[data-shade='0'] { fill: var(--ink); }
+/* Each shade is one step darker, so the round barrel reads as one smooth curve. */
+.desk-hero .dk-marker .iso-top, .desk-hero .dk-marker .iso-fill { fill: var(--highlight); }
+.desk-hero .dk-marker .iso-shade[data-shade='3'] { fill: color-mix(in srgb, var(--highlight) 96%, var(--ink)); }
+.desk-hero .dk-marker .iso-shade[data-shade='2'] { fill: color-mix(in srgb, var(--highlight) 91%, var(--ink)); }
+.desk-hero .dk-marker .iso-shade[data-shade='1'] { fill: color-mix(in srgb, var(--highlight) 86%, var(--ink)); }
+.desk-hero .dk-marker .iso-shade[data-shade='0'] { fill: color-mix(in srgb, var(--highlight) 80%, var(--ink)); }
 .desk-hero [data-pile] { transition: opacity 0.6s var(--anatomy-ease); }
 
 @keyframes dk-blink { 50% { opacity: 0; } }
-@keyframes dk-steam {
-  0%, 100% { opacity: 0.2; transform: translateY(2px); }
-  50% { opacity: 0.85; transform: translateY(-3px); }
-}
 @media (prefers-reduced-motion: reduce) {
-  .desk-hero .dk-cursor, .desk-hero .dk-steam { animation: none; }
+  .desk-hero .dk-cursor { animation: none; }
 }

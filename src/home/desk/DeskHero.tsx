@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Pause, Play } from 'lucide-react';
 import { useI18n } from '../../app/i18n';
 import { DESK, DESK_SVG } from './deskFigure';
 import './desk.css';
@@ -36,7 +35,6 @@ export function DeskHero() {
   const [paused, setPaused] = useState(still);
   const pausedRef = useRef(paused);
   pausedRef.current = paused;
-  const [readout, setReadout] = useState('');
   const label = m.sections.experience.toUpperCase();
 
   useEffect(() => {
@@ -54,6 +52,8 @@ export function DeskHero() {
     const mbutton = q('[data-part="mbutton"]');
     const mcord = q('[data-part="mcord"]');
     const power = q('[data-part="power"]');
+    const steamEls = Array.from(svg.querySelectorAll<SVGPathElement>('[data-part="steam"] path'));
+    let printing = false;
     const sheet = q('[data-part="sheet"]');
     const pile = Array.from(svg.querySelectorAll<SVGElement>('[data-pile]'));
     const keyEls = DESK.keys.map((_, i) => q(`[data-key="${i}"]`));
@@ -74,10 +74,10 @@ export function DeskHero() {
       cursor.setAttribute('height', String(size * 0.95));
     };
     const setPointer = (x: number, z: number) => pointer.setAttribute('transform', `translate(${x} ${-z})`);
-    // The mouse moves a quarter of the pointer's travel: right on screen is +x, up on screen is away (−y).
+    // The mouse travels with the pointer (about half its distance): right on screen is +x, up is away (−y).
     const setMouse = (x: number, z: number) => {
-      const dx = (x - home.x) * 0.22;
-      const dy = -(z - home.z) * 0.22;
+      const dx = (x - home.x) * 0.45;
+      const dy = -(z - home.z) * 0.45;
       const sx = DESK.mouseX[0] * dx + DESK.mouseY[0] * dy;
       const sy = DESK.mouseX[1] * dx + DESK.mouseY[1] * dy;
       mouse.setAttribute('transform', `translate(${sx.toFixed(2)} ${sy.toFixed(2)})`);
@@ -152,7 +152,7 @@ export function DeskHero() {
           const down = p < 1 ? 1 : 0;
           mbutton.setAttribute('transform', move(DESK.mouseDown, down));
           printBtn.toggleAttribute('data-on', true);
-          power.toggleAttribute('data-on', true);
+          printing = true;
         },
       });
       // The sheet feeds out of the slot at a steady speed, then drops onto the pile.
@@ -183,13 +183,11 @@ export function DeskHero() {
           pile[printed]?.style.setProperty('opacity', '1');
           sheet.style.opacity = '0';
           printed++;
-          setReadout(`${PEOPLE[person].name} · ${printed}/${PEOPLE.length}`);
         },
       });
-      timeline.push({ at: landed + 0.7, until: landed + 0.7, run: () => { power.removeAttribute('data-on'); printBtn.removeAttribute('data-on'); } });
+      timeline.push({ at: landed + 0.7, until: landed + 0.7, run: () => { printing = false; printBtn.removeAttribute('data-on'); } });
       total = landed + (printed + 1 >= PEOPLE.length ? 3.2 : 1.6);
       clock = 0;
-      setReadout(`${PEOPLE[person].name} · ${printed}/${PEOPLE.length}`);
     };
     const next = () => {
       person = (person + 1) % PEOPLE.length;
@@ -198,6 +196,30 @@ export function DeskHero() {
         pile.forEach((p) => p.style.setProperty('opacity', '0'));
       }
       plan();
+    };
+
+    // Steam: two wisps of short segments rising from the cup, swaying more as they climb, fading in and out.
+    const ST = DESK.steam;
+    const drawSteam = (time: number) => {
+      steamEls.forEach((el, n) => {
+        const w = n < ST.segs ? 0 : 1;
+        const i = n % ST.segs;
+        const at = (f: number) => {
+          const hgt = f * ST.height;
+          const sway = Math.sin(f * 6.2 - time * 1.6 + w * 2.4) * (1.2 + f * 3.4) + (w ? 3 : -3);
+          return [ST.base[0] + ST.up[0] * hgt + ST.side[0] * sway, ST.base[1] + ST.up[1] * hgt + ST.side[1] * sway];
+        };
+        const f0 = i / ST.segs;
+        const f1 = (i + 1) / ST.segs;
+        const a = at(f0);
+        const b = at(f1);
+        el.setAttribute('d', `M${a[0].toFixed(2)} ${a[1].toFixed(2)}L${b[0].toFixed(2)} ${b[1].toFixed(2)}`);
+        // A puff of density travels up each wisp; the ends always fade to nothing.
+        const mid = (f0 + f1) / 2;
+        const travel = 0.5 + 0.5 * Math.sin((mid - time * 0.5 - w * 0.37) * Math.PI * 2);
+        const envelope = Math.sin(mid * Math.PI);
+        el.style.opacity = (envelope * (0.25 + 0.75 * travel)).toFixed(2);
+      });
     };
 
     const drawAt = (time: number) => {
@@ -216,9 +238,9 @@ export function DeskHero() {
       drawAt(timeline[timeline.length - 3].at - 0.01);
       pointer.style.opacity = '0';
       printBtn.removeAttribute('data-on');
+      drawSteam(0);
       [0, 1, 2].forEach((i) => pile[i].style.setProperty('opacity', '1'));
       printed = 3;
-      setReadout(`${PEOPLE[0].name} · 3/${PEOPLE.length}`);
       return;
     }
 
@@ -234,6 +256,9 @@ export function DeskHero() {
         drawAt(clock);
         if (clock > total) next();
       }
+      // The printer's light blinks yellow while it prints.
+      power.toggleAttribute('data-on', printing && Math.floor(now / 220) % 2 === 0);
+      if (!pausedRef.current) drawSteam(now / 1000);
       for (const [i, held] of keyAt) {
         const left = held - dt;
         keyEls[i]?.setAttribute('transform', left > 0 ? move(DESK.keyDown, 1) : '');
@@ -256,31 +281,27 @@ export function DeskHero() {
     };
   }, [still, label]);
 
+  const toggle = () => !still && setPaused((p) => !p);
   return (
     <div className="relative mx-auto mb-16 w-full max-w-3xl md:mb-0">
-      <figure className="relative">
-        <div
-          ref={ref}
-          className="desk-hero iso"
-          data-theme="light"
-          role="img"
-          aria-label={h.deskLabel}
-          dangerouslySetInnerHTML={{ __html: DESK_SVG }}
-        />
-      </figure>
-      <div className="mt-4 flex flex-wrap items-center gap-x-2 gap-y-1">
-        <button
-          type="button"
-          onClick={() => setPaused((p) => !p)}
-          aria-pressed={paused}
-          aria-label={paused ? h.heroPlay : h.heroPause}
-          className="inline-flex h-11 w-11 items-center justify-center rounded-sm hover:bg-zinc-100 md:h-9 md:w-9"
-        >
-          {paused ? <Play size={20} aria-hidden="true" /> : <Pause size={20} aria-hidden="true" />}
-        </button>
-        <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-ink-soft">{h.heroCaption}</p>
-        <p className="w-full pl-[52px] font-mono text-[11px] tabular-nums text-ink-soft sm:ml-auto sm:w-auto sm:pl-0" aria-hidden="true">{readout}</p>
-      </div>
+      {/* No player under the drawing: a click (or Enter/Space) on the desk pauses it and starts it again. */}
+      <div
+        ref={ref}
+        className="desk-hero iso cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--focus)]"
+        data-theme="light"
+        role="button"
+        tabIndex={0}
+        aria-pressed={still ? undefined : paused}
+        aria-label={`${h.deskLabel} ${still ? '' : paused ? h.heroPlay : h.heroPause}`.trim()}
+        onClick={toggle}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            toggle();
+          }
+        }}
+        dangerouslySetInnerHTML={{ __html: DESK_SVG }}
+      />
     </div>
   );
 }

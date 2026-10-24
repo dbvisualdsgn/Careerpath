@@ -120,13 +120,16 @@ Motion is allowed only where it helps reading, and it never hides content for lo
   a row becomes the still, scrollable row and the focused card scrolls into view.
 - **Hero desk:** an isometric desk from 1984 drawn with the Anatomy kit (`scripts/desk-hero/build.mjs`, run
   `npm run hero` after a change; it writes `src/home/desk/deskFigure.ts`). A computer, keyboard, mouse on its
-  pad, a cup of coffee and a printer. The keyboard types a CV onto the screen (people from pre-euro banknotes:
-  Curie, Gauss, Volta, Sax, Eiffel), Share · PDF · Print appear, the pointer and the mouse go to Print, the
-  printer's light turns green and a sheet feeds out of the slot onto the tray; five CVs make an uneven pile,
-  then it clears and starts again. Every tone is a mix of the site's `--paper` and `--ink` (`desk.css`), so the
-  desk follows the Light panel. A Pause button sits under it (WCAG 2.2.2); under reduced motion it is still,
-  one CV on screen and three on the pile. `node .claude/skills/anatomy/scripts/lines.mjs` on the page written
-  with `--page=` must print `line ends: 0`.
+  pad, a cup of coffee with live steam, a pen holder (pencil, ballpoint, black fineliner, yellow highlighter)
+  and a printer. The keyboard types a CV onto the screen (people from pre-euro banknotes: Curie, Gauss,
+  Volta, Sax, Eiffel), Share · PDF · Print appear, the pointer goes to Print and the mouse moves with it, Print
+  turns highlight yellow, the printer's light blinks in the highlight yellow and a sheet feeds out onto the
+  tray; five CVs make an uneven pile, then it clears and starts again. Colours are the site's own: tops on
+  `--panel`, sides stepping from `--paper` to `--ink`, lines in `--ink`, `--ink-soft` and `--rule`, and the
+  highlight yellow as the only accent (`desk.css`), so the desk follows the Light panel. There is no player
+  under it: a click, Enter or Space on the desk pauses and resumes it (WCAG 2.2.2); under reduced motion it is
+  still, one CV on screen and three on the pile. `node .claude/skills/anatomy/scripts/lines.mjs` on the page
+  written with `--page=` must print `line ends: 0`.
 - **Why page documents:** Amara Okafor (an example CV) has a passport, a driving licence and a CV
   (`src/why/Documents.tsx`). In a 7s loop a plane flies to Rome and a yellow entry stamp lands, a car
   drives to the hospital and it lights up, a result on the CV is highlighted and an interview invitation

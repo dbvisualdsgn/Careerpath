@@ -14,7 +14,7 @@ const WIDTH = 760;
 const HEIGHT = 620;
 
 // ---- World (units ≈ 1 px of the real thing; x right, y toward the viewer, z up) ----
-const DESK = { x: -150, y: -98, w: 352, d: 262, r: 10 };
+const DESK = { x: -150, y: -98, w: 352, d: 284, r: 10 };
 const DESK_H = 10;
 const FOOT_H = 5;
 
@@ -61,13 +61,17 @@ const SLOT_Z = 16.2;
 const PILE_OFF = [[0, 0], [1.8, -1.4], [-1.2, 1.2], [2.4, 0.6], [-0.4, -1.8]];
 const PILE_STEP = 1.1;
 
-const PAD = { x: 104, y: 114, w: 66, d: 54, r: 4 };
-const MOUSE = { x: 128, y: 128, w: 15, d: 23, r: 6.8 };
+const PAD = { x: 104, y: 124, w: 70, d: 54, r: 4 };
+const MOUSE = { x: 132, y: 142, w: 15, d: 23, r: 6.8 };
 const MOUSE_Z = 1.2;
 const MOUSE_H = 6.4;
 
-const CUP = { x: -112, y: 132 };
-const MOUSE_CORD = [[MOUSE.x + MOUSE.w / 2, MOUSE.y + 1, 2.6], [MOUSE.x + 6, MOUSE.y - 10, 1.9], [MOUSE.x - 6, MOUSE.y - 18, 1.6], [96, 112, 1.6], [KB.x + KB.w + 3, 128, 3], [KB.x + KB.w, 128, 4.2]];
+const CUP = { x: -110, y: 74 };
+// Pen holder behind the cup: a ballpoint, a black fineliner, a yellow highlighter and a pencil.
+const HOLDER = { x: -126, y: 10, r: 10, h: 26 };
+const STEAM_SEGS = 12;
+const STEAM_H = 34;
+const MOUSE_CORD = [[MOUSE.x + MOUSE.w / 2, MOUSE.y + 1, 2.6], [MOUSE.x + 5, MOUSE.y - 12, 1.9], [MOUSE.x - 8, MOUSE.y - 20, 1.6], [96, 120, 1.6], [KB.x + KB.w + 3, 128, 3], [KB.x + KB.w, 128, 4.2]];
 
 const PORT = { y: 28, z: 9 };
 const COIL = { x: 80, z: 3.6, r: 3.2, from: 44, to: 84, turns: 17 };
@@ -134,11 +138,6 @@ function desk() {
   const screws = k.corners(DESK, 11);
   out.push(L(screws.map(([x, y]) => k.ring(x, y, 2.2, 0, P, 16)).join(""), { tone: "lo" }));
   out.push(D(screws.map(([x, y]) => at([x, y, 0])), { size: 0.5 }));
-  // A ruler strip along the front edge, ticks hanging from its edge.
-  const strip = { x: -136, y: DESK.y + DESK.d - 14, w: 96, d: 7, r: 1 };
-  out.push(S(k.slabOf(strip, 0, 0.6, P, 3), { tone: "lo", crease: "none" }));
-  const t = k.topTicks(strip.x + 4, strip.x + strip.w - 4, 4, 5, strip.y + 0.8, 0.6, [2, 3.6], P);
-  out.push(L(t.minor, { tone: "lo" }), L(t.major, { tone: "mid" }));
   // Label plate, front right.
   const label = { x: DESK.x + 14, y: DESK.y + 14, w: 40, d: 9, r: 1.2 };
   out.push(S(k.slabOf(label, 0, 0.8, P, 3), { tone: "lo", crease: "none" }));
@@ -268,6 +267,44 @@ function mouse() {
   return out.join("");
 }
 
+// ---- Pen holder ----
+// One pen: a solid of revolution along a tilted axis from inside the holder. `parts` are [from, to, radius,
+// class] bands along the axis, so a pen is built like a real one: barrel, grip, cap, tip.
+function pen(base, dir, parts, cls) {
+  const F = G.frameAlong(base, dir);
+  return `<g class="${cls}">${parts.map(([a, b, r0, r1 = r0]) => S(G.solidOf([[a, r0, 1], [b, r1, 1]], F, P, { steps: 16 }), { tone: "mid" })).join("")}</g>`;
+}
+function holder() {
+  const { x, y, r, h } = HOLDER;
+  const out = [`<path class="iso-halo" d="${k.haloOf({ x: x - r, y: y - r, w: 2 * r, d: 2 * r, r }, 0, 3, P)}"/>`];
+  // Base ring, body, and the dark opening on top.
+  out.push(S(G.solidOf([[0, r + 1.2, 1], [1.4, r + 1.2, 1]], G.frameAlong([x, y, 0], [0, 0, 1]), P), { tone: "lo" }));
+  out.push(S(G.solidOf([[1.4, r, 1], [h, r, 1]], G.frameAlong([x, y, 0], [0, 0, 1]), P), { tone: "mid" }));
+  const opening = k.onTop(k.circleRing(x, y, r - 1.2, 48), h, P, true);
+  out.push(`<path class="dk-hole" d="${opening}"/>`);
+  out.push(L(k.ring(x, y, r - 1.2, h, P, 48), { tone: "lo" }));
+  // The pens show above the rim and through the opening, never through the holder's wall.
+  const wall = [];
+  for (let i = 0; i < 48; i++) {
+    const a = (i / 48) * Math.PI * 2;
+    wall.push(at([x + Math.cos(a) * r, y + Math.sin(a) * r, 0]), at([x + Math.cos(a) * r, y + Math.sin(a) * r, h]));
+  }
+  const mask = `<mask id="dk-pen-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="${WIDTH}" height="${HEIGHT}"><rect width="${WIDTH}" height="${HEIGHT}" fill="#fff"/><path d="${k.pathOf(hullOf(wall), true)}" fill="#000"/><path d="${opening}" fill="#fff"/></mask>`;
+  const pens = [
+    // Pencil, leaning back left: barrel, sharpened cone, graphite point.
+    pen([x - 3.6, y + 2, 3], [-0.34, -0.12, 1], [[0, 46, 1.35], [46, 51.5, 1.35, 0.45], [51.5, 53, 0.45, 0.05]], "dk-pencil"),
+    // Black fineliner, leaning back and a little right (clear of the computer): barrel, grip and a long fine tip.
+    pen([x + 2.6, y - 3, 3], [-0.1, -0.34, 1], [[0, 34, 1.7], [34, 41, 1.5], [41, 44.5, 1.5, 0.6], [44.5, 47, 0.35]], "dk-black"),
+    // Ballpoint, nearly upright, leaning away: slim barrel, cone and a ball.
+    pen([x - 1.2, y - 4.4, 3], [-0.12, -0.36, 1], [[0, 44, 1.2], [44, 48, 1.2, 0.5], [48, 49.5, 0.3]], "dk-biro"),
+    // Highlighter in front, almost upright so it rises clear of the rim: thick yellow barrel and its cap.
+    pen([x + 1.2, y + 3.4, 3], [-0.1, -0.14, 1], [[0, 30, 2.7], [30, 41, 2.9], [41, 42.4, 2.9, 2.2]], "dk-marker"),
+  ];
+
+  out.push(`${mask}<g mask="url(#dk-pen-mask)">${pens.join("")}</g>`);
+  return out.join("");
+}
+
 // ---- Coffee ----
 function coffee() {
   const out = [];
@@ -286,12 +323,8 @@ function coffee() {
   out.push(S(G.solidOf([[1.4, 9.6, 1], [3, 10.1, 1], [16.4, 10.6, 1]], G.frameAlong([x, y, 0], [0, 0, 1]), P), { tone: "mid" }));
   out.push(`<path class="dk-coffee" d="${k.onTop(k.circleRing(x, y, 9.4, 48), 16.4, P, true)}"/>`);
   out.push(L(k.ring(x, y, 9.4, 16.4, P, 48), { tone: "lo" }));
-  // Steam: two wisps that rise and fade, never ending on a hard edge.
-  const wisp = (dx, phase) => {
-    const points = rowOf(0, 1, 0.1).map((t) => at([x + dx + Math.sin(t * 7 + phase) * 2.4, y, 22 + t * 30]));
-    return k.fadeLineSvg(points, { fade: [0.35, 0.65], tone: "lo", className: "dk-steam" });
-  };
-  out.push(`<g data-part="steam">${wisp(-3, 0)}${wisp(3.5, 2.2)}</g>`);
+  // Steam: the live code draws two rising wisps here, as short segments whose opacity fades in and out.
+  out.push(`<g data-part="steam">${Array.from({ length: 2 * STEAM_SEGS }, () => `<path class="iso-line dk-steam" data-tone="lo" d=""/>`).join("")}</g>`);
   return out.join("");
 }
 
@@ -396,7 +429,7 @@ const svg = k.figureSvg({
   height: HEIGHT,
   label:
     "An isometric drawing of a desk in the spirit of 1984: a computer whose screen shows a CV being typed, a keyboard, a mouse on its pad, a cup of coffee and a printer that prints each CV onto a growing pile.",
-  body: [desk(), computer(), printer(), tray(), pile(), moving(), keyboardCord(), coffee(), keyboard(), mouse()],
+  body: [desk(), holder(), coffee(), computer(), printer(), tray(), pile(), moving(), keyboardCord(), keyboard(), mouse()],
 });
 
 const fine = (v) => Math.round(v * 1000) / 1000;
@@ -411,6 +444,7 @@ const data = {
   mouseDown: vec([0, 0, -0.5]),
   mouseCord: MOUSE_CORD.map((p) => at(p).map(fine)),
   mouseCordPull: [1, 0.75, 0.45, 0.2, 0, 0],
+  steam: { base: at([CUP.x, CUP.y, 19]).map(fine), up: vec([0, 0, 1]), side: vec([1, -1, 0]).map((v) => fine(v / Math.SQRT2)), height: STEAM_H, segs: STEAM_SEGS },
   sheetX: vec([1, 0, 0]),
   sheet: { slotZ: SLOT_Z, fromY: PR_FRONT - SHEET.d - PILE_Y, pileStep: PILE_STEP, pileZ: TRAY_Z, max: PILE_MAX, off: PILE_OFF },
   screen: { cvX: CV_X, crtX0: CRT.x0, crtX1: CRT.x1, crtZ0: CRT.z0, crtZ1: CRT.z1, print: { x: BUTTONS[2].x1 - 4, z: BTN.z0 + 2 } },
