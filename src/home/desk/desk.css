@@ -45,19 +45,18 @@
 .desk-hero .dk-btn[data-on] .dk-btn-text { fill: #111; }
 .desk-hero .dk-pointer { fill: var(--panel); stroke: var(--ink); stroke-width: 0.7px; vector-effect: non-scaling-stroke; stroke-linejoin: round; }
 .desk-hero .dk-cord { stroke-width: 1.1px; }
-.desk-hero .dk-coffee { fill: color-mix(in srgb, var(--paper) 35%, var(--ink)); }
 .desk-hero .dk-sheet > .iso-top { fill: var(--panel); }
 /* The printer's light: a dull bead at rest, blinking in the site's highlight yellow while it prints. */
 .desk-hero [data-part='power'][data-on] .iso-top, .desk-hero [data-part='power'][data-on] .iso-shade { fill: var(--highlight); }
-.desk-hero .dk-steam { stroke-width: 1px; stroke-linecap: round; }
-.desk-hero .dk-hole { fill: color-mix(in srgb, var(--paper) 55%, var(--ink)); }
-/* Round things (cup, saucer, pen holder, pens) in the desk's flat outline style: one side tone, a panel top,
-   ink outlines, no smooth sheen or facet creases. */
-.desk-hero .dk-flat .iso-fill { fill: var(--paper); }
-.desk-hero .dk-flat .dk-pencil .iso-fill, .desk-hero .dk-flat .dk-biro .iso-fill { fill: var(--panel); }
-.desk-hero .dk-flat .dk-black .iso-fill { fill: var(--ink); }
-.desk-hero .dk-flat .dk-marker .iso-fill { fill: var(--highlight); }
-.desk-hero [data-pile] { transition: opacity 0.6s var(--anatomy-ease); }
+.desk-hero [data-pile] { opacity: 0; pointer-events: none; transition: opacity 0.6s var(--anatomy-ease); }
+.desk-hero [data-pile][data-shown] { opacity: 1; pointer-events: auto; }
+/* Every object answers a click: under the pointer its tops warm toward the highlight yellow. */
+.desk-hero [data-hit] { cursor: pointer; }
+/* The moving sheet never takes the click meant for the pile under it. */
+.desk-hero [data-part='sheet'] { pointer-events: none; }
+.desk-hero [data-hit] .iso-top { transition: fill 0.2s var(--anatomy-ease); }
+.desk-hero [data-hit]:hover .iso-top { fill: color-mix(in srgb, var(--highlight) 30%, var(--panel)); }
+.desk-hero [data-hit='keys'] .dk-key:hover .iso-top { fill: var(--highlight); }
 
 @keyframes dk-blink { 50% { opacity: 0; } }
 @media (prefers-reduced-motion: reduce) {

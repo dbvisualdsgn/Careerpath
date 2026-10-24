@@ -172,6 +172,7 @@ export const de: Messages = {
     heroPlay: 'Fortsetzen',
     heroCaption: 'Gesichter alter Banknoten, als Lebenslauf',
     deskLabel: 'Ein Schreibtisch von 1984: Die Tastatur tippt einen Lebenslauf auf den Bildschirm, die Maus klickt auf Drucken und der Drucker legt eine Kopie auf einen Stapel.',
+    deskHits: { computer: 'Nächster Lebenslauf', printer: 'Jetzt drucken', mouse: 'Auf Drucken klicken', pile: 'Stapel leeren', keys: 'Auf der Tastatur tippen' },
   },
   library: {
     title: 'Meine Lebensläufe',

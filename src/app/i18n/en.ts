@@ -171,6 +171,7 @@ export const en = {
     heroPlay: 'Play',
     heroCaption: 'Faces from old banknotes, as CVs',
     deskLabel: 'A desk from 1984: the keyboard types a CV onto the computer screen, the mouse clicks Print, and the printer adds a copy to a pile of CVs.',
+    deskHits: { computer: 'Next CV', printer: 'Print now', mouse: 'Click Print', pile: 'Clear the pile', keys: 'Type on the keyboard' },
   },
   library: {
     title: 'My CVs',

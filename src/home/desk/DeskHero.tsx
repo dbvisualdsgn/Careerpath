@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import type { MouseEvent as ReactMouseEvent } from 'react';
 import { useI18n } from '../../app/i18n';
 import { DESK, DESK_SVG } from './deskFigure';
 import './desk.css';
@@ -26,7 +27,12 @@ const move = (v: readonly number[], by: number) => `translate(${(v[0] * by).toFi
 /**
  * The homepage desk: the keyboard types a CV onto the screen, the mouse clicks Print, the printer's light comes
  * on and a sheet slides out onto the pile. Five CVs, then the pile is cleared and it starts again.
+ * Each object answers a click: the computer moves to the next CV, the printer or the mouse prints now, the pile
+ * clears, the keys press (and so do the real keys while the desk has focus); anywhere else pauses.
  */
+type Hit = 'computer' | 'printer' | 'mouse' | 'pile' | 'keys';
+type Actions = { hit: (what: Hit, key?: number) => void; type: (ch: string) => boolean };
+
 export function DeskHero() {
   const { m } = useI18n();
   const h = m.homeX;
@@ -36,6 +42,8 @@ export function DeskHero() {
   const pausedRef = useRef(paused);
   pausedRef.current = paused;
   const label = m.sections.experience.toUpperCase();
+  const actions = useRef<Actions | null>(null);
+  const [tip, setTip] = useState<{ hit: Hit; x: number; y: number } | null>(null);
 
   useEffect(() => {
     const root = ref.current;
@@ -52,7 +60,6 @@ export function DeskHero() {
     const mbutton = q('[data-part="mbutton"]');
     const mcord = q('[data-part="mcord"]');
     const power = q('[data-part="power"]');
-    const steamEls = Array.from(svg.querySelectorAll<SVGPathElement>('[data-part="steam"] path'));
     let printing = false;
     const sheet = q('[data-part="sheet"]');
     const pile = Array.from(svg.querySelectorAll<SVGElement>('[data-pile]'));
@@ -94,6 +101,7 @@ export function DeskHero() {
     // Steps that last run every frame while live; instant steps (until === at) run exactly once.
     let timeline: { at: number; run: (t: number) => void; until: number; done?: boolean }[] = [];
     let total = 0;
+    let printAt = 0;
     const reset = () => {
       for (const f of FIELDS) text[f].textContent = '';
       rule.style.opacity = '0';
@@ -158,7 +166,6 @@ export function DeskHero() {
       // The sheet feeds out of the slot at a steady speed, then drops onto the pile.
       const feed = click + 0.5;
       const sh = DESK.sheet;
-      const landZ = sh.pileZ + printed * sh.pileStep;
       timeline.push({
         at: feed,
         until: feed + 2.2,
@@ -169,6 +176,8 @@ export function DeskHero() {
           const [ox, oy] = sh.off[printed] ?? [0, 0];
           const y = sh.fromY * (1 - ease(clamp01(p / 0.82))) + oy * fall;
           const x = ox * fall;
+          // The pile can be cleared mid-print, so the sheet aims for the pile's height as it is now.
+          const landZ = sh.pileZ + printed * sh.pileStep;
           const z = sh.slotZ + (landZ - sh.slotZ) * fall * fall;
           const tx = DESK.sheetX[0] * x + DESK.sheetY[0] * y + DESK.sheetZ[0] * z;
           const ty = DESK.sheetX[1] * x + DESK.sheetY[1] * y + DESK.sheetZ[1] * z;
@@ -180,46 +189,24 @@ export function DeskHero() {
         at: landed,
         until: landed,
         run: () => {
-          pile[printed]?.style.setProperty('opacity', '1');
+          if (printed < pile.length) pile[printed].toggleAttribute('data-shown', true);
           sheet.style.opacity = '0';
           printed++;
         },
       });
       timeline.push({ at: landed + 0.7, until: landed + 0.7, run: () => { printing = false; printBtn.removeAttribute('data-on'); } });
+      printAt = click;
       total = landed + (printed + 1 >= PEOPLE.length ? 3.2 : 1.6);
       clock = 0;
     };
+    const clearPile = () => {
+      printed = 0;
+      pile.forEach((p) => p.removeAttribute('data-shown'));
+    };
     const next = () => {
       person = (person + 1) % PEOPLE.length;
-      if (person === 0) {
-        printed = 0;
-        pile.forEach((p) => p.style.setProperty('opacity', '0'));
-      }
+      if (person === 0 || printed >= pile.length) clearPile();
       plan();
-    };
-
-    // Steam: two wisps of short segments rising from the cup, swaying more as they climb, fading in and out.
-    const ST = DESK.steam;
-    const drawSteam = (time: number) => {
-      steamEls.forEach((el, n) => {
-        const w = n < ST.segs ? 0 : 1;
-        const i = n % ST.segs;
-        const at = (f: number) => {
-          const hgt = f * ST.height;
-          const sway = Math.sin(f * 6.2 - time * 1.6 + w * 2.4) * (1.2 + f * 3.4) + (w ? 3 : -3);
-          return [ST.base[0] + ST.up[0] * hgt + ST.side[0] * sway, ST.base[1] + ST.up[1] * hgt + ST.side[1] * sway];
-        };
-        const f0 = i / ST.segs;
-        const f1 = (i + 1) / ST.segs;
-        const a = at(f0);
-        const b = at(f1);
-        el.setAttribute('d', `M${a[0].toFixed(2)} ${a[1].toFixed(2)}L${b[0].toFixed(2)} ${b[1].toFixed(2)}`);
-        // A puff of density travels up each wisp; the ends always fade to nothing.
-        const mid = (f0 + f1) / 2;
-        const travel = 0.5 + 0.5 * Math.sin((mid - time * 0.5 - w * 0.37) * Math.PI * 2);
-        const envelope = Math.sin(mid * Math.PI);
-        el.style.opacity = (envelope * (0.25 + 0.75 * travel)).toFixed(2);
-      });
     };
 
     const drawAt = (time: number) => {
@@ -238,13 +225,34 @@ export function DeskHero() {
       drawAt(timeline[timeline.length - 3].at - 0.01);
       pointer.style.opacity = '0';
       printBtn.removeAttribute('data-on');
-      drawSteam(0);
-      [0, 1, 2].forEach((i) => pile[i].style.setProperty('opacity', '1'));
+      [0, 1, 2].forEach((i) => pile[i].toggleAttribute('data-shown', true));
       printed = 3;
       return;
     }
 
     plan();
+    // Clicks on the objects. A finished step left behind by a jump is drawn at its end, so skipping ahead
+    // fills the screen at once.
+    actions.current = {
+      hit: (what, key) => {
+        if (what === 'keys') {
+          if (key !== undefined) keyAt.set(key, 0.12);
+        } else if (what === 'pile') {
+          if (!printing) clearPile();
+        } else if (what === 'computer') {
+          if (!printing) next();
+        } else if (clock < printAt) {
+          clock = printAt;
+          drawAt(clock);
+        }
+        if (pausedRef.current && what !== 'keys') setPaused(false);
+      },
+      type: (ch) => {
+        const i = (DESK.keys as readonly string[]).indexOf(ch.toLowerCase());
+        if (i >= 0) keyAt.set(i, 0.12);
+        return i >= 0;
+      },
+    };
     let frame = 0;
     let prev = 0;
     let visible = false;
@@ -258,7 +266,6 @@ export function DeskHero() {
       }
       // The printer's light blinks yellow while it prints.
       power.toggleAttribute('data-on', printing && Math.floor(now / 220) % 2 === 0);
-      if (!pausedRef.current) drawSteam(now / 1000);
       for (const [i, held] of keyAt) {
         const left = held - dt;
         keyEls[i]?.setAttribute('transform', left > 0 ? move(DESK.keyDown, 1) : '');
@@ -278,13 +285,29 @@ export function DeskHero() {
     return () => {
       io.disconnect();
       cancelAnimationFrame(frame);
+      actions.current = null;
     };
   }, [still, label]);
 
   const toggle = () => !still && setPaused((p) => !p);
+  const hitOf = (e: ReactMouseEvent) => {
+    const el = (e.target as Element).closest('[data-hit]');
+    return el ? { hit: el.getAttribute('data-hit') as Hit, key: (e.target as Element).closest('[data-key]')?.getAttribute('data-key') } : null;
+  };
+  const onClick = (e: ReactMouseEvent) => {
+    const at = hitOf(e);
+    if (!at || !actions.current) return toggle();
+    actions.current.hit(at.hit, at.key == null ? undefined : Number(at.key));
+  };
+  const onMove = (e: ReactMouseEvent<HTMLDivElement>) => {
+    const at = hitOf(e);
+    if (!at || !actions.current) return setTip(null);
+    const box = e.currentTarget.getBoundingClientRect();
+    setTip({ hit: at.hit, x: e.clientX - box.left, y: e.clientY - box.top });
+  };
   return (
     <div className="relative mx-auto mb-16 w-full max-w-3xl md:mb-0">
-      {/* No player under the drawing: a click (or Enter/Space) on the desk pauses it and starts it again. */}
+      {/* No player under the drawing: a click on the desk itself (or Enter/Space) pauses it and starts it again. */}
       <div
         ref={ref}
         className="desk-hero iso cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--focus)]"
@@ -293,15 +316,28 @@ export function DeskHero() {
         tabIndex={0}
         aria-pressed={still ? undefined : paused}
         aria-label={`${h.deskLabel} ${still ? '' : paused ? h.heroPlay : h.heroPause}`.trim()}
-        onClick={toggle}
+        onClick={onClick}
+        onMouseMove={onMove}
+        onMouseLeave={() => setTip(null)}
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
             toggle();
+          } else if (e.key.length === 1 && !e.metaKey && !e.ctrlKey && !e.altKey) {
+            actions.current?.type(e.key);
           }
         }}
         dangerouslySetInnerHTML={{ __html: DESK_SVG }}
       />
+      {tip && (
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute z-10 -translate-x-1/2 whitespace-nowrap rounded-sm bg-[var(--ink)] px-2 py-1 font-mono text-[11px] leading-none text-[var(--paper)]"
+          style={{ left: tip.x, top: tip.y - 30 }}
+        >
+          {h.deskHits[tip.hit]}
+        </span>
+      )}
     </div>
   );
 }

@@ -172,6 +172,7 @@ export const nl: Messages = {
     heroPlay: 'Afspelen',
     heroCaption: 'Gezichten van oude bankbiljetten, als cv',
     deskLabel: 'Een bureau uit 1984: het toetsenbord typt een cv op het scherm, de muis klikt op Afdrukken en de printer legt een kopie op een stapel cv’s.',
+    deskHits: { computer: 'Volgend cv', printer: 'Nu afdrukken', mouse: 'Op Afdrukken klikken', pile: 'Stapel leegmaken', keys: 'Typen op het toetsenbord' },
   },
   library: {
     title: 'Mijn cv’s',

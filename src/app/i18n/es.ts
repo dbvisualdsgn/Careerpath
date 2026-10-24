@@ -172,6 +172,7 @@ export const es: Messages = {
     heroPlay: 'Reanudar',
     heroCaption: 'Rostros de billetes antiguos, en CV',
     deskLabel: 'Un escritorio de 1984: el teclado escribe un CV en la pantalla, el ratón pulsa Imprimir y la impresora añade una copia a una pila de CV.',
+    deskHits: { computer: 'Siguiente CV', printer: 'Imprimir ahora', mouse: 'Pulsar Imprimir', pile: 'Vaciar la pila', keys: 'Escribir en el teclado' },
   },
   library: {
     title: 'Mis CV',

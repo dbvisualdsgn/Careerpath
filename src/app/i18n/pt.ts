@@ -172,6 +172,7 @@ export const pt: Messages = {
     heroPlay: 'Retomar',
     heroCaption: 'Rostos de notas antigas, em CV',
     deskLabel: 'Uma secretária de 1984: o teclado escreve um CV no ecrã, o rato clica em Imprimir e a impressora junta uma cópia a uma pilha de CV.',
+    deskHits: { computer: 'Próximo CV', printer: 'Imprimir agora', mouse: 'Clicar em Imprimir', pile: 'Esvaziar a pilha', keys: 'Escrever no teclado' },
   },
   library: {
     title: 'Os meus CV',

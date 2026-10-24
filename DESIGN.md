@@ -120,15 +120,16 @@ Motion is allowed only where it helps reading, and it never hides content for lo
   a row becomes the still, scrollable row and the focused card scrolls into view.
 - **Hero desk:** an isometric desk from 1984 drawn with the Anatomy kit (`scripts/desk-hero/build.mjs`, run
   `npm run hero` after a change; it writes `src/home/desk/deskFigure.ts`). A computer, keyboard, mouse on its
-  pad, a cup of coffee with live steam, a pen holder (pencil, ballpoint, black fineliner, yellow highlighter)
-  and a printer. The keyboard types a CV onto the screen (people from pre-euro banknotes: Curie, Gauss,
+  pad and a printer, nothing else on the desk. The keyboard types a CV onto the screen (people from pre-euro banknotes: Curie, Gauss,
   Volta, Sax, Eiffel), Share · PDF · Print appear, the pointer goes to Print and the mouse moves with it, Print
   turns highlight yellow, the printer's light blinks in the highlight yellow and a sheet feeds out onto the
   tray; five CVs make an uneven pile, then it clears and starts again. Colours are the site's own: tops on
   `--panel`, sides stepping from `--paper` to `--ink`, lines in `--ink`, `--ink-soft` and `--rule`, and the
-  highlight yellow as the only accent (`desk.css`), so the desk follows the Light panel. Round things (cup,
-  saucer, pen holder, pens) are flat outline shapes in one fill, like the rest of the desk, never smooth-shaded. There is no player
-  under it: a click, Enter or Space on the desk pauses and resumes it (WCAG 2.2.2); under reduced motion it is
+  highlight yellow as the only accent (`desk.css`), so the desk follows the Light panel. Every object
+  (`data-hit`) answers a click and shows a short hint under the pointer, its tops warming toward the
+  highlight: the computer moves to the next CV, the printer or the mouse prints now, the pile clears, a key
+  presses (and the real keys press their key while the desk has focus). There is no player under it: a
+  click on the bare desk, Enter or Space pauses and resumes it (WCAG 2.2.2); under reduced motion it is
   still, one CV on screen and three on the pile. `node .claude/skills/anatomy/scripts/lines.mjs` on the page
   written with `--page=` must print `line ends: 0`.
 - **Why page documents:** Amara Okafor (an example CV) has a passport, a driving licence and a CV
