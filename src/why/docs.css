@@ -1,0 +1,70 @@
+@import '../app/iso/site.css';
+
+/* Why page: passport, licence and CV as isometric scenes drawn with the Anatomy kit (scripts/desk-hero/docs.mjs).
+   Every moving part is drawn where its story ends, which is what reduced motion shows; with motion, each loop
+   starts when the row is seen and stops with the page's Pause button. Same 7s loop as before. */
+.doc-art .doc-ink { fill: var(--ink); }
+.doc-art .doc-on-ink { fill: var(--paper); }
+.doc-art .doc-on-hl { fill: #111111; }
+.doc-art .doc-title { font-family: var(--font-title); letter-spacing: -0.01em; }
+.doc-art .doc-hl { fill: var(--highlight); }
+.doc-art .doc-shadow { fill: var(--ink); opacity: 0.1; }
+.doc-art .doc-roof { fill: var(--anatomy-shade-2); }
+.doc-art .doc-road > .iso-top { fill: var(--anatomy-shade-1); }
+.doc-art .doc-cover > .iso-top, .doc-art .doc-cover > .iso-shade { fill: color-mix(in srgb, var(--ink) 82%, var(--paper)); }
+.doc-art .doc-stamp-solid > .iso-top, .doc-art .doc-hl-solid > .iso-top, .doc-art .doc-goal .iso-top { fill: var(--highlight); }
+.doc-art .doc-stamp-solid > .iso-shade, .doc-art .doc-hl-solid > .iso-shade { fill: color-mix(in srgb, var(--highlight) 72%, var(--ink)); }
+.doc-art .doc-check { fill: none; stroke: var(--ink); stroke-width: 1.6px; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.doc-art .doc-mark { transform-box: fill-box; transform-origin: 0 50%; }
+
+@media (prefers-reduced-motion: no-preference) {
+  /* The plane and the car: in from the start of the route, then wait at the end. */
+  @keyframes doc-ride {
+    0% { translate: var(--from); opacity: 0; }
+    4% { opacity: 1; }
+    35% { translate: 0 0; }
+    90% { translate: 0 0; opacity: 1; }
+    97%, 100% { translate: 0 0; opacity: 0; }
+  }
+  /* The plane climbs off the runway and comes down at the other end. */
+  @keyframes doc-arc {
+    0%, 4% { translate: 0 0; }
+    13%, 24% { translate: var(--up); }
+    34%, 100% { translate: 0 0; }
+  }
+  /* What it is all for: the stamp, then the calendar, lands from above. */
+  @keyframes doc-drop {
+    0%, 36% { translate: var(--up); opacity: 0; }
+    42% { translate: 0 0; opacity: 1; }
+    90% { opacity: 1; }
+    97%, 100% { translate: 0 0; opacity: 0; }
+  }
+  @keyframes doc-goal {
+    0%, 34% { fill: var(--anatomy-top); }
+    38%, 90% { fill: var(--highlight); }
+    97%, 100% { fill: var(--anatomy-top); }
+  }
+  @keyframes doc-mark {
+    0%, 8% { scale: 0 1; }
+    30%, 92% { scale: 1 1; }
+    98%, 100% { scale: 0 1; }
+  }
+  @keyframes doc-sweep {
+    0% { translate: var(--from); opacity: 0; }
+    4%, 8% { translate: var(--from); opacity: 1; }
+    30% { translate: 0 0; }
+    90% { translate: 0 0; opacity: 1; }
+    97%, 100% { translate: 0 0; opacity: 0; }
+  }
+  .docs .doc-anim, .docs .doc-goal .iso-top {
+    animation: 7s cubic-bezier(0.45, 0, 0.55, 1) var(--doc-delay, 0s) infinite both paused;
+  }
+  .docs .doc-ride { animation-name: doc-ride; }
+  .docs .doc-arc { animation-name: doc-arc; }
+  .docs .doc-drop { animation-name: doc-drop; }
+  .docs .doc-goal { animation: none; }
+  .docs .doc-goal .iso-top { animation-name: doc-goal; }
+  .docs .doc-mark { animation-name: doc-mark; }
+  .docs .doc-sweep { animation-name: doc-sweep; }
+  .docs.is-in .doc-anim, .docs.is-in .doc-goal .iso-top { animation-play-state: running; }
+}

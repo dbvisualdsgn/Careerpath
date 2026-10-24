@@ -1,0 +1,28 @@
+@import './iso.css';
+
+/* The Anatomy kit's light theme in the site's colour system: tops are the panel, the desk is the page's
+   paper, sides step from paper toward ink, and every line is the site's ink, soft ink or rule. The only
+   colours are the site's own accents: the highlight yellow and the ink. It follows the Light panel too. Used by
+   the homepage desk and the Why page's documents. */
+.iso-site.iso[data-theme='light'] {
+  --anatomy-page: var(--paper);
+  --anatomy-card: transparent;
+  --anatomy-paper: var(--paper);
+  --anatomy-face: var(--panel);
+  --anatomy-top: var(--panel);
+  --anatomy-shade-0: color-mix(in srgb, var(--paper) 78%, var(--ink));
+  --anatomy-shade-1: color-mix(in srgb, var(--paper) 85%, var(--ink));
+  --anatomy-shade-2: color-mix(in srgb, var(--paper) 91%, var(--ink));
+  --anatomy-shade-3: var(--paper);
+  --anatomy-lit-top: var(--panel);
+  --anatomy-lit-shade: var(--paper);
+  --anatomy-hi: var(--ink);
+  --anatomy-mid: var(--ink);
+  --anatomy-lo: var(--ink-soft);
+  --anatomy-faint: var(--rule);
+  --anatomy-lit: var(--ink);
+  --anatomy-halo: var(--ink);
+  --anatomy-halo-opacity: 0.12;
+  --anatomy-dot: var(--ink);
+  --anatomy-mono: var(--font-mono);
+}

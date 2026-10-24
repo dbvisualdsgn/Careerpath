@@ -310,7 +310,7 @@ export function DeskHero() {
       {/* No player under the drawing: a click on the desk itself (or Enter/Space) pauses it and starts it again. */}
       <div
         ref={ref}
-        className="desk-hero iso cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--focus)]"
+        className="desk-hero iso iso-site cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--focus)]"
         data-theme="light"
         role="button"
         tabIndex={0}

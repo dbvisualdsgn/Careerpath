@@ -9,7 +9,7 @@
     "prebuild": "node scripts/generate-icon-catalog.mjs",
     "build": "vite build",
     "icons": "node scripts/generate-brand-icons.mjs && node scripts/generate-icon-catalog.mjs",
-    "hero": "node scripts/desk-hero/build.mjs",
+    "hero": "node scripts/desk-hero/build.mjs && node scripts/desk-hero/docs.mjs",
     "test": "vitest run"
   },
   "dependencies": {
