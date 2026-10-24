@@ -118,12 +118,15 @@ Motion is allowed only where it helps reading, and it never hides content for lo
 - **Example CV gallery (homepage):** two rows of example CVs drift slowly in opposite directions (90s per
   loop). They stop on hover, on keyboard focus and with the Pause button (WCAG 2.2.2). With keyboard focus
   a row becomes the still, scrollable row and the focused card scrolls into view.
-- **Hero cards:** 5 short CVs of people from pre-euro banknotes (Marie Curie, Carl Friedrich Gauss,
-  Alessandro Volta, Adolphe Sax, Gustave Eiffel), one at a time (`src/home/PageSpecimen.tsx`). Each sits on a
-  paper from the site's light scale (cool to warm) or on the highlight yellow, and has a title font chosen for the person; types itself, then the recruiter check pops over
-  it; after a hold the next one comes. Previous, Pause and Next buttons sit under the card (WCAG 2.2.2). Under
-  reduced motion each card shows finished and nothing rotates. Ink is always #111111 and soft text comes
-  from the paper scale (7:1 or more).
+- **Hero desk:** an isometric desk from 1984 drawn with the Anatomy kit (`scripts/desk-hero/build.mjs`, run
+  `npm run hero` after a change; it writes `src/home/desk/deskFigure.ts`). A computer, keyboard, mouse on its
+  pad, a cup of coffee and a printer. The keyboard types a CV onto the screen (people from pre-euro banknotes:
+  Curie, Gauss, Volta, Sax, Eiffel), Share · PDF · Print appear, the pointer and the mouse go to Print, the
+  printer's light turns green and a sheet feeds out of the slot onto the tray; five CVs make an uneven pile,
+  then it clears and starts again. Every tone is a mix of the site's `--paper` and `--ink` (`desk.css`), so the
+  desk follows the Light panel. A Pause button sits under it (WCAG 2.2.2); under reduced motion it is still,
+  one CV on screen and three on the pile. `node .claude/skills/anatomy/scripts/lines.mjs` on the page written
+  with `--page=` must print `line ends: 0`.
 - **Why page documents:** Amara Okafor (an example CV) has a passport, a driving licence and a CV
   (`src/why/Documents.tsx`). In a 7s loop a plane flies to Rome and a yellow entry stamp lands, a car
   drives to the hospital and it lights up, a result on the CV is highlighted and an interview invitation
