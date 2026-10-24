@@ -133,10 +133,13 @@ Motion is allowed only where it helps reading, and it never hides content for lo
   still, one CV on screen and three on the pile. `node .claude/skills/anatomy/scripts/lines.mjs` on the page
   written with `--page=` must print `line ends: 0`.
 - **Why page documents:** Amara Okafor (an example CV) has a passport, a driving licence and a CV
-  (`src/why/Documents.tsx`). In a 7s loop a plane flies to Rome and a yellow entry stamp lands, a car
-  drives to the hospital and it lights up, a result on the CV is highlighted and an interview invitation
-  appears. The resting state is the end of each story, which is what reduced motion shows. A ticker of the
-  same words drifts above them. One Pause button stops both (WCAG 2.2.2).
+  (`src/why/Documents.tsx`), each an isometric scene on a small plate drawn with the Anatomy kit like the
+  hero desk (`scripts/desk-hero/docs.mjs`, run `npm run hero`; it writes `src/why/docsFigures.ts`). In a 7s
+  CSS loop (`src/why/docs.css`) a plane flies MAN → FCO, the tower lights up and a yellow entry stamp lands;
+  a car drives from a house to the hospital and its roof cross lights up; a highlighter marks a result on
+  the CV and a desk calendar with the interview drops in (its words come from the i18n strings). Each moving
+  part is drawn where its story ends, which is what reduced motion shows. A ticker of the same words drifts
+  above them. One Pause button stops both (WCAG 2.2.2).
 - **Example CV cards** (homepage gallery, /people/) are small sheets in the current template
   (`src/app/components/CVCard.tsx`): the same sheet without a fill of its own, avatar on the left or nothing. About 60% of the examples
   show nothing next to the name, 30% initials and 10% a photo (`src/app/cv/people.ts`).
