@@ -272,17 +272,17 @@ function mouse() {
 // class] bands along the axis, so a pen is built like a real one: barrel, grip, cap, tip.
 function pen(base, dir, parts, cls) {
   const F = G.frameAlong(base, dir);
-  return `<g class="${cls}">${parts.map(([a, b, r0, r1 = r0]) => S(G.solidOf([[a, r0, 1], [b, r1, 1]], F, P, { steps: 16 }), { tone: "mid" })).join("")}</g>`;
+  return `<g class="${cls}">${parts.map(([a, b, r0, r1 = r0]) => S(G.solidOf([[a, r0, 1], [b, r1, 1]], F, P, { steps: 16 }), { tone: "mid", flat: true, crease: "none" })).join("")}</g>`;
 }
 function holder() {
   const { x, y, r, h } = HOLDER;
   const out = [`<path class="iso-halo" d="${k.haloOf({ x: x - r, y: y - r, w: 2 * r, d: 2 * r, r }, 0, 3, P)}"/>`];
   // Base ring, body, and the dark opening on top.
-  out.push(S(G.solidOf([[0, r + 1.2, 1], [1.4, r + 1.2, 1]], G.frameAlong([x, y, 0], [0, 0, 1]), P), { tone: "lo" }));
-  out.push(S(G.solidOf([[1.4, r, 1], [h, r, 1]], G.frameAlong([x, y, 0], [0, 0, 1]), P), { tone: "mid" }));
+  out.push(S(G.solidOf([[0, r + 1.2, 1], [1.4, r + 1.2, 1]], G.frameAlong([x, y, 0], [0, 0, 1]), P), { tone: "mid", flat: true, crease: "none" }));
+  out.push(S(G.solidOf([[1.4, r, 1], [h, r, 1]], G.frameAlong([x, y, 0], [0, 0, 1]), P), { tone: "mid", flat: true, crease: "none" }));
   const opening = k.onTop(k.circleRing(x, y, r - 1.2, 48), h, P, true);
   out.push(`<path class="dk-hole" d="${opening}"/>`);
-  out.push(L(k.ring(x, y, r - 1.2, h, P, 48), { tone: "lo" }));
+  out.push(L(k.ring(x, y, r - 1.2, h, P, 48), { tone: "mid", flat: true, crease: "none" }));
   // The pens show above the rim and through the opening, never through the holder's wall.
   const wall = [];
   for (let i = 0; i < 48; i++) {
@@ -302,7 +302,8 @@ function holder() {
   ];
 
   out.push(`${mask}<g mask="url(#dk-pen-mask)">${pens.join("")}</g>`);
-  return out.join("");
+  // Flat outline style, like the rest of the desk: one tone per face, no smooth sheen (desk.css, .dk-flat).
+  return `<g class="dk-flat">${out.join("")}</g>`;
 }
 
 // ---- Coffee ----
@@ -310,7 +311,7 @@ function coffee() {
   const out = [];
   const { x, y } = CUP;
   out.push(`<path class="iso-halo" d="${k.haloOf({ x: x - 18, y: y - 18, w: 36, d: 36, r: 18 }, 0, 3, P)}"/>`);
-  out.push(S(k.cylinder(x, y, 18, 0, 1.4, P, 40, 0.4), { tone: "lo" }));
+  out.push(S(k.cylinder(x, y, 18, 0, 1.4, P, 40, 0.4), { tone: "mid", flat: true, crease: "none" }));
   out.push(L(k.ring(x, y, 12.4, 1.4, P, 40), { tone: "faint" }));
   // The handle stands in the plane of the cup's axis, on the side facing right; two faces give it thickness.
   const handle = (dy) => {
@@ -320,12 +321,12 @@ function coffee() {
   out.push(handle(-1.4));
   out.push(handle(1.4));
   // The mug tapers a little toward its foot; smooth knots shade it as one curved surface.
-  out.push(S(G.solidOf([[1.4, 9.6, 1], [3, 10.1, 1], [16.4, 10.6, 1]], G.frameAlong([x, y, 0], [0, 0, 1]), P), { tone: "mid" }));
+  out.push(S(G.solidOf([[1.4, 9.6, 1], [3, 10.1, 1], [16.4, 10.6, 1]], G.frameAlong([x, y, 0], [0, 0, 1]), P), { tone: "mid", flat: true, crease: "none" }));
   out.push(`<path class="dk-coffee" d="${k.onTop(k.circleRing(x, y, 9.4, 48), 16.4, P, true)}"/>`);
-  out.push(L(k.ring(x, y, 9.4, 16.4, P, 48), { tone: "lo" }));
+  out.push(L(k.ring(x, y, 9.4, 16.4, P, 48), { tone: "mid", flat: true, crease: "none" }));
   // Steam: the live code draws two rising wisps here, as short segments whose opacity fades in and out.
   out.push(`<g data-part="steam">${Array.from({ length: 2 * STEAM_SEGS }, () => `<path class="iso-line dk-steam" data-tone="lo" d=""/>`).join("")}</g>`);
-  return out.join("");
+  return `<g class="dk-flat">${out.join("")}</g>`;
 }
 
 // ---- Printer ----

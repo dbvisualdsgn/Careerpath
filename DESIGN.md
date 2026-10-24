@@ -126,7 +126,8 @@ Motion is allowed only where it helps reading, and it never hides content for lo
   turns highlight yellow, the printer's light blinks in the highlight yellow and a sheet feeds out onto the
   tray; five CVs make an uneven pile, then it clears and starts again. Colours are the site's own: tops on
   `--panel`, sides stepping from `--paper` to `--ink`, lines in `--ink`, `--ink-soft` and `--rule`, and the
-  highlight yellow as the only accent (`desk.css`), so the desk follows the Light panel. There is no player
+  highlight yellow as the only accent (`desk.css`), so the desk follows the Light panel. Round things (cup,
+  saucer, pen holder, pens) are flat outline shapes in one fill, like the rest of the desk, never smooth-shaded. There is no player
   under it: a click, Enter or Space on the desk pauses and resumes it (WCAG 2.2.2); under reduced motion it is
   still, one CV on screen and three on the pile. `node .claude/skills/anatomy/scripts/lines.mjs` on the page
   written with `--page=` must print `line ends: 0`.

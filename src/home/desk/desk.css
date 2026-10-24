@@ -51,18 +51,12 @@
 .desk-hero [data-part='power'][data-on] .iso-top, .desk-hero [data-part='power'][data-on] .iso-shade { fill: var(--highlight); }
 .desk-hero .dk-steam { stroke-width: 1px; stroke-linecap: round; }
 .desk-hero .dk-hole { fill: color-mix(in srgb, var(--paper) 55%, var(--ink)); }
-/* Pens: the fineliner is ink, the highlighter is the site's yellow, the pencil and ballpoint stay paper. */
-.desk-hero .dk-black .iso-top, .desk-hero .dk-black .iso-fill { fill: color-mix(in srgb, var(--ink) 80%, var(--paper)); }
-.desk-hero .dk-black .iso-shade[data-shade='3'] { fill: color-mix(in srgb, var(--ink) 84%, var(--paper)); }
-.desk-hero .dk-black .iso-shade[data-shade='2'] { fill: color-mix(in srgb, var(--ink) 89%, var(--paper)); }
-.desk-hero .dk-black .iso-shade[data-shade='1'] { fill: color-mix(in srgb, var(--ink) 94%, var(--paper)); }
-.desk-hero .dk-black .iso-shade[data-shade='0'] { fill: var(--ink); }
-/* Each shade is one step darker, so the round barrel reads as one smooth curve. */
-.desk-hero .dk-marker .iso-top, .desk-hero .dk-marker .iso-fill { fill: var(--highlight); }
-.desk-hero .dk-marker .iso-shade[data-shade='3'] { fill: color-mix(in srgb, var(--highlight) 96%, var(--ink)); }
-.desk-hero .dk-marker .iso-shade[data-shade='2'] { fill: color-mix(in srgb, var(--highlight) 91%, var(--ink)); }
-.desk-hero .dk-marker .iso-shade[data-shade='1'] { fill: color-mix(in srgb, var(--highlight) 86%, var(--ink)); }
-.desk-hero .dk-marker .iso-shade[data-shade='0'] { fill: color-mix(in srgb, var(--highlight) 80%, var(--ink)); }
+/* Round things (cup, saucer, pen holder, pens) in the desk's flat outline style: one side tone, a panel top,
+   ink outlines, no smooth sheen or facet creases. */
+.desk-hero .dk-flat .iso-fill { fill: var(--paper); }
+.desk-hero .dk-flat .dk-pencil .iso-fill, .desk-hero .dk-flat .dk-biro .iso-fill { fill: var(--panel); }
+.desk-hero .dk-flat .dk-black .iso-fill { fill: var(--ink); }
+.desk-hero .dk-flat .dk-marker .iso-fill { fill: var(--highlight); }
 .desk-hero [data-pile] { transition: opacity 0.6s var(--anatomy-ease); }
 
 @keyframes dk-blink { 50% { opacity: 0; } }
